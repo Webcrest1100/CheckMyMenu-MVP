@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>TypeError: Cannot destructure property &#39;email&#39; of &#39;req.body&#39; as it is undefined.<br> &nbsp; &nbsp;at exports.login (/Users/macair/Downloads/menu digital 2/backend/controllers/authController.js:30:11)<br> &nbsp; &nbsp;at Layer.handleRequest (/Users/macair/Downloads/menu digital 2/backend/node_modules/router/lib/layer.js:152:17)<br> &nbsp; &nbsp;at next (/Users/macair/Downloads/menu digital 2/backend/node_modules/router/lib/route.js:157:13)<br> &nbsp; &nbsp;at Route.dispatch (/Users/macair/Downloads/menu digital 2/backend/node_modules/router/lib/route.js:117:3)<br> &nbsp; &nbsp;at handle (/Users/macair/Downloads/menu digital 2/backend/node_modules/router/index.js:435:11)<br> &nbsp; &nbsp;at Layer.handleRequest (/Users/macair/Downloads/menu digital 2/backend/node_modules/router/lib/layer.js:152:17)<br> &nbsp; &nbsp;at /Users/macair/Downloads/menu digital 2/backend/node_modules/router/index.js:295:15<br> &nbsp; &nbsp;at processParams (/Users/macair/Downloads/menu digital 2/backend/node_modules/router/index.js:582:12)<br> &nbsp; &nbsp;at next (/Users/macair/Downloads/menu digital 2/backend/node_modules/router/index.js:291:5)<br> &nbsp; &nbsp;at Function.handle (/Users/macair/Downloads/menu digital 2/backend/node_modules/router/index.js:186:3)</pre>
+</body>
+</html>

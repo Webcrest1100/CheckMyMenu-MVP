@@ -1,0 +1,28 @@
+Light Theme
+body.light-theme {
+  background-color: #F8F9FA;
+  color: #343A40;
+} */
+
+Dark Theme
+body.dark-theme {
+  background-color: #1E2A38;
+  color: #F8F9FA; 
+}
+
+a, button {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+*{
+  padding: 0px;
+  margin: 0px;
+} 
+
+element.style {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: rgb(248, 249, 250);
+    min-height: 100vh;
+    padding: 0px !important;
+    box-sizing: border-box;
+    color: rgb(52, 58, 64);
+}

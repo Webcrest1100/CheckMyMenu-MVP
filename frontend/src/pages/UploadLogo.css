@@ -1,0 +1,135 @@
+.upload-logo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.logo-circle {
+  width: 35%;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px dashed #ccc;
+  background-color: #f8f8f8;
+ 
+  align-items: start;
+  justify-content: start;
+  cursor: pointer;
+  overflow: hidden;
+  transition: 0.2s;
+}
+
+.logo-circle:hover {
+  border-color: #007bff;
+}
+
+.logo-placeholder {
+  font-size: 40px;
+  color: #aaa;
+}
+
+.logo-image {
+  width: 70%;
+  height: 70%;
+  object-fit: cover;
+}
+
+.modal-overla111 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-boax {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 300px;
+}
+
+
+
+.upload-logo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.logo-circle {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  border: 2px dashed #ccc;
+  /* background-color: transparent; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: 0.2s;
+}
+
+.logo-placeholder {
+  font-size: 40px;
+  color: #aaa;
+  width: 100% !important; 
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.delete-logo-btn {
+  position: absolute;
+  top: -36px;
+  right: 30px;
+  font-size: 28px !important;
+  /* background: transparent; */
+  color: black;
+  border: none;
+  border-radius: 50%;
+  font-size: 30px;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  z-index: 10;
+  transition: 0.2s;
+}
+
+.delete-logo-btn:hover {
+  /* background: transparent !important; */
+  color: black;
+}
+button:hover{
+   /* background-color: transparent !important; */
+  color: rgb(255, 255, 255);
+}
+
+.modal-overla111 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+}

@@ -1,0 +1,208 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+
+form {
+  max-width: 400px;
+  /* margin: 40px auto; */
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+    font-family: 'Montserrat';
+    overflow-x: hidden;
+  
+    
+}
+
+input {
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #f5c56a;
+}
+
+button {
+  padding: 12px 16px;
+  background: #FFC107 ;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+   color: rgb(255, 255, 255);
+  font-weight: 550;
+  font-family: Montserrat;
+}
+
+
+button:hover {
+  background-color: #1E2A38 !important;
+  transform: translateY(-2px);
+  color: white;
+}
+
+p {
+  text-align: center;
+}
+
+h1 {
+    /* text-align: center;
+    font-size: 2px; */
+
+    
+    text-align: center;
+    font-size: 5rem;
+    font-weight: 700;
+
+   
+}
+
+ /* General layout for the login page */
+.login-page {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593);
+}
+
+/* Left Side - Image */
+.login-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+}
+.login-image img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Right Side - Form */
+.login-form {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.login-form form {
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.login-form h1 {
+  text-align: center;
+  margin-bottom: 24px;
+  
+  
+}
+
+.login-form button {
+  padding: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  .login-image {
+    display: none; /* Hide the image on smaller screens for responsiveness */
+  }
+}
+
+
+.home{
+  background: #ffff;
+  padding-top: 20px;
+  padding-bottom: 20px;
+ 
+  
+}
+/* .black {
+  background: #000000;
+  width: 50%;
+ 
+} */
+/* .log {
+  font-size: 50px;
+  font-family: monospace;
+  padding: 0px;
+  margin-top: 0px;
+  margin: 0px;
+  font-weight: bold;
+} */
+.black {
+  background: #000000;
+  width: 50%;           /* Maintain the desired width */
+  display: block;       /* Ensure it's treated as a block element */
+  margin: 0 auto;       /* Centers the element horizontally */
+  padding: 0;
+}
+
+.log{
+  text-align: center;
+    font-size: 5rem;
+    font-weight: 700;
+}
+/* Full-screen loading overlay */
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffff;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Spinner */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 6px solid #ccc;
+  border-top: 6px solid #4a90e2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Spinner animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.logo-loader{
+  background: black;
+}
