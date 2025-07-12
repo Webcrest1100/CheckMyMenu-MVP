@@ -19,9 +19,9 @@
 // } from "react-icons/fa";
 // import { ToastContainer, toast } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
-// import "./Menu.css";
+// import "./Template7.css";
 
-// export default function Template9() {
+// export default function Template7() {
 //   const { dark } = useTheme();
 //   const [menuItems, setMenuItems] = useState([]);
 //   const [showAddModal, setShowAddModal] = useState(false);
@@ -51,7 +51,6 @@
 //   const restaurantId = localStorage.getItem("restaurantId");
 //   const token = localStorage.getItem("token");
 //   const [expandedCard, setExpandedCard] = useState(null);
-//   const [hoveredCard, setHoveredCard] = useState(null);
 
 //   useEffect(() => {
 //     const fetchMenuItems = async () => {
@@ -234,63 +233,128 @@
 
 //   const handleDownloadPDF = async (item) => {
 //     const doc = new jsPDF("p", "pt", "a4");
-//     const pagePadding = 40;
-//     const imageUrl = item.imageUrl?.startsWith("http")
-//       ? item.imageUrl
-//       : `http://localhost:5000${item.imageUrl}`;
+
+//     const padding = 40;
+//     const cardHeight = 400;
+//     const cardY = 100;
+//     const pageWidth = doc.internal.pageSize.getWidth();
+//     const cardWidth = pageWidth - padding * 2;
+//     const cardX = padding;
+
+//     const imageWidth = cardWidth * 0.45;
+//     const imageHeight = 160;
+
+//     const contentX = cardX + 20;
+//     let contentY = cardY + imageHeight + 60;
 
 //     try {
-//       const bgDataUrl = await convertImageToDataURL(imageUrl);
-//       const pageWidth = doc.internal.pageSize.getWidth();
-//       const pageHeight = doc.internal.pageSize.getHeight();
+//       // Convert image and QR
+//       const imageUrl = item.imageUrl.startsWith("http")
+//         ? item.imageUrl
+//         : `http://localhost:5000${item.imageUrl}`;
+//       const imgData = await convertImageToDataURL(imageUrl);
 
-//       doc.addImage(bgDataUrl, "JPEG", 0, 0, pageWidth, pageHeight);
-//       doc.setFillColor(0, 0, 0);
-//       doc.setDrawColor(0, 0, 0);
-//       doc.setGState(new doc.GState({ opacity: 0.7 }));
-//       doc.rect(0, 0, pageWidth, pageHeight, "F");
-//       doc.setGState(new doc.GState({ opacity: 1 }));
-
-//       let y = pagePadding + 20;
-//       doc.setFont("helvetica", "bold");
-//       doc.setFontSize(26);
-//       doc.setTextColor(255, 255, 255);
-//       doc.text(item.name, pagePadding, y + 85);
-
-//       const qrElement = document.getElementById(`qr-${item._id}`);
-//       if (qrElement) {
-//         const qrImg = await convertSVGToPNG(qrElement);
-//         doc.addImage(qrImg, "PNG", pageWidth - pagePadding - 100, y, 100, 100);
+//       const qrElement = document.getElementById(`qr-hidden-${item._id}`);
+//       if (!qrElement) {
+//         toast.error("QR code not found in DOM");
+//         return;
 //       }
+//       const qrImg = await convertSVGToPNG(qrElement);
 
-//       y += 120;
-//       doc.setDrawColor(200);
+//       // 🟨 Page background
+//       doc.setFillColor(34, 34, 34); // dark background
+//       doc.rect(0, 0, pageWidth, doc.internal.pageSize.getHeight(), "F");
+
+//       // 🟦 Zigzag Card Shape (top and bottom)
+//       drawZigzagCard(doc, cardX, cardY, cardWidth, cardHeight, 12);
+
+//       // 🖼️ Image at top
+//       doc.addImage(
+//         imgData,
+//         "JPEG",
+//         cardX + 10,
+//         cardY + 10,
+//         cardWidth - 20,
+//         imageHeight
+//       );
+
+//       // 🔳 QR Code
+//       doc.addImage(
+//         qrImg,
+//         "PNG",
+//         cardX + cardWidth - 90,
+//         cardY + imageHeight + 20,
+//         70,
+//         70
+//       );
+
+//       // 📝 Name
+//       doc.setFont("times", "bold");
+//       doc.setFontSize(26);
+//       doc.setTextColor(35, 35, 85);
+//       doc.text(item.name, contentX, contentY);
+
+//       // 📂 Category + 💲 Price
+//       contentY += 30;
+//       doc.setFont("helvetica", "normal");
+//       doc.setFontSize(16);
+//       doc.setTextColor(85, 85, 85);
+//       doc.text(`Category: ${item.category}`, contentX, contentY);
+
+//       doc.setTextColor(40, 167, 69); // Emerald green
+//       doc.text(`$${item.price.toFixed(2)}`, contentX + 200, contentY);
+
+//       // ─ Divider line
+//       contentY += 20;
+//       doc.setDrawColor(180);
 //       doc.setLineWidth(1);
-//       doc.line(pagePadding, y, pagePadding + 520, y);
-//       y += 20;
+//       doc.line(contentX, contentY, cardX + cardWidth - 20, contentY);
 
-//       doc.setFontSize(14);
-//       doc.setTextColor(255);
-//       doc.text(`Category: ${item.category}`, pagePadding, y);
-//       doc.setTextColor(40, 255, 69);
-//       doc.text(`Price: $${item.price.toFixed(2)}`, pagePadding + 350, y);
-//       y += 30;
+//       // 🧾 Description
+//       contentY += 25;
+//       doc.setTextColor(68, 68, 68);
+//       const desc = item.description || "No description provided.";
+//       const wrappedText = doc.splitTextToSize(desc, cardWidth - 40);
+//       doc.text(wrappedText, contentX, contentY);
 
-//       doc.setDrawColor(200);
-//       doc.line(pagePadding, y, pagePadding + 520, y);
-//       y += 20;
-
-//       doc.setFontSize(12);
-//       doc.setTextColor(255);
-//       doc.text("Description:", pagePadding, y);
-//       const splitDesc = doc.splitTextToSize(item.description || "-", 500);
-//       doc.text(splitDesc, pagePadding, y + 20);
-
-//       doc.save(`${item.name}_menu_card.pdf`);
+//       // 💾 Save
+//       doc.save(`${item.name}_zigzag_card.pdf`);
 //     } catch (err) {
-//       console.error("Error generating PDF:", err);
+//       console.error("PDF generation failed:", err);
 //       toast.error("Failed to generate PDF");
 //     }
+//   };
+
+//   // 🔷 Zigzag Card Drawer
+//   const drawZigzagCard = (doc, x, y, width, height, zigzagHeight = 10) => {
+//     const spikes = Math.floor(width / (zigzagHeight * 2));
+//     const zigzagWidth = width / spikes;
+
+//     // Build top zigzag
+//     const topPath = [];
+//     let isPeak = true;
+//     for (let i = 0; i <= spikes; i++) {
+//       const xPos = x + i * zigzagWidth;
+//       const yPos = isPeak ? y : y + zigzagHeight;
+//       topPath.push([zigzagWidth, isPeak ? -zigzagHeight : zigzagHeight]);
+//       isPeak = !isPeak;
+//     }
+
+//     // Bottom zigzag
+//     const bottomPath = [];
+//     isPeak = true;
+//     for (let i = 0; i <= spikes; i++) {
+//       const xPos = x + i * zigzagWidth;
+//       const yPos = isPeak ? y + height : y + height - zigzagHeight;
+//       bottomPath.push([zigzagWidth, isPeak ? zigzagHeight : -zigzagHeight]);
+//       isPeak = !isPeak;
+//     }
+
+//     // Draw top
+//     doc.setFillColor(255, 255, 255);
+//     doc.rect(x, y + zigzagHeight, width, height - 2 * zigzagHeight, "F"); // Center body
+//     doc.lines(topPath, x, y + zigzagHeight, [1, 1], "F"); // Top zigzag
+//     doc.lines(bottomPath, x, y + height - zigzagHeight, [1, 1], "F"); // Bottom zigzag
 //   };
 
 //   const filteredItems = menuItems.filter((item) =>
@@ -310,11 +374,16 @@
 //       <Navbar />
 
 //       <main style={{ padding: "40px 20px" }}>
-//         <h2 style={{ textAlign: "center", color: dark ? "#fff" : "#343a40" }}>
+//         <h2
+//           style={{
+//             textAlign: "center",
+//             color: "#ffff",
+//             background: "#343434",
+//             paddingTop: "80px",
+//           }}
+//         >
 //           Menu Items
 //         </h2>
-
-//         {/* 🔍 Search Bar */}
 
 //         {filteredItems.length > 0 ? (
 //           <div
@@ -323,6 +392,8 @@
 //               alignItems: "center",
 //               justifyContent: "space-between",
 //               userSelect: "none",
+//               background: "#343434",
+//               paddingBottom: "80px",
 //             }}
 //           >
 //             {filteredItems.length >= 3 && (
@@ -344,164 +415,165 @@
 //                 gap: "20px",
 //                 cursor: isDragging ? "grabbing" : "grab",
 //                 padding: "10px",
-//                 background: "#000000",
 //               }}
 //             >
 //               {filteredItems.map((item) => (
-//                 <div
-//                   key={item._id}
-//                   className="menu-card"
-//                   onClick={() => toggleCardExpand(item._id)}
-//                   onMouseEnter={() => setHoveredCard(item._id)}
-//                   onMouseLeave={() => setHoveredCard(null)}
-//                   style={{
-//                     border: "1px solid #ccc",
-//                     overflow: "hidden",
-//                     padding: "35px",
-//                     marginBottom: "20px",
-//                     backgroundColor: "#fff",
-//                     boxShadow:
-//                       hoveredCard === item._id
-//                         ? "0 10px 20px rgba(0,0,0,0.2)"
-//                         : "0 2px 6px rgba(0,0,0,0.1)",
-//                     maxWidth: "400px",
-//                     cursor: "pointer",
-//                     position: "relative",
-//                     transition: "all 0.4s ease",
-//                     // transform:
-//                     //   hoveredCard === item._id ? "scale(1.05)" : "scale(1)",
-//                     // clipPath:
-//                     //   hoveredCard === item._id
-//                     //     ? "polygon(0% 0%, 100% 0%, 100% 100%, 0% 90%)"
-//                     //     : "polygon(10% 0%, 80% 0%, 100% 100%, 0% 90%)",
-//                   }}
-//                 >
-//                   <img
-//                     src={
-//                       item.imageUrl.startsWith("http")
-//                         ? item.imageUrl
-//                         : `http://localhost:5000${item.imageUrl}`
-//                     }
-//                     alt={item.name}
-//                     className="menu-img"
-//                     style={{
-//                       width: "100%",
-//                       height: "150px",
-//                       objectFit: "cover",
-//                       borderRadius: "8px",
-//                       marginBottom: "12px",
-//                     }}
-//                   />
-
-//                   {/* Row 1: Name + QR */}
+//                 <>
+//                   <div />
 //                   <div
+//                     className="menu-card menu-zigzag"
+//                     key={item._id}
+//                     onClick={() => toggleCardExpand(item._id)}
 //                     style={{
-//                       display: "flex",
-//                       justifyContent: "space-between",
-//                       alignItems: "center",
+//                       border: "1px solid #ccc",
+//                       borderRadius: "10px",
+//                       padding: "16px",
+//                       paddingBottom: "30px",
+//                       backgroundColor: "#fff",
+//                       boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+//                       maxWidth: "400px",
 //                       width: "100%",
-//                       marginBottom: "0px",
-//                       marginTop: "20px",
-//                     }}
-//                   >
-//                     <h4
-//                       style={{
-//                         margin: 0,
-//                         fontSize: "40px",
-//                         textAlign: "left",
-//                         alignSelf: "flex-end", // ensures heading sticks to top
-//                       }}
-//                     >
-//                       {item.name}
-//                     </h4>
-//                     <QRCode
-//                       id={`qr-${item._id}`}
-//                       size={80}
-//                       bgColor="white"
-//                       fgColor="black"
-//                       value={`${window.location.origin}/view/${restaurantId}/template9`}
-//                     />
-//                   </div>
-
-//                   {/* Divider */}
-//                   <div
-//                     style={{
-//                       width: "100%",
-//                       height: "2px",
-//                       backgroundColor: "#999", // darker than #ccc
-//                       margin: "10px 0",
-//                       borderRadius: "2px",
-//                     }}
-//                   />
-
-//                   {/* Row 2: Category + Price */}
-//                   <div
-//                     style={{
-//                       display: "flex",
-//                       justifyContent: "space-between",
-//                       alignItems: "center",
-//                       marginBottom: "10px",
-//                       marginTop: "0px",
-//                       gap: "100px",
-//                     }}
-//                   >
-//                     <p
-//                       style={{
-//                         margin: 0,
-//                         fontWeight: "bold",
-//                         color: "#555",
-//                       }}
-//                     >
-//                       Category: {item.category}
-//                     </p>
-//                     <strong style={{ color: "#28A745" }}>
-//                       ${item.price.toFixed(2)}
-//                     </strong>
-//                   </div>
-
-//                   {/* Divider */}
-//                   <div
-//                     style={{
-//                       width: "100%",
-//                       height: "2px",
-//                       backgroundColor: "#999", // darker than #ccc
-//                       marginBottom: "20px",
-//                       borderRadius: "2px",
-//                     }}
-//                   />
-
-//                   {/* Row 3: Description */}
-//                   <p style={{ marginBottom: "0px", color: "#444" }}>
-//                     {item.description}
-//                   </p>
-
-//                   <button
-//                     onClick={() => handleDownloadPDF(item)}
-//                     className="btn-download"
-//                     title="Download as PDF"
-//                     style={{
-//                       marginBottom: "0px",
-//                       backgroundColor: "#FFC107",
-//                       color: "#ffff",
-//                       padding: "5px",
-//                       border: "none",
-//                       borderRadius: "6px",
 //                       cursor: "pointer",
-//                       display: "flex",
-//                       alignItems: "center",
-//                       gap: "02px",
-//                       fontSize: "12px",
-//                       alignContent: "end",
-//                       justifyContent: "end",
-//                       marginTop: "30px",
+//                       transition: "all 0.3s ease",
+//                       transform:
+//                         expandedCard === item._id ? "scale(1.05)" : "scale(1)",
+//                       zIndex: expandedCard === item._id ? 10 : 1,
+//                       position: "relative",
+//                       ...(expandedCard === item._id && {
+//                         boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
+//                       }),
 //                     }}
 //                   >
-//                     <FaDownload /> Download PDF
-//                   </button>
-//                 </div>
+//                     <img
+//                       src={
+//                         item.imageUrl.startsWith("http")
+//                           ? item.imageUrl
+//                           : `http://localhost:5000${item.imageUrl}`
+//                       }
+//                       alt={item.name}
+//                       className="menu-img"
+//                       style={{
+//                         width: "100%",
+//                         height: "150px",
+//                         objectFit: "cover",
+//                         borderRadius: "8px",
+//                         marginBottom: "12px",
+//                       }}
+//                     />
+
+//                     {/* Row 1: Name + QR */}
+//                     <div
+//                       style={{
+//                         display: "flex",
+//                         justifyContent: "space-between",
+//                         alignItems: "center",
+//                         width: "100%",
+//                         marginBottom: "0px",
+//                         marginTop: "20px",
+//                       }}
+//                     >
+//                       <h4
+//                         style={{
+//                           margin: 0,
+//                           fontSize: "40px",
+//                           textAlign: "left",
+//                           alignSelf: "flex-end", // ensures heading sticks to top
+//                         }}
+//                       >
+//                         {item.name}
+//                       </h4>
+//                       <QRCode
+//                         id={`qr-hidden-${item._id}`}
+//                         size={80}
+//                         bgColor="white"
+//                         fgColor="black"
+//                         value={`${window.location.origin}/view/${restaurantId}/template7`}
+//                       />
+//                     </div>
+
+//                     {/* Divider */}
+//                     <div
+//                       style={{
+//                         width: "100%",
+//                         height: "2px",
+//                         backgroundColor: "#999", // darker than #ccc
+//                         margin: "10px 0",
+//                         borderRadius: "2px",
+//                       }}
+//                     />
+
+//                     {/* Row 2: Category + Price */}
+//                     <div
+//                       style={{
+//                         display: "flex",
+//                         justifyContent: "space-between",
+//                         alignItems: "center",
+//                         marginBottom: "10px",
+//                         marginTop: "0px",
+//                         gap: "100px",
+//                       }}
+//                     >
+//                       <p
+//                         style={{
+//                           margin: 0,
+//                           fontWeight: "bold",
+//                           color: "#555",
+//                         }}
+//                       >
+//                         Category: {item.category}
+//                       </p>
+//                       <strong style={{ color: "#28A745" }}>
+//                         ${item.price.toFixed(2)}
+//                       </strong>
+//                     </div>
+
+//                     {/* Divider */}
+//                     <div
+//                       style={{
+//                         width: "100%",
+//                         height: "2px",
+//                         backgroundColor: "#999", // darker than #ccc
+//                         marginBottom: "20px",
+//                         borderRadius: "2px",
+//                       }}
+//                     />
+
+//                     {/* Row 3: Description */}
+//                     <p style={{ marginBottom: "0px", color: "#444" }}>
+//                       {item.description}
+//                     </p>
+
+//                     <button
+//                       onClick={() => handleDownloadPDF(item)}
+//                       className="btn-download"
+//                       title="Download as PDF"
+//                       style={{
+//                         marginBottom: "0px",
+//                         backgroundColor: "#FFC107",
+//                         color: "#ffff",
+//                         padding: "5px",
+//                         border: "none",
+//                         borderRadius: "6px",
+//                         cursor: "pointer",
+//                         display: "flex",
+//                         alignItems: "center",
+//                         gap: "02px",
+//                         fontSize: "12px",
+//                         alignContent: "end",
+//                         justifyContent: "end",
+//                         marginTop: "30px",
+//                       }}
+//                     >
+//                       <FaDownload /> Download PDF
+//                     </button>
+
+//                     {/* PDF Download */}
+
+//                     {/* Edit / Delete Buttons */}
+//                   </div>
+//                 </>
 //               ))}
 //             </div>
-
 //             {filteredItems.length >= 3 && (
 //               <button className="scroll-button" onClick={scrollRightFn}>
 //                 →
@@ -745,7 +817,6 @@
 //     },
 //   };
 // }
-
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { api } from "../api";
@@ -757,9 +828,9 @@ import QRCode from "react-qr-code";
 import { FaFacebookF, FaTwitter, FaWhatsapp, FaInstagram, FaLinkedinIn, FaLink, FaEdit, FaTrash, FaDownload } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./Menu.css";
+import "./Template7.css";
 
-export default function Template9() {
+export default function Template7() {
   const { dark } = useTheme();
   const [menuItems, setMenuItems] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -777,8 +848,6 @@ export default function Template9() {
   const restaurantId = localStorage.getItem("restaurantId");
   const token = localStorage.getItem("token");
   const [expandedCard, setExpandedCard] = useState(null);
-  const [hoveredCard, setHoveredCard] = useState(null);
-
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -936,184 +1005,129 @@ export default function Template9() {
     img.src = svgBase64;
   });
 
-  
-
-// const handleDownloadPDF = async (item) => {
-//   const doc = new jsPDF("p", "pt", "a4");
-//   const pageWidth = doc.internal.pageSize.getWidth();
-//   const cardWidth = 520;
-//   const x = (pageWidth - cardWidth) / 2;
-//   let y = 60;
-//   const padding = 20;
-
-//   try {
-//     // 1. Image (top of card)
-//     const imageUrl = item.imageUrl?.startsWith("http")
-//       ? item.imageUrl
-//       : `http://localhost:5000${item.imageUrl}`;
-//     const imageDataUrl = await convertImageToDataURL(imageUrl);
-
-//     doc.setFillColor(255, 255, 255); // white background
-//     doc.roundedRect(x, y, cardWidth, 580, 12, 12, "F");
-
-//     // 🖼 Image
-//     const imageHeight = 150;
-//     doc.addImage(imageDataUrl, "JPEG", x + padding, y + padding, cardWidth - 2 * padding, imageHeight);
-
-//     y += padding + imageHeight + 10;
-
-//     // 2. Name and QR
-//     doc.setFont("helvetica", "bold");
-//     doc.setFontSize(24);
-//     doc.setTextColor(0);
-//     doc.text(item.name, x + padding, y + 25);
-
-//     const qrElement = document.getElementById(`qr-${item._id}`);
-//     if (qrElement) {
-//       const qrImg = await convertSVGToPNG(qrElement);
-//       doc.addImage(qrImg, "PNG", x + cardWidth - padding - 70, y, 60, 60);
-//     }
-
-//     y += 60;
-
-    
-//     // Divider
-//     doc.setDrawColor(180);
-//     doc.setLineWidth(1);
-//     doc.line(x + padding, y, x + cardWidth - padding, y);
-//     y += 20;
-
-//     // 3. Category & Price
-//     doc.setFontSize(14);
-//     doc.setFont("helvetica", "normal");
-//     doc.setTextColor(80);
-//     doc.text(`Category: ${item.category}`, x + padding, y);
-
-//     doc.setFont("helvetica", "bold");
-//     doc.setTextColor(40, 167, 69);
-//     doc.text(`$${item.price.toFixed(2)}`, x + cardWidth - padding, y, { align: "right" });
-
-//     y += 25;
-
-//     // Divider
-//     doc.setDrawColor(180);
-//     doc.line(x + padding, y, x + cardWidth - padding, y);
-//     y += 20;
-
-//     // 4. Description
-//     doc.setFontSize(12);
-//     doc.setTextColor(50);
-//     doc.setFont("helvetica", "normal");
-//     doc.text("Description:", x + padding, y);
-//     y += 18;
-
-//     const descLines = doc.splitTextToSize(item.description || "-", cardWidth - 2 * padding);
-//     doc.text(descLines, x + padding, y);
-
-//     // Save the file
-//     doc.save(`${item.name}_menu_card.pdf`);
-//   } catch (err) {
-//     console.error("PDF generation failed", err);
-//     toast.error("Failed to generate PDF");
-//   }
-// };
-
-
 const handleDownloadPDF = async (item) => {
   const doc = new jsPDF("p", "pt", "a4");
+
+  const padding = 25;
   const pageWidth = doc.internal.pageSize.getWidth();
-  const cardWidth = 400;
-  const x = (pageWidth - cardWidth) / 2;
-  let y = 60;
-  const padding = 30;
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  const cardWidth = pageWidth - padding * 1;
+  const cardX = padding;
+  const cardY = 100;
+  const imageHeight = 160;
+  const contentX = cardX + 20;
+  let contentY = cardY + imageHeight + 90;
+  const textWidth = cardWidth * 4;
+  const priceBoxWidth = cardWidth * 0.3;
 
   try {
-    // 1. Load Image
-    const imageUrl = item.imageUrl?.startsWith("http")
+    // 🖼️ Image conversion
+    const imageUrl = item.imageUrl.startsWith("http")
       ? item.imageUrl
       : `http://localhost:5000${item.imageUrl}`;
-    const imageDataUrl = await convertImageToDataURL(imageUrl);
+    const imgData = await convertImageToDataURL(imageUrl);
 
-    // 2. Card Background
-    doc.setFillColor(255, 255, 255);
-    doc.roundedRect(x, y, cardWidth, 620, 12, 12, "F");
+    // 🔳 QR code conversion
+    const qrElement = document.getElementById(`qr-hidden-${item._id}`);
+    if (!qrElement) return toast.error("QR code not found");
+    const qrImg = await convertSVGToPNG(qrElement);
 
-    // 3. Divider
-    const drawDivider = () => {
-      doc.setDrawColor(153, 153, 153); // #999
-      doc.setLineWidth(2);
-      doc.line(x + padding, y, x + cardWidth - padding, y);
-      y += 20;
-    };
+    // 📐 Start layout calculations
+    doc.setFont("times", "bold");
+    doc.setFontSize(26);
+    const wrappedName = doc.splitTextToSize(item.name, textWidth);
+    const nameHeight = wrappedName.length * 22;
 
-    // 4. Category + Price
-    drawDivider();
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(16);
+    const wrappedCat = doc.splitTextToSize(`Category: ${item.category}`, textWidth);
+    const catHeight = wrappedCat.length * 18;
+    const priceHeight = 18;
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(85); // #555
-    doc.text(`Category: ${item.category}`, x + padding, y);
+    const dividerHeight = 25;
 
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(40, 167, 69); // #28A745
-    doc.text(`$${item.price.toFixed(2)}`, x + cardWidth - padding, y, { align: "right" });
+    doc.setFontSize(12);
+    const desc = item.description || "No description provided.";
+    const wrappedDesc = doc.splitTextToSize(desc, cardWidth - 40);
+    const descHeight = wrappedDesc.length * 14;
 
-    y += 25;
+    const additionalSpacing = 30 + // top spacing after image
+      nameHeight + (wrappedName.length > 1 ? 20 : 10) +
+      Math.max(catHeight, priceHeight) + (Math.max(catHeight, priceHeight) > 18 ? 20 : 10) +
+      dividerHeight +
+      descHeight +
+      30; // bottom margin after description
+
+    const cardHeight = imageHeight + additionalSpacing + 100;
+
+    // 🎨 Page background
+    doc.setFillColor(34, 34, 34);
+    doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+    // 🟦 Card shape (zigzag, now dynamic height)
+    drawZigzagCard(doc, cardX, cardY, cardWidth, cardHeight, 12);
+    
+
+    // 🔳 Left and Right border color (#343434)
+doc.setFillColor(52, 52, 52); // #343434
+
+// Left border strip
+doc.rect(cardX, cardY + 12, 10, cardHeight - 24, "F");
+
+// Right border strip
+doc.rect(cardX + cardWidth - 10, cardY + 12, 10, cardHeight - 24, "F");
+
+
+
+    
+
+    
+doc.addImage(imgData, "JPEG", cardX + 10, cardY + 10, cardWidth - 20, imageHeight);
+
+
+    // 🔳 QR
+    doc.addImage(qrImg, "PNG", cardX + cardWidth - 90, cardY + imageHeight + 20, 70, 70);
+
+    // 📝 Name
+    doc.setFont("times", "bold");
+    doc.setFontSize(26);
+    doc.setTextColor(35, 35, 85);
+    doc.text(wrappedName, contentX, contentY);
+    contentY += nameHeight + (wrappedName.length > 1 ? 20 : 10);
+
+       doc.setDrawColor(180);
+    doc.setLineWidth(1);
+    doc.line(contentX, contentY, cardX + cardWidth - 20, contentY);
+    contentY += 25;
+
+    // 🏷️ Category + Price
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(16);
+    doc.setTextColor(85, 85, 85);
+    doc.text(wrappedCat, contentX, contentY);
+
+    doc.setTextColor(40, 167, 69);
+    const priceText = `$${item.price.toFixed(2)}`;
+    doc.text(priceText, cardX + cardWidth - 20, contentY, { align: "right" });
+
+    contentY += Math.max(catHeight, priceHeight) + (Math.max(catHeight, priceHeight) > 18 ? 20 : 10);
 
     // Divider
-    drawDivider();
+    doc.setDrawColor(180);
+    doc.setLineWidth(1);
+    doc.line(contentX, contentY, cardX + cardWidth - 20, contentY);
+    contentY += 25;
 
-    // 5. Image
-    // const imageHeight = 150;
-    // doc.addImage(imageDataUrl, "JPEG", x + padding, y, cardWidth - 2 * padding, imageHeight);
-    // y += imageHeight + 15;
-
-
-
-    // 5. Image (Fixed height 200px, maintain aspect ratio)
-const imageObj = new Image();
-imageObj.src = imageDataUrl;
-
-await new Promise((resolve) => {
-  imageObj.onload = () => resolve();
-});
-
-const fixedHeight = 200;
-const aspectRatio = imageObj.naturalWidth / imageObj.naturalHeight;
-const displayWidth = fixedHeight * aspectRatio;
-const imageX = x + padding + (cardWidth - 2 * padding - displayWidth) / 2;
-
-doc.addImage(imageDataUrl, "JPEG", imageX, y, displayWidth, fixedHeight);
-y += fixedHeight + 20;
-
-    y += 20;
-
-    // 6. Row 1: Name + QR
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.setTextColor(0, 0, 0);
-    doc.text(item.name, x + padding, y + 10);
-
-    const qrElement = document.getElementById(`qr-${item._id}`);
-    if (qrElement) {
-      const qrImg = await convertSVGToPNG(qrElement);
-      doc.addImage(qrImg, "PNG", x + cardWidth - padding - 70, y - 5, 60, 60);
-    }
-
-    y += 60;
-    y += 20;
-    // 7. Description
-    drawDivider();
-    doc.setFont("helvetica", "normal");
+    // 🧾 Description
     doc.setFontSize(12);
-    doc.setTextColor(68); // #444
-    const descLines = doc.splitTextToSize(item.description || "-", cardWidth - 2 * padding);
-    doc.text(descLines, x + padding, y + 10);
+    doc.setTextColor(68, 68, 68);
+    doc.text(wrappedDesc, pageWidth / 2, contentY, { align: "center" });
 
-    // 8. Final Save
-    doc.save(`${item.name}_menu_card.pdf`);
+    // 💾 Save
+    doc.save(`${item.name}_zigzag_card.pdf`);
   } catch (err) {
-    console.error("PDF generation failed", err);
+    console.error("PDF generation failed:", err);
     toast.error("Failed to generate PDF");
   }
 };
@@ -1121,7 +1135,41 @@ y += fixedHeight + 20;
 
 
 
-  
+// 🔷 Zigzag Card Drawer
+const drawZigzagCard = (doc, x, y, width, height, zigzagHeight = 10) => {
+  const spikes = Math.floor(width / (zigzagHeight * 2));
+  const zigzagWidth = width / spikes;
+
+  // Build top zigzag
+  const topPath = [];
+  let isPeak = true;
+  for (let i = 0; i <= spikes; i++) {
+    const xPos = x + i * zigzagWidth;
+    const yPos = isPeak ? y : y + zigzagHeight;
+    topPath.push([zigzagWidth, isPeak ? -zigzagHeight : zigzagHeight]);
+    isPeak = !isPeak;
+  }
+
+  // Bottom zigzag
+  const bottomPath = [];
+  isPeak = true;
+  for (let i = 0; i <= spikes; i++) {
+    const xPos = x + i * zigzagWidth;
+    const yPos = isPeak ? y + height : y + height - zigzagHeight;
+    bottomPath.push([zigzagWidth, isPeak ? zigzagHeight : -zigzagHeight]);
+    isPeak = !isPeak;
+  }
+
+  // Draw top
+  doc.setFillColor(255, 255, 255);
+  doc.rect(x, y + zigzagHeight, width, height - 2 * zigzagHeight, 'F'); // Center body
+  doc.lines(topPath, x, y + zigzagHeight, [1, 1], 'F');                 // Top zigzag
+  doc.lines(bottomPath, x, y + height - zigzagHeight, [1, 1], 'F');     // Bottom zigzag
+};
+
+
+
+
   const filteredItems = menuItems.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -1144,210 +1192,212 @@ y += fixedHeight + 20;
 
 
            <main style={{ padding: "40px 20px" }}>
-  <h2 style={{ textAlign: "center", color: dark ? "#fff" : "#343a40" }}>Menu Items</h2>
+  <h2 style={{ textAlign: "center", color: "#ffff",background:"#343434",paddingTop:"80px" }}>Menu Items</h2>
 
-  {/* 🔍 Search Bar */}
  
 
   {filteredItems.length > 0 ? (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        userSelect: "none",
-      }}
-    >
-      {filteredItems.length >= 3 && (
-        <button className="scroll-button" onClick={scrollLeftFn}>
-          ←
-        </button>
-      )}
-
-      <div
-        ref={scrollContainerRef}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        className="menu-card-list"
-        style={{
-          display: "flex",
-          overflowX: "hidden",
-          gap: "20px",
-          cursor: isDragging ? "grabbing" : "grab",
-          paddingTop: "100px",
-          paddingBottom:"100px",
-          padding:"20px",
-          background:"#000000"
-        }}
-      >
-       {filteredItems.map((item) => (
-<div
-  key={item._id}
-  className="menu-card"
-  onClick={() => toggleCardExpand(item._id)}
+   <div
   style={{
-    border: "1px solid #ccc",
-    overflow: "hidden",
-    padding: "35px",
-    marginBottom: "20px",
-    background: "#ffff", // ✅ Gradient background
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    maxWidth: "400px",
-    cursor: "pointer",
-    position: "relative",
-    transition: "none",
-    transform: "none",
-    clipPath: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    userSelect: "none",
+    background:"#343434",
+    paddingBottom:"80px",
   }}
 >
+  {filteredItems.length >= 3 && (
+    <button className="scroll-button" onClick={scrollLeftFn}>
+      ←
+    </button>
+  )}
 
-    {/* Divider */}
-<div
-  style={{
-    width: "100%",
-    height: "2px",
-    backgroundColor: "#999", // darker than #ccc
-    margin: "10px 0",
-    borderRadius: "2px",
-  }}
-/>
-
-
-  {/* Row 2: Category + Price */}
   <div
+    ref={scrollContainerRef}
+    onMouseDown={handleMouseDown}
+    onMouseLeave={handleMouseLeave}
+    onMouseUp={handleMouseUp}
+    onMouseMove={handleMouseMove}
+    className="menu-card-list"
     style={{
       display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "10px",
-      marginTop:"0px",
-      // gap:"100px",
-      width:"100%"
+      overflowX: "hidden",
+      gap: "20px",
+      cursor: isDragging ? "grabbing" : "grab",
+      padding: "10px",
     }}
   >
-    <p
+    {filteredItems.map((item) => (
+    <><div /><div
+      className="menu-card menu-zigzag"
+
+      key={item._id}
+      onClick={() => toggleCardExpand(item._id)}
       style={{
-        margin: 0,
-        fontWeight: "bold",
-        color: "#555",
-        width:"50%",
+        border: "1px solid #ccc",
+        borderRadius: "10px",
+        padding: "16px",
+        paddingBottom:"30px",
+        backgroundColor: "#fff",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        maxWidth: "400px",
+        width: "100%",
+        cursor: "pointer",
+        transition: "all 0.3s ease",
+        transform: expandedCard === item._id ? "scale(1.05)" : "scale(1)",
+        zIndex: expandedCard === item._id ? 10 : 1,
+        position: "relative",
+        ...(expandedCard === item._id && {
+          boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
+        }),
       }}
     >
-      Category: {item.category}
-    </p>
-    <strong style={{ color: "#28A745", width:"50%", textAlign:"right", marginTop:"5px", wordWrap: "break-word"  }}>${item.price.toFixed(2)}</strong>
-  </div>
-
-  {/* Divider */}
-<div
-  style={{
-    width: "100%",
-    height: "2px",
-    backgroundColor: "#999", // darker than #ccc
-   marginBottom:"20px",
-    borderRadius: "2px",
-  }}
-/>
-
-    <img
-      src={
-        item.imageUrl.startsWith("http")
+      <img
+        src={item.imageUrl.startsWith("http")
           ? item.imageUrl
-          : `http://localhost:5000${item.imageUrl}`
-      }
-      alt={item.name}
-      className="menu-img"
-      style={{
-        width: "100%",
-        height: "150px",
-        objectFit: "cover",
-        borderRadius: "8px",
-        marginBottom: "12px",
-      }}
-    />
+          : `http://localhost:5000${item.imageUrl}`}
+        alt={item.name}
+        className="menu-img"
+        style={{
+          width: "100%",
+          height: "150px",
+          objectFit: "cover",
+          borderRadius: "8px",
+          marginBottom: "12px",
+        }} />
 
-  {/* Row 1: Name + QR */}
-  <div
-    style={{
-    display: "flex",
+      {/* Row 1: Name + QR */}
+      <div
+        style={{
+          display: "flex",
+          // justifyContent: "space-between",
+          // alignItems: "left",
           width: "100%",
           marginBottom: "0px",
           marginTop: "20px",
-      
-    }}
-  >
-    <h4  style={{
-     margin: 0,
-          fontSize: "30px",
+        }}
+      >
+        <h4 style={{
+          margin: 0,
+          fontSize: "25px",
           textAlign: "left",
           alignSelf: "flex-end", // ensures heading sticks to top
           width:"60%",
           wordWrap: "break-word"
-    }}>{item.name}</h4>
-    <QRCode
-      id={`qr-${item._id}`}
-      size={80}
-      bgColor="white"
-      fgColor="black"
-      style={{width:"40%"}}
-      
-      value={`${window.location.origin}/view/${restaurantId}/template9`}
-    />
-  </div>
+        }}>{item.name}</h4>
+        <QRCode
+          id={`qr-hidden-${item._id}`}
+          size={100}
+          bgColor="white"
+          fgColor="black"
+          style={{width:"40%"}}
 
-
-
-
-
-
-
-
-  {/* Row 3: Description */}
-  <p style={{ marginBottom: "0px", color: "#444" }}>{item.description}</p>
-  
-
-
-
- <button
-    onClick={() => handleDownloadPDF(item)}
-    className="btn-download"
-    title="Download as PDF"
-    style={{
-      marginBottom: "0px",
-      backgroundColor: "#FFC107",
-      color: "#ffff",
-      padding: "5px",
-      border: "none",
-      borderRadius: "6px",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      gap: "02px",
-      fontSize:"12px",
-      alignContent:"end",
-      justifyContent:"end",
-      marginTop:"30px",
-    }}
-  >
-    <FaDownload /> Download PDF
-  </button>
-
-
-
-
- 
-</div>
-        ))}
+          value={`${window.location.origin}/view/${restaurantId}/template7`} />
       </div>
 
-      {filteredItems.length >= 3 && (
-        <button className="scroll-button" onClick={scrollRightFn}>
-          →
+
+
+
+
+      {/* Divider */}
+      <div
+        style={{
+          width: "100%",
+          height: "2px",
+          backgroundColor: "#999", // darker than #ccc
+          margin: "10px 0",
+          borderRadius: "2px",
+        }} />
+
+
+      {/* Row 2: Category + Price */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "10px",
+          marginTop: "0px",
+          width:"100%"
+          
+        }}
+      >
+        <p
+          style={{
+         margin: 0,
+                        fontWeight: "bold",
+                        color: "#555",
+                        width:"50%",
+                        textAlign:"left",
+                        marginTop:"10px",
+                        wordWrap: "break-word"
+          }}
+        >
+          Category: {item.category}
+        </p>
+        <strong style={{ color: "#28A745", width:"50%", textAlign:"right", marginTop:"10px", wordWrap: "break-word" }}>${item.price.toFixed(2)}</strong>
+      </div>
+
+      {/* Divider */}
+      <div
+        style={{
+          width: "100%",
+          height: "2px",
+          backgroundColor: "#999", // darker than #ccc
+          marginBottom: "20px",
+          borderRadius: "2px",
+        }} />
+
+
+      {/* Row 3: Description */}
+      <p style={{ marginBottom: "0px", color: "#444" , width:"100%", wordWrap: "break-word" }}>{item.description}</p>
+
+
+
+
+<button
+          onClick={() => handleDownloadPDF(item)}
+          className="btn-download"
+          title="Download as PDF"
+          style={{
+            marginBottom: "0px",
+            backgroundColor: "#FFC107",
+            color: "#ffff",
+            padding: "5px",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "02px",
+            fontSize: "12px",
+            alignContent: "end",
+            justifyContent: "end",
+            marginTop: "30px",
+          }}
+        >
+          <FaDownload /> Download PDF
         </button>
-      )}
-    </div>
+    
+
+
+      {/* PDF Download */}
+
+
+      {/* Edit / Delete Buttons */}
+     
+    </div></>
+        ))}
+      </div>
+       {filteredItems.length >= 3 && (
+    <button className="scroll-button" onClick={scrollRightFn}>
+      →
+    </button>
+  )}
+</div>
+
+      
   ) : (
     <p style={{ textAlign: "center", marginTop: "40px" }}>
       No menu items found.
@@ -1355,6 +1405,161 @@ y += fixedHeight + 20;
   )}
 </main>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      {showAddModal && (
+        <div className="modal-overlay-add">
+          <form className="modal-box-add" onSubmit={handleSubmit} style={dynamicStyles.form}>
+        <h4 className="formfield1" style={{  justifyContent: "left" }}>Name *</h4>
+        <input
+          type="text"
+          required 
+          value={newItem.name}
+          onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+          style={dynamicStyles.input}
+        />
+        <h4 className="formfield" style={{  justifyContent: "left" }}>Description</h4>
+        <input
+          type="text"
+          value={newItem.description}
+          onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+          style={dynamicStyles.input}
+        />
+        <h4 className="formfield" style={{  justifyContent: "left" }}>Price *</h4>
+        <input
+          type="number"
+          step="0.01"
+          required 
+          value={newItem.price}
+          onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+          style={dynamicStyles.input}
+        />
+        <h4 className="formfield" style={{  justifyContent: "left" }}>Category *</h4>
+        <input
+          type="text"
+          required 
+          value={newItem.category}
+          onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+          style={dynamicStyles.input}
+        />
+        {/* <h4 className="formfield1" style={{  justifyContent: "left" }}>Item image </h4> */}
+        <h4 className="formfield1" style={{  justifyContent: "left" }}>Image *</h4>
+        <input
+          type="file"
+          required 
+          accept="image/*"
+          onChange={handleImageChange}
+          style={dynamicStyles.input}
+        />
+        {imagePreview && <img src={imagePreview} alt="Preview" style={{ maxWidth: "100%",maxHeight:"300px", marginTop: "10px" }} />}
+         <div style={{ display: "flex", justifyContent: "center", marginTop: "10px", gap:"30px" }}>
+          <button type="submit" className="add-btn">Add</button>
+          <button
+            type="button"
+            onClick={() => setShowAddModal(false)}
+            className="cancel-btn"
+          >
+            Cancel
+          </button>
+          </div>
+      </form> 
+        </div>
+      )}
+
+     {showEditModal && (
+  <div className="modal-overlay-add">
+    <form className="modal-box-add" onSubmit={handleEditSubmit} style={dynamicStyles.form}>
+      <h4 className="formfield1" style={{ justifyContent: "left" }}>Name *</h4>
+      <input
+        type="text"
+        required
+        value={editForm.name}
+        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+        style={dynamicStyles.input}
+      />
+
+      <h4 className="formfield" style={{ justifyContent: "left" }}>Description</h4>
+      <input
+        type="text"
+        value={editForm.description}
+        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+        style={dynamicStyles.input}
+      />
+
+      <h4 className="formfield" style={{ justifyContent: "left" }}>Price</h4>
+      <input
+        type="number"
+        step="0.01"
+        required
+        value={editForm.price}
+        onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+        style={dynamicStyles.input}
+      />
+
+      <h4 className="formfield" style={{ justifyContent: "left" }}>Category</h4>
+      <input
+        type="text"
+        required
+        value={editForm.category}
+        onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+        style={dynamicStyles.input}
+      />
+
+      <h4 className="formfield" style={{ justifyContent: "left" }}>Image</h4>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleEditImageChange}
+        style={dynamicStyles.input}
+      />
+
+      {editImagePreview && (
+        <img src={editImagePreview} alt="Preview" style={{ maxWidth: "100%",maxHeight:"300px", marginTop: "10px" }} />
+      )}
+
+
+   
+
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "10px", gap: "30px" }}>
+        <button type="submit" className="add-btn">Update</button>
+        <button
+          type="button"
+          onClick={() => setShowEditModal(false)}
+          className="cancel-btn"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+)}
+
+
+
+
+
+
+
+
+
+
+
+      
       <ToastContainer position="top-right" autoClose={3000} />
       <Footer />
     </div>

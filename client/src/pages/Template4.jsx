@@ -1336,102 +1336,238 @@
 
 
 
- const handleDownloadPDF = async (item) => {
+//  const handleDownloadPDF = async (item) => {
+//   const doc = new jsPDF("p", "pt", "a4");
+//   const pagePadding = 40;
+//   const pageWidth = doc.internal.pageSize.getWidth();
+//   const pageHeight = doc.internal.pageSize.getHeight();
+//   let y = pagePadding;
+
+//   // Load image
+//   const imageUrl = item.imageUrl.startsWith("http")
+//     ? item.imageUrl
+//     : `http://localhost:5000${item.imageUrl}`;
+
+//   let imageDataURL;
+//   try {
+//     imageDataURL = await convertImageToDataURL(imageUrl);
+//   } catch (err) {
+//     toast.error("Failed to load image for PDF");
+//     return;
+//   }
+
+//   // Title: Category centered
+//   doc.setFont("helvetica", "bold");
+//   doc.setFontSize(16);
+//   doc.setTextColor(100, 100, 100);
+//   const categoryText = `Category: ${item.category}`;
+//   const categoryTextWidth = doc.getTextWidth(categoryText);
+//   doc.text(categoryText, (pageWidth - categoryTextWidth) / 2, y);
+//   y += 24;
+
+//   // Image
+//   const imageWidth = pageWidth - pagePadding * 2;
+//   const imageHeight = 200;
+//   doc.addImage(imageDataURL, "JPEG", pagePadding, y, imageWidth, imageHeight);
+//   y += imageHeight + 20;
+
+//   // Name and Price
+//   doc.setFontSize(22);
+//   doc.setTextColor(30, 30, 30);
+//   doc.text(item.name, pagePadding, y);
+
+//   doc.setFont("helvetica", "bold");
+//   doc.setFontSize(20);
+//   doc.setTextColor(40, 167, 69); // Emerald green
+//   const priceText = `$${item.price.toFixed(2)}`;
+//   const priceWidth = doc.getTextWidth(priceText);
+//   doc.text(priceText, pageWidth - pagePadding - priceWidth, y);
+//   y += 30;
+
+//   // Divider
+//   doc.setDrawColor(180);
+//   doc.setLineWidth(1);
+//   doc.line(pagePadding, y, pageWidth - pagePadding, y);
+//   y += 20;
+
+//   // Description (centered)
+//   doc.setFont("helvetica", "normal");
+//   doc.setFontSize(12);
+//   doc.setTextColor(50, 50, 50);
+//   const descLabel = "Description:";
+//   const descLabelWidth = doc.getTextWidth(descLabel);
+//   doc.text(descLabel, (pageWidth - descLabelWidth) / 2, y);
+//   y += 16;
+
+//   const splitDesc = doc.splitTextToSize(item.description || "-", pageWidth - pagePadding * 2);
+//   splitDesc.forEach((line) => {
+//     const lineWidth = doc.getTextWidth(line);
+//     doc.text(line, (pageWidth - lineWidth) / 2, y);
+//     y += 14;
+//   });
+//   y += 10;
+
+//   // ✅ Add QR Code (centered)
+//   const qrElement = document.getElementById(`qr-${item._id}`);
+//   if (qrElement) {
+//     try {
+//       const qrImg = await convertSVGToPNG(qrElement);
+//       const qrSize = 100;
+//       const qrX = (pageWidth - qrSize) / 2;
+
+//       // doc.text("Scan QR to View Menu:", (pageWidth - doc.getTextWidth("Scan QR to View Menu:")) / 2, y);
+//       y += 10;
+//       doc.addImage(qrImg, "PNG", qrX, y, qrSize, qrSize);
+//       y += qrSize + 10;
+//     } catch (err) {
+//       toast.error("Failed to load QR code for PDF");
+//     }
+//   }
+
+//   // Save
+//   doc.save(`${item.name}_menu_card.pdf`);
+// };
+
+
+
+
+const handleDownloadPDF = async (item) => {
   const doc = new jsPDF("p", "pt", "a4");
   const pagePadding = 40;
   const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
   let y = pagePadding;
 
-  // Load image
-  const imageUrl = item.imageUrl.startsWith("http")
-    ? item.imageUrl
-    : `http://localhost:5000${item.imageUrl}`;
+  const contentWidth = (pageWidth - 2 * pagePadding) * 0.5; // 50% of page
+  const contentX = (pageWidth - contentWidth) / 2; // center alignment
 
-  let imageDataURL;
   try {
-    imageDataURL = await convertImageToDataURL(imageUrl);
-  } catch (err) {
-    toast.error("Failed to load image for PDF");
-    return;
-  }
+    // 🖼️ Load Image
+    const imageUrl = item.imageUrl.startsWith("http")
+      ? item.imageUrl
+      : `http://localhost:5000${item.imageUrl}`;
+    const imageDataURL = await convertImageToDataURL(imageUrl);
 
-  // Title: Category centered
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.setTextColor(100, 100, 100);
-  const categoryText = `Category: ${item.category}`;
-  const categoryTextWidth = doc.getTextWidth(categoryText);
-  doc.text(categoryText, (pageWidth - categoryTextWidth) / 2, y);
-  y += 24;
+    // 🟫 Category
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(100, 100, 100);
+    const catLines = doc.splitTextToSize(`Category: ${item.category}`, contentWidth);
+    catLines.forEach((line) => {
+      const lineWidth = doc.getTextWidth(line);
+      doc.text(line, (pageWidth - lineWidth) / 2, y);
+      y += 18;
+    });
 
-  // Image
-  const imageWidth = pageWidth - pagePadding * 2;
-  const imageHeight = 200;
-  doc.addImage(imageDataURL, "JPEG", pagePadding, y, imageWidth, imageHeight);
-  y += imageHeight + 20;
+ const img = new Image();
+img.src = imageDataURL;
+await new Promise((resolve) => (img.onload = resolve));
 
-  // Name and Price
-  doc.setFontSize(22);
+// Fixed dimensions for PDF image area
+const fixedHeight = 250;
+const fullWidth = pageWidth - pagePadding * 2;
+
+// Original image dimensions
+const naturalWidth = img.naturalWidth;
+const naturalHeight = img.naturalHeight;
+const containerAspect = fullWidth / fixedHeight;
+const imageAspect = naturalWidth / naturalHeight;
+
+// Calculate crop box to simulate object-fit: cover
+let sx = 0, sy = 0, sWidth = naturalWidth, sHeight = naturalHeight;
+if (imageAspect > containerAspect) {
+  // Image is too wide, crop left and right
+  sWidth = naturalHeight * containerAspect;
+  sx = (naturalWidth - sWidth) / 2;
+} else {
+  // Image is too tall, crop top and bottom
+  sHeight = naturalWidth / containerAspect;
+  sy = (naturalHeight - sHeight) / 2;
+}
+
+// Convert image to canvas to crop it
+const canvas = document.createElement("canvas");
+canvas.width = sWidth;
+canvas.height = sHeight;
+const ctx = canvas.getContext("2d");
+ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
+const croppedDataURL = canvas.toDataURL("image/jpeg");
+
+// Draw the cropped image to fill container
+doc.addImage(croppedDataURL, "JPEG", pagePadding, y, fullWidth, fixedHeight);
+y += fixedHeight + 50;
+
+
+
+    // 🧾 Name
+    // 🧾 Name (left) + 💲 Price (right) in the same row
+doc.setFont("helvetica", "bold");
+doc.setFontSize(22);
+doc.setTextColor(30, 30, 30);
+const nameLines = doc.splitTextToSize(item.name, contentWidth);
+
+// Render only first line of name left-aligned
+doc.text(nameLines[0], pagePadding, y);
+
+// Render price right-aligned
+doc.setFontSize(20);
+doc.setTextColor(40, 167, 69);
+const priceText = `$${item.price.toFixed(2)}`;
+const priceWidth = doc.getTextWidth(priceText);
+doc.text(priceText, pageWidth - pagePadding - priceWidth, y);
+
+y += 30;
+
+// Render any extra name lines (if word-wrapped)
+if (nameLines.length > 1) {
+  doc.setFontSize(18);
   doc.setTextColor(30, 30, 30);
-  doc.text(item.name, pagePadding, y);
+  for (let i = 1; i < nameLines.length; i++) {
+    doc.text(nameLines[i], pagePadding, y);
+    y += 20;
+  }
+}
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  doc.setTextColor(40, 167, 69); // Emerald green
-  const priceText = `$${item.price.toFixed(2)}`;
-  const priceWidth = doc.getTextWidth(priceText);
-  doc.text(priceText, pageWidth - pagePadding - priceWidth, y);
-  y += 30;
 
-  // Divider
-  doc.setDrawColor(180);
-  doc.setLineWidth(1);
-  doc.line(pagePadding, y, pageWidth - pagePadding, y);
-  y += 20;
+    // ─ Divider
+    doc.setDrawColor(180);
+    doc.setLineWidth(1);
+    doc.line(pagePadding, y, pageWidth - pagePadding, y);
+    y += 20;
 
-  // Description (centered)
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(12);
-  doc.setTextColor(50, 50, 50);
-  const descLabel = "Description:";
-  const descLabelWidth = doc.getTextWidth(descLabel);
-  doc.text(descLabel, (pageWidth - descLabelWidth) / 2, y);
-  y += 16;
+    // 📝 Description
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(50, 50, 50);
+    const descLines = doc.splitTextToSize(`Description: ${item.description || "-"}`, contentWidth);
+    descLines.forEach((line) => {
+      const lineWidth = doc.getTextWidth(line);
+      doc.text(line, (pageWidth - lineWidth) / 2, y);
+      y += 14;
+    });
+    y += 10;
 
-  const splitDesc = doc.splitTextToSize(item.description || "-", pageWidth - pagePadding * 2);
-  splitDesc.forEach((line) => {
-    const lineWidth = doc.getTextWidth(line);
-    doc.text(line, (pageWidth - lineWidth) / 2, y);
-    y += 14;
-  });
-  y += 10;
-
-  // ✅ Add QR Code (centered)
-  const qrElement = document.getElementById(`qr-${item._id}`);
-  if (qrElement) {
-    try {
+    // 📦 QR Code
+    const qrElement = document.getElementById(`qr-${item._id}`);
+    if (qrElement) {
       const qrImg = await convertSVGToPNG(qrElement);
       const qrSize = 100;
       const qrX = (pageWidth - qrSize) / 2;
-
-      // doc.text("Scan QR to View Menu:", (pageWidth - doc.getTextWidth("Scan QR to View Menu:")) / 2, y);
       y += 10;
       doc.addImage(qrImg, "PNG", qrX, y, qrSize, qrSize);
       y += qrSize + 10;
-    } catch (err) {
-      toast.error("Failed to load QR code for PDF");
     }
-  }
 
-  // Save
-  doc.save(`${item.name}_menu_card.pdf`);
+    doc.save(`${item.name}_menu_card.pdf`);
+  } catch (err) {
+    console.error("PDF generation error:", err);
+    toast.error("Failed to generate PDF");
+  }
 };
 
 
 
 
-  // ✅ Utility: Convert image to base64 (cross-browser safe)
+// ✅ Utility: Convert image to base64 (cross-browser safe)
   function convertImageToDataURL(src) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -1722,7 +1858,7 @@
 
       
     return (
-      <div style={{ background: dark ? "#1E2A38" : "#f8f9fa", minHeight: "100vh",fontFamily:"Montserrat" }}>
+      <div style={{ background: dark ? "#1E2A38" : "#f8f9fa", minHeight: "100vh",fontFamily:"Montserrat", overflowX:"hidden" }}>
         <Navbar />
 
       <main style={{ padding: "40px 20px" }}>
@@ -1801,7 +1937,9 @@
           margin: 0,
           fontWeight: "bold",
           color: "#555",
-          marginBottom:"5px"
+          marginBottom:"5px",
+          width:"90%",
+          wordWrap: "break-word"
         }}
       >
         {item.category}
@@ -1827,11 +1965,11 @@
     <div
       style={{
         display: "flex",
-        justifyContent: "space-between",
         alignItems: "center",
-        width:"100%",
         marginBottom: "0px",
         marginTop:"5px",
+        width:"100%",
+        
         
       }}
     >
@@ -1840,18 +1978,16 @@
         fontSize: "20px",
         textAlign: "left",
         alignSelf: "flex-end", // ensures heading sticks to top
+        width:"50%",
+          wordWrap: "break-word"
       }}>{item.name}</h5>
       {/**/}
 
 
-      <strong style={{ color: "#28A745" }}>${item.price.toFixed(2)}</strong>
+      <strong style={{ color: "#28A745" , width:"50%",
+          wordWrap: "break-word", textAlign:"right"}}>${item.price.toFixed(2)}</strong>
     </div>
 
-
-
-
-
- 
     {/* Divider */}
   <div
     style={{
@@ -1865,7 +2001,8 @@
 
 
     {/* Row 3: Description */}
-    <p style={{ marginBottom: "020px", color: "#444" }}>{item.description}</p>
+    <p style={{ marginBottom: "20px", color: "#444", width:"100%",
+          wordWrap: "break-word", textAlign:"center" }}>{item.description}</p>
     
 
 
@@ -1889,11 +2026,6 @@
 </div>
 
 
-
-
-
-
-
     {/* PDF Download */}
     
 
@@ -1906,39 +2038,7 @@
         gap: "10px",
       }}
     >
-      {/* <button
-        className="edit-btn"
-        onClick={() => handleStartEdit(item)}
-        style={{
-          padding: "6px 10px",
-          paddingLeft:"25px",
-          paddingRight:"25px",
-          backgroundColor: "#28A745",
-          color: "#fff",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-      >
-        <FaEdit />
-      </button>
-      <button
-        className="delete-btn"
-        onClick={() => handleDeleteItem(item._id)}
-        style={{
-          padding: "6px 10px",
-          paddingLeft:"25px",
-          paddingRight:"25px",
-          backgroundColor: "#DC3545",
-          color: "#fff",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-      >
-        <FaTrash />
-      </button> */}
-
+  
 
       <button
       onClick={() => handleDownloadPDF(item)}

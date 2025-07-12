@@ -202,95 +202,193 @@ export default function MenuPage() {
   };
   const dynamicStyles = getStyles(dark);
 
-  const handleDownloadPDF = async (item) => {
-    const doc = new jsPDF("p", "pt", "a4");
-    const pagePadding = 40;
+  // const handleDownloadPDF = async (item) => {
+  //   const doc = new jsPDF("p", "pt", "a4");
+  //   const pagePadding = 40;
 
-    const imageUrl = item.imageUrl.startsWith("http")
-      ? item.imageUrl
-      : `http://localhost:5000${item.imageUrl}`;
+  //   const imageUrl = item.imageUrl.startsWith("http")
+  //     ? item.imageUrl
+  //     : `http://localhost:5000${item.imageUrl}`;
 
-    // ✅ Convert image to base64
-    let bgDataUrl;
-    try {
-      bgDataUrl = await convertImageToDataURL(imageUrl);
-    } catch (err) {
-      console.error("Image load failed:", err);
-      alert("Failed to load background image.");
-      return;
-    }
+  //   // ✅ Convert image to base64
+  //   let bgDataUrl;
+  //   try {
+  //     bgDataUrl = await convertImageToDataURL(imageUrl);
+  //   } catch (err) {
+  //     console.error("Image load failed:", err);
+  //     alert("Failed to load background image.");
+  //     return;
+  //   }
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+  //   const pageWidth = doc.internal.pageSize.getWidth();
+  //   const pageHeight = doc.internal.pageSize.getHeight();
 
-    // ✅ Draw background image (full-page)
-    try {
-      doc.addImage(bgDataUrl, "JPEG", 0, 0, pageWidth, pageHeight);
-    } catch (err) {
-      console.error("addImage failed:", err);
-      alert("Error adding image to PDF.");
-      return;
-    }
+  //   // ✅ Draw background image (full-page)
+  //   try {
+  //     doc.addImage(bgDataUrl, "JPEG", 0, 0, pageWidth, pageHeight);
+  //   } catch (err) {
+  //     console.error("addImage failed:", err);
+  //     alert("Error adding image to PDF.");
+  //     return;
+  //   }
 
-    // ✅ Semi-transparent black overlay
+  //   // ✅ Semi-transparent black overlay
+  //   doc.setFillColor(0, 0, 0);
+  //   doc.setDrawColor(0, 0, 0);
+  //   doc.setGState(new doc.GState({ opacity: 0.7 }));
+  //   doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+  //   // Reset opacity to 1 for content
+  //   doc.setGState(new doc.GState({ opacity: 1 }));
+
+  //   let y = pagePadding + 20;
+
+  //   // ITEM NAME and QR CODE on the same row
+  //   doc.setFont("helvetica", "bold");
+  //   doc.setFontSize(26);
+  //   doc.setTextColor(255, 255, 255);
+  //   doc.text(item.name, pagePadding, y + 85); // name vertically centered relative to QR
+
+  //   // QR Code (right side)
+  //   const qrElement = document.getElementById(`qr-${item._id}`);
+  //   if (qrElement) {
+  //     const qrImg = await convertSVGToPNG(qrElement);
+  //     doc.addImage(qrImg, "PNG", pageWidth - pagePadding - 100, y, 100, 100);
+  //   }
+
+  //   y += 120; // add spacing after QR row
+
+  //   // Divider
+  //   doc.setDrawColor(200);
+  //   doc.setLineWidth(1);
+  //   doc.line(pagePadding, y, pagePadding + 520, y);
+  //   y += 20;
+
+  //   // Category & Price
+  //   doc.setFont("helvetica", "bold");
+  //   doc.setFontSize(14);
+  //   doc.setTextColor(255);
+  //   doc.text(`Category: ${item.category}`, pagePadding, y);
+
+  //   doc.setTextColor(40, 255, 69);
+  //   doc.text(`Price: $${item.price.toFixed(2)}`, pagePadding + 350, y);
+  //   y += 30;
+
+  //   // Divider
+  //   doc.setDrawColor(200);
+  //   doc.setLineWidth(1);
+  //   doc.line(pagePadding, y, pagePadding + 520, y);
+  //   y += 20;
+
+  //   // Description
+  //   doc.setFont("helvetica", "bold");
+  //   doc.setFontSize(12);
+  //   doc.setTextColor(255);
+  //   doc.text("Description:", pagePadding, y);
+  //   const splitDesc = doc.splitTextToSize(item.description || "-", 500);
+  //   doc.text(splitDesc, pagePadding, y + 20);
+
+  //   // Save
+  //   doc.save(`${item.name}_menu_card.pdf`);
+  // };
+
+
+
+
+const handleDownloadPDF = async (item) => {
+  const doc = new jsPDF("p", "pt", "a4");
+  const pagePadding = 40;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  const imageUrl = item.imageUrl.startsWith("http")
+    ? item.imageUrl
+    : `http://localhost:5000${item.imageUrl}`;
+
+  try {
+    const bgDataUrl = await convertImageToDataURL(imageUrl);
+
+    // 🔲 Full-page background image
+    doc.addImage(bgDataUrl, "JPEG", 0, 0, pageWidth, pageHeight);
+
+    // 🟫 Black semi-transparent overlay
     doc.setFillColor(0, 0, 0);
     doc.setDrawColor(0, 0, 0);
     doc.setGState(new doc.GState({ opacity: 0.7 }));
     doc.rect(0, 0, pageWidth, pageHeight, "F");
 
-    // Reset opacity to 1 for content
+    // ♻️ Reset opacity
     doc.setGState(new doc.GState({ opacity: 1 }));
 
     let y = pagePadding + 20;
+    const textWidth = pageWidth * 0.5;
+    const priceWidth = pageWidth * 0.3;
 
-    // ITEM NAME and QR CODE on the same row
+    // 🧾 Item Name
     doc.setFont("helvetica", "bold");
     doc.setFontSize(26);
     doc.setTextColor(255, 255, 255);
-    doc.text(item.name, pagePadding, y + 85); // name vertically centered relative to QR
 
-    // QR Code (right side)
+    const wrappedName = doc.splitTextToSize(item.name, textWidth);
+    doc.text(wrappedName, pagePadding, y);
+    const nameHeight = wrappedName.length * 20;
+
+    // 🔳 QR Code
     const qrElement = document.getElementById(`qr-${item._id}`);
     if (qrElement) {
       const qrImg = await convertSVGToPNG(qrElement);
-      doc.addImage(qrImg, "PNG", pageWidth - pagePadding - 100, y, 100, 100);
+      doc.addImage(qrImg, "PNG", pageWidth - pagePadding - 100, y - 65, 100, 100);
     }
 
-    y += 120; // add spacing after QR row
+    y += nameHeight + 40;
 
-    // Divider
+    // ───── Divider
     doc.setDrawColor(200);
     doc.setLineWidth(1);
     doc.line(pagePadding, y, pagePadding + 520, y);
     y += 20;
 
-    // Category & Price
-    doc.setFont("helvetica", "bold");
+    // 🏷️ Category
     doc.setFontSize(14);
     doc.setTextColor(255);
-    doc.text(`Category: ${item.category}`, pagePadding, y);
+    const wrappedCategory = doc.splitTextToSize(`Category: ${item.category}`, textWidth);
+    doc.text(wrappedCategory, pagePadding, y);
+    const catHeight = wrappedCategory.length * 16;
 
+    // 💲 Price
     doc.setTextColor(40, 255, 69);
-    doc.text(`Price: $${item.price.toFixed(2)}`, pagePadding + 350, y);
-    y += 30;
+    const priceText = `Price: $${item.price.toFixed(2)}`;
+    const wrappedPrice = doc.splitTextToSize(priceText, priceWidth);
+    doc.text(wrappedPrice, pagePadding + 350, y);
+    const priceHeight = wrappedPrice.length * 16;
 
-    // Divider
+    y += Math.max(catHeight, priceHeight) + 20;
+
+    // ───── Divider
     doc.setDrawColor(200);
-    doc.setLineWidth(1);
     doc.line(pagePadding, y, pagePadding + 520, y);
     y += 20;
 
-    // Description
-    doc.setFont("helvetica", "bold");
+    // 📝 Description
     doc.setFontSize(12);
     doc.setTextColor(255);
     doc.text("Description:", pagePadding, y);
-    const splitDesc = doc.splitTextToSize(item.description || "-", 500);
-    doc.text(splitDesc, pagePadding, y + 20);
+    const wrappedDesc = doc.splitTextToSize(item.description || "-", textWidth);
+    doc.text(wrappedDesc, pagePadding, y + 20);
+    const descHeight = wrappedDesc.length * 14;
 
-    // Save
+    y += 20 + descHeight + 20;
+
+    // 💾 Save
     doc.save(`${item.name}_menu_card.pdf`);
-  };
+  } catch (err) {
+    console.error("PDF generation failed:", err);
+    toast.error("Failed to generate PDF");
+  }
+};
+
+
+
 
   // ✅ Utility: Convert image to base64 (cross-browser safe)
   function convertImageToDataURL(src) {

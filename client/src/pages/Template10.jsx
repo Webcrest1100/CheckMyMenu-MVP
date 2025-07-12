@@ -143,7 +143,135 @@ export default function Template10() {
     "Segoe UI": "helvetica",
     "Comic Sans MS": "courier" // closest fallback
   };
-  
+
+  // git remote add origin https://github.com/Webcrest1100/CheckMyMenu-MVP.git
+  // https://github.com/Webcrest1100/CheckMyMenu-MVP
+
+// const handleDownloadPDF = async (item) => {
+//   const doc = new jsPDF("p", "pt", "a4");
+//   const pagePadding = 40;
+//   const pageWidth = doc.internal.pageSize.getWidth();
+//   const pageHeight = doc.internal.pageSize.getHeight();
+//   let y = pagePadding;
+
+//   const fontFamily = cardFonts[item._id] || "Arial";
+//   const jsPDFfont = fontMap[fontFamily] || "helvetica";
+//   const bgColor = cardColors[item._id] || "#ffffff";
+//   const fontColor = fontColors[item._id] || "#000000";
+
+//   const hexToRgb = (hex) => {
+//     const bigint = parseInt(hex.replace("#", ""), 16);
+//     return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+//   };
+
+//   try {
+//     // 🎨 Background
+//     const [bgR, bgG, bgB] = hexToRgb(bgColor);
+//     doc.setFillColor(bgR, bgG, bgB);
+//     doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+//     // 🖼️ Logo
+//     const logoUrl = restaurantLogoUrl;
+//     if (logoUrl) {
+//       const logoData = await convertImageToDataURL(logoUrl);
+//       const logoWidth = 100;
+//       const logoHeight = 100;
+//       const logoX = (pageWidth - logoWidth) / 2;
+//       doc.addImage(logoData, "PNG", logoX, y, logoWidth, logoHeight);
+//     }
+
+//     y += 120;
+
+//     // 🍽️ Image with object-fit: cover (center crop)
+//     const imageUrl = item.imageUrl.startsWith("http")
+//       ? item.imageUrl
+//       : `http://localhost:5000${item.imageUrl}`;
+//     const itemImageData = await convertImageToDataURL(imageUrl);
+
+//     const img = new Image();
+//     img.src = itemImageData;
+//     await new Promise((resolve) => (img.onload = resolve));
+
+//     const targetWidth = pageWidth - 2 * pagePadding;
+//     const targetHeight = 250;
+//     const canvas = document.createElement("canvas");
+//     canvas.width = targetWidth;
+//     canvas.height = targetHeight;
+//     const ctx = canvas.getContext("2d");
+
+//     const imgRatio = img.width / img.height;
+//     const targetRatio = targetWidth / targetHeight;
+
+//     let srcX = 0, srcY = 0, srcW = img.width, srcH = img.height;
+
+//     if (imgRatio > targetRatio) {
+//       srcW = img.height * targetRatio;
+//       srcX = (img.width - srcW) / 2;
+//     } else {
+//       srcH = img.width / targetRatio;
+//       srcY = (img.height - srcH) / 2;
+//     }
+
+//     ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, targetWidth, targetHeight);
+//     const croppedImageData = canvas.toDataURL("image/jpeg");
+//     doc.addImage(croppedImageData, "JPEG", pagePadding, y, targetWidth, targetHeight);
+//     y += targetHeight + 20;
+
+//     // 🔤 Name + QR
+//     const [r, g, b] = hexToRgb(fontColor);
+//     doc.setFont(jsPDFfont, "bold");
+//     doc.setFontSize(26);
+//     doc.setTextColor(r, g, b);
+
+//     const qrSize = 80;
+//     const qrY = y + 10;
+//     const nameY = qrY + qrSize - 4; // Align to bottom of QR
+//     doc.text(item.name, pagePadding, nameY);
+
+//     const qrElement = document.getElementById(`qr-${item._id}`);
+//     if (qrElement) {
+//       const qrImg = await convertSVGToPNG(qrElement);
+//       doc.addImage(qrImg, "PNG", pageWidth - pagePadding - qrSize, qrY, qrSize, qrSize);
+//     }
+
+//     y = qrY + qrSize + 30;
+
+//     // Divider
+//     doc.setDrawColor(100);
+//     doc.setLineWidth(1);
+//     doc.line(pagePadding, y, pageWidth - pagePadding, y);
+//     y += 20;
+
+//     // 📂 Category + 💰 Price
+//     doc.setFontSize(14);
+//     doc.setFont(jsPDFfont, "normal");
+//     doc.setTextColor(r, g, b);
+//     doc.text(`Category: ${item.category}`, pagePadding, y);
+//     const priceText = `Price: $${item.price.toFixed(2)}`;
+//     const priceWidth = doc.getTextWidth(priceText);
+//     doc.text(priceText, pageWidth - pagePadding - priceWidth, y); // right-align
+
+//     y += 30;
+
+//     // Divider
+//     doc.line(pagePadding, y, pageWidth - pagePadding, y);
+//     y += 20;
+
+//     // 📝 Description
+//     doc.setFontSize(12);
+//     doc.setTextColor(r, g, b);
+//     const descLines = doc.splitTextToSize(`Description: ${item.description || "-"}`, pageWidth - 2 * pagePadding);
+//     doc.text(descLines, pagePadding, y);
+
+//     // 💾 Save
+//     doc.save(`${item.name}_menu_card.pdf`);
+//   } catch (err) {
+//     console.error("Error generating PDF:", err);
+//     toast.error("Failed to generate PDF");
+//   }
+// };
+
+
 
 const handleDownloadPDF = async (item) => {
   const doc = new jsPDF("p", "pt", "a4");
@@ -156,6 +284,7 @@ const handleDownloadPDF = async (item) => {
   const jsPDFfont = fontMap[fontFamily] || "helvetica";
   const bgColor = cardColors[item._id] || "#ffffff";
   const fontColor = fontColors[item._id] || "#000000";
+  const contentWidth = (pageWidth - 2 * pagePadding) * 0.5; // 50% width
 
   const hexToRgb = (hex) => {
     const bigint = parseInt(hex.replace("#", ""), 16);
@@ -163,12 +292,12 @@ const handleDownloadPDF = async (item) => {
   };
 
   try {
-    // 🎨 Background
+    // Background
     const [bgR, bgG, bgB] = hexToRgb(bgColor);
     doc.setFillColor(bgR, bgG, bgB);
     doc.rect(0, 0, pageWidth, pageHeight, "F");
 
-    // 🖼️ Logo
+    // Logo
     const logoUrl = restaurantLogoUrl;
     if (logoUrl) {
       const logoData = await convertImageToDataURL(logoUrl);
@@ -180,7 +309,7 @@ const handleDownloadPDF = async (item) => {
 
     y += 120;
 
-    // 🍽️ Image with object-fit: cover (center crop)
+    // Image
     const imageUrl = item.imageUrl.startsWith("http")
       ? item.imageUrl
       : `http://localhost:5000${item.imageUrl}`;
@@ -192,6 +321,7 @@ const handleDownloadPDF = async (item) => {
 
     const targetWidth = pageWidth - 2 * pagePadding;
     const targetHeight = 250;
+
     const canvas = document.createElement("canvas");
     canvas.width = targetWidth;
     canvas.height = targetHeight;
@@ -201,7 +331,6 @@ const handleDownloadPDF = async (item) => {
     const targetRatio = targetWidth / targetHeight;
 
     let srcX = 0, srcY = 0, srcW = img.width, srcH = img.height;
-
     if (imgRatio > targetRatio) {
       srcW = img.height * targetRatio;
       srcX = (img.width - srcW) / 2;
@@ -213,26 +342,31 @@ const handleDownloadPDF = async (item) => {
     ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, targetWidth, targetHeight);
     const croppedImageData = canvas.toDataURL("image/jpeg");
     doc.addImage(croppedImageData, "JPEG", pagePadding, y, targetWidth, targetHeight);
-    y += targetHeight + 20;
+    y += targetHeight + 80;
 
-    // 🔤 Name + QR
     const [r, g, b] = hexToRgb(fontColor);
     doc.setFont(jsPDFfont, "bold");
     doc.setFontSize(26);
     doc.setTextColor(r, g, b);
 
-    const qrSize = 80;
-    const qrY = y + 10;
-    const nameY = qrY + qrSize - 4; // Align to bottom of QR
-    doc.text(item.name, pagePadding, nameY);
+    const wrappedName = doc.splitTextToSize(item.name, contentWidth);
+const nameHeight = wrappedName.length * 24;
 
+y += 10; // Add 10pt top margin before drawing name
+doc.text(wrappedName, pagePadding, y);
+
+y += nameHeight + -80; // Continue spacing after name
+
+
+    // QR code
+    const qrSize = 80;
     const qrElement = document.getElementById(`qr-${item._id}`);
     if (qrElement) {
       const qrImg = await convertSVGToPNG(qrElement);
-      doc.addImage(qrImg, "PNG", pageWidth - pagePadding - qrSize, qrY, qrSize, qrSize);
+      doc.addImage(qrImg, "PNG", pageWidth - pagePadding - qrSize, y - 10, qrSize, qrSize);
     }
 
-    y = qrY + qrSize + 30;
+    y += Math.max(nameHeight, qrSize) + 30;
 
     // Divider
     doc.setDrawColor(100);
@@ -240,37 +374,48 @@ const handleDownloadPDF = async (item) => {
     doc.line(pagePadding, y, pageWidth - pagePadding, y);
     y += 20;
 
-    // 📂 Category + 💰 Price
+    // Category + Price (both wrapped at 50% and 30%)
     doc.setFontSize(14);
     doc.setFont(jsPDFfont, "normal");
     doc.setTextColor(r, g, b);
-    doc.text(`Category: ${item.category}`, pagePadding, y);
-    const priceText = `Price: $${item.price.toFixed(2)}`;
-    const priceWidth = doc.getTextWidth(priceText);
-    doc.text(priceText, pageWidth - pagePadding - priceWidth, y); // right-align
 
-    y += 30;
+    const categoryLines = doc.splitTextToSize(`Category: ${item.category}`, contentWidth);
+doc.text(categoryLines, pagePadding, y);
+const catHeight = categoryLines.length * 18;
+
+y += catHeight + 10; // move Y down after category
+
+const priceText = `Price: $${item.price.toFixed(2)}`;
+doc.text(priceText, pagePadding, y); // aligned left under category
+
+y += 30; // add spacing after price
+
 
     // Divider
     doc.line(pagePadding, y, pageWidth - pagePadding, y);
     y += 20;
 
-    // 📝 Description
-    doc.setFontSize(12);
-    doc.setTextColor(r, g, b);
-    const descLines = doc.splitTextToSize(`Description: ${item.description || "-"}`, pageWidth - 2 * pagePadding);
-    doc.text(descLines, pagePadding, y);
+  // Description (center aligned)
+doc.setFontSize(12);
+const descLines = doc.splitTextToSize(`Description: ${item.description || "-"}`, contentWidth);
 
-    // 💾 Save
+// Draw each line centered
+descLines.forEach((line, index) => {
+  const lineWidth = doc.getTextWidth(line);
+  const x = (pageWidth - lineWidth) / 2;
+  doc.text(line, x, y + index * 18);
+});
+
+y += descLines.length * 18 + 20; // update y after description
+
+
+    // Save
     doc.save(`${item.name}_menu_card.pdf`);
   } catch (err) {
     console.error("Error generating PDF:", err);
-    toast.error("Failed to generate PDF");
+    
   }
 };
-
-
-
 
   const filteredItems = menuItems.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -290,7 +435,7 @@ const handleDownloadPDF = async (item) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      toast.success("Font updated!");
+      
     } catch (err) {
       console.error("Failed to update font:", err);
     }
@@ -305,10 +450,10 @@ const handleDownloadPDF = async (item) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      toast.success("Color updated!");
+      
     } catch (err) {
       console.error("Failed to update color:", err);
-      toast.error("Color update failed!");
+      
     }
   };
 
@@ -320,10 +465,10 @@ const handleDownloadPDF = async (item) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      toast.success("Font color updated!");
+      
     } catch (err) {
       console.error("Failed to update font color:", err);
-      toast.error("Font color update failed!");
+     
     }
   };
 
@@ -333,7 +478,7 @@ const handleDownloadPDF = async (item) => {
       <main style={{ padding: "40px 20px" }}>
         <h2 style={{ textAlign: "center", color: dark ? "#fff" : "#343a40" }}>Menu Items</h2>
 
-        
+
         {filteredItems.length > 0 ? (
           <div
             style={{
@@ -387,9 +532,9 @@ const handleDownloadPDF = async (item) => {
                     })
                   }}
                 >
-                  
-                  
-                  
+
+
+
                   <div style={{ marginBottom: "10px" }}>
                     <label style={{ fontSize: "12px", fontWeight: "bold" }}>Font:</label>
                     <select
@@ -455,12 +600,12 @@ const handleDownloadPDF = async (item) => {
                       ))}
                     </select>
                   </div>
+
+
+              </div>
                   
-                  
-              </div>    
-                  
-                  
-                  <UploadLogo restaurantId={restaurantId} setLogoInParent={setRestaurantLogoUrl}  />
+
+                  {/* <UploadLogo restaurantId={restaurantId} setLogoInParent={setRestaurantLogoUrl}  /> */}
                   <img
                     src={
                       item.imageUrl.startsWith("http")
@@ -475,6 +620,7 @@ const handleDownloadPDF = async (item) => {
                       objectFit: "cover",
                       borderRadius: "8px",
                       marginBottom: "12px",
+                      paddingTop:"20px"
                     }}
                   />
                   {/* Row 1: Name + QR */}
@@ -488,21 +634,24 @@ const handleDownloadPDF = async (item) => {
                       marginTop: "20px",
                     }}
                   >
-                    <div style={{ fontFamily: cardFonts[item._id] || "Arial" }}>
+                    {/* <div style={{ fontFamily: cardFonts[item._id] || "Arial" }}> */}
                       <h4 style={{
                         margin: 0,
-                        fontSize: "40px",
+                        fontSize: "25px",
                         textAlign: "left",
                         alignSelf: "flex-end",
+                        wordWrap: "break-word",
+                        width:"50%",
                         color: fontColors[item._id] || "#000000",
                       }}>{item.name}</h4>
-                    </div>
+                    {/* </div> */}
                     <QRCode
                       id={`qr-${item._id}`}
                       size={80}
                       bgColor="white"
                       fgColor="black"
                       value={`${window.location.origin}/view/${restaurantId}/template10`}
+                      style={{width:"50%",}}
                     />
                   </div>
                   {/* Divider */}
@@ -511,7 +660,7 @@ const handleDownloadPDF = async (item) => {
                       width: "100%",
                       height: "2px",
                       backgroundColor: "#999", // darker than #ccc
-                      margin: "10px 0",
+                      margin: "10px ",
                       borderRadius: "2px",
                     }}
                   />
@@ -524,34 +673,32 @@ const handleDownloadPDF = async (item) => {
                       alignItems: "center",
                       marginBottom: "10px",
                       marginTop: "0px",
-                      gap: "100px",
+                      // gap: "100px",
+                      width:"100%",
                     }}
                   >
-                    <div style={{ fontFamily: cardFonts[item._id] || "Arial" }}>
+                    <div style={{ fontFamily: cardFonts[item._id] || "Arial", textAlign:"left",width:"100%" }}>
                       <p style={{
-                        margin: 0,
+                        marginBottom: "10px",
                         fontWeight: "bold",
+                        width:"50%",
+
+                        textAlign:"left",
+                        wordWrap: "break-word",
                         color: fontColors[item._id] || "#555",
-                        wordWrap:"break-word",
                       }}>
                         Category: {item.category}
                       </p>
 
 
-
-
-
-                      <strong style={{ color: fontColors[item._id] || "#28A745" }}>
+                      <strong style={{ color: fontColors[item._id] || "#28A745",  
+                        // marginRight:"60px",
+                        textAlign:"left",
+                        alignItems:"left",
+                        width:"100%",
+                        wordWrap: "break-word", }}>
                         ${item.price.toFixed(2)}
                       </strong>
-
-
-
-
-
-
-
-
 
                     </div>
                   </div>
@@ -565,41 +712,16 @@ const handleDownloadPDF = async (item) => {
                       borderRadius: "2px",
                     }}
                   />
-                  
-
-
-
 
                   {/* Row 3: Description */}
-                  <div style={{ fontFamily: cardFonts[item._id] || "Arial" }}>
+                  {/* <div style={{ fontFamily: cardFonts[item._id] || "Arial" }}> */}
 
 
-
-
-
-
-
-
-
-
-                    <p style={{ marginTop: "10pxx", marginBottom: "0px", color: fontColors[item._id] || "#444" }}>
+                    <p style={{ marginTop: "10pxx", marginBottom: "0px", color: fontColors[item._id] || "#444", width:"100%", wordWrap: "break-word", textAlign:"center" }}>
                       {item.description}
                     </p>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  </div>
+                  {/* </div> */}
                   <button
                     onClick={() => handleDownloadPDF(item)}
                     className="btn-download"

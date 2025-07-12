@@ -335,41 +335,41 @@ const cardRefs = useRef({});
       return () => clearTimeout(timeout);
     }, [search]);
 
-    const handleDownloadPDF = async (item) => {
-  const cardElement = cardRefs.current[item._id];
-  if (!cardElement) return toast.error("Card not found");
+//     const handleDownloadPDF = async (item) => {
+//   const cardElement = cardRefs.current[item._id];
+//   if (!cardElement) return toast.error("Card not found");
 
-  try {
-    const btn = cardElement.querySelector('.btn-download');
-btn.style.visibility = 'hidden';
-    const canvas = await html2canvas(cardElement, {
-      scale: 2,
-      useCORS: true,
-    });
+//   try {
+//     const btn = cardElement.querySelector('.btn-download');
+// btn.style.visibility = 'hidden';
+//     const canvas = await html2canvas(cardElement, {
+//       scale: 2,
+//       useCORS: true,
+//     });
 
-    btn.style.visibility = '';
+//     btn.style.visibility = '';
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
+//     const imgData = canvas.toDataURL("image/png");
+//     const pdf = new jsPDF("p", "mm", "a4");
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
+//     const pdfWidth = pdf.internal.pageSize.getWidth();
+//     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    const imgProps = pdf.getImageProperties(imgData);
-    const imgRatio = imgProps.width / imgProps.height;
-    const imgWidth = pdfWidth * 0.8;
-    const imgHeight = imgWidth / imgRatio;
+//     const imgProps = pdf.getImageProperties(imgData);
+//     const imgRatio = imgProps.width / imgProps.height;
+//     const imgWidth = pdfWidth * 0.8;
+//     const imgHeight = imgWidth / imgRatio;
 
-    const marginX = (pdfWidth - imgWidth) / 2;
-    const marginY = 30;
+//     const marginX = (pdfWidth - imgWidth) / 2;
+//     const marginY = 30;
 
-    pdf.addImage(imgData, "PNG", marginX, marginY, imgWidth, imgHeight);
-    pdf.save(`${item.name}_menu_card.pdf`);
-  } catch (err) {
-    console.error("Error generating PDF:", err);
-    toast.error("Failed to generate PDF");
-  }
-};
+//     pdf.addImage(imgData, "PNG", marginX, marginY, imgWidth, imgHeight);
+//     pdf.save(`${item.name}_menu_card.pdf`);
+//   } catch (err) {
+//     console.error("Error generating PDF:", err);
+//     toast.error("Failed to generate PDF");
+//   }
+// };
 
 
     // const toBase64 = (url) =>
@@ -388,10 +388,60 @@ btn.style.visibility = 'hidden';
     //     img.src = url;
     //   });
 
-   
+
+  const handleDownloadPDF = async (item) => {
+  const cardElement = cardRefs.current[item._id];
+  if (!cardElement) return toast.error("Card not found");
+
+  try {
+    const downloadBtn = cardElement.querySelector('.btn-download');
+    if (downloadBtn) downloadBtn.style.visibility = 'hidden';
+
+    // Force width for accurate rendering
+    const originalWidth = cardElement.style.width;
+    cardElement.style.width = "600px";
+    await new Promise((r) => setTimeout(r, 100));
+
+    // Capture the entire card as it appears
+    const canvas = await html2canvas(cardElement, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    cardElement.style.width = originalWidth;
+    if (downloadBtn) downloadBtn.style.visibility = '';
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgRatio = imgProps.width / imgProps.height;
+
+    const imgWidth = pdfWidth * 0.85;
+    const imgHeight = imgWidth / imgRatio;
+
+    const marginX = (pdfWidth - imgWidth) / 2;
+    const marginY = 30;
+
+    pdf.addImage(imgData, "PNG", marginX, marginY, imgWidth, imgHeight);
+    pdf.save(`${item.name}_menu_card.pdf`);
+  } catch (err) {
+    console.error("Error generating PDF:", err);
+    toast.error("Failed to generate PDF");
+  }
+};
+
+
+
+
+
 
     return (
-      <div>
+      <div style={{overflowX:"hidden"}}>
         <Navbar />
         <div className="menu-container">
           <h2 className="menu-heading">Menu Management</h2>
@@ -413,15 +463,23 @@ btn.style.visibility = 'hidden';
     marginBottom: "20px",
     backgroundColor: "#fff",
     boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    maxWidth: "400px",
     cursor: "pointer",
+     width:"100%",
     transition: "all 0.3s ease",
   }}
 >
-                  <h3 className="menu-title">{item.name}</h3>
-                  <p>{item.description}</p>
-                  <p className="menu-price">Price: ${item.price}</p>
-                  <p className="menu-category">Category: {item.category}</p>
+                  <h3 style={{textAlign: "center",
+    width:"90%",
+    wordWrap: "break-word"}} className="menu-title">{item.name}</h3>
+                  <p style={{textAlign: "center",
+    width:"90%",
+    wordWrap: "break-word"}}>{item.description}</p>
+                  <p  style={{textAlign: "center",
+    width:"90%",
+    wordWrap: "break-word"}}className="menu-price">Price: ${item.price}</p>
+                  <p style={{textAlign: "center",
+    width:"90%",
+    wordWrap: "break-word"}} className="menu-category">Category: {item.category}</p>
 
                   <QRCode id={`qr-${item._id}`} style={{marginBottom:"10px"}} size={80} 
                   value={`${window.location.origin}/view/${restaurantId}/template2`} />
@@ -438,7 +496,8 @@ btn.style.visibility = 'hidden';
     style={{
       width: "100%",
       height: "150px",
-      objectFit: "cover",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
       borderRadius: "8px",
       marginBottom: "12px",
     }}

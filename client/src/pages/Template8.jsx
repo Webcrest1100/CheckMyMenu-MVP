@@ -315,6 +315,62 @@ export default function MasonryMenu() {
 
 
 
+// const handleDownloadPDF = async (item) => {
+//   const element = cardRefs.current[item._id];
+//   if (!element) return toast.error("Card not found for PDF");
+
+//   const qrDiv = element.querySelector(".qr-container");
+//   const downloadBtn = element.querySelector(".download-btn");
+
+//   const originalMarginBottom = qrDiv?.style.marginBottom || "";
+//   const originalBtnDisplay = downloadBtn?.style.display || "";
+
+//   try {
+//     // Hide the download button
+//     if (downloadBtn) downloadBtn.style.display = "none";
+
+//     // Adjust QR layout spacing temporarily
+//     if (qrDiv) qrDiv.style.marginBottom = "50px";
+
+//     // Allow DOM to update
+//     await new Promise((resolve) => setTimeout(resolve, 300));
+
+//     const canvas = await html2canvas(element, {
+//       scale: 3,
+//       useCORS: true,
+//       backgroundColor: null,
+//     });
+
+//     const imgData = canvas.toDataURL("image/png");
+//     const pdf = new jsPDF("p", "pt", "a4");
+//     const pageWidth = pdf.internal.pageSize.getWidth();
+//     const pageHeight = pdf.internal.pageSize.getHeight();
+
+//     const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+//     const imgWidth = canvas.width * ratio;
+//     const imgHeight = canvas.height * ratio;
+
+//     const x = (pageWidth - imgWidth) / 2;
+//     const y = 40;
+
+//     // 🟢 Ensure bottom margin for QR
+//     const maxHeight = pageHeight - 70; // leave 30px bottom margin
+//     const finalHeight = imgHeight > maxHeight ? maxHeight : imgHeight;
+
+//     pdf.addImage(imgData, "PNG", x, y, imgWidth, finalHeight, undefined, "FAST");
+//     pdf.save(`${item.name}_menu_card.pdf`);
+//   } catch (error) {
+//     console.error("PDF download error:", error);
+//     toast.error("Failed to generate PDF");
+//   } finally {
+//     // Restore original styles
+//     if (qrDiv) qrDiv.style.marginBottom = originalMarginBottom;
+//     if (downloadBtn) downloadBtn.style.display = originalBtnDisplay;
+//   }
+// };
+
+
+
 const handleDownloadPDF = async (item) => {
   const element = cardRefs.current[item._id];
   if (!element) return toast.error("Card not found for PDF");
@@ -327,17 +383,13 @@ const handleDownloadPDF = async (item) => {
 
   try {
     // Hide the download button
-    if (downloadBtn) {
-      downloadBtn.style.display = "none";
-    }
+    if (downloadBtn) downloadBtn.style.display = "none";
 
-    // Adjust QR margin for better layout
-    if (qrDiv) {
-      qrDiv.style.marginBottom = "50px";
-    }
+    // Adjust QR margin temporarily
+    if (qrDiv) qrDiv.style.marginBottom = "50px";
 
-    // Wait for layout update
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Wait for layout to update
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     const canvas = await html2canvas(element, {
       scale: 3,
@@ -345,34 +397,47 @@ const handleDownloadPDF = async (item) => {
       backgroundColor: null,
     });
 
-    const imgData = canvas.toDataURL("image/png");
+    // Crop only the image portion from the canvas (optional enhancement)
+    const fullImgData = canvas.toDataURL("image/png");
 
+    // Create PDF
     const pdf = new jsPDF("p", "pt", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
-    const imgWidth = canvas.width * ratio;
-    const imgHeight = canvas.height * ratio;
+    // 🟩 Fix image height to 250px
+    const fixedHeight = 250;
+
+    // 🟩 Calculate image width based on canvas aspect ratio
+    const aspectRatio = canvas.width / canvas.height;
+    const computedWidth = fixedHeight * aspectRatio;
+
+    // 🟩 Ensure it fits within page width
+     const imgHeight = 550;
+    const maxWidth = pageWidth - 80 ; // 40px padding each side
+    
+    const imgWidth = 350;
+   
+
+
+
+     
 
     const x = (pageWidth - imgWidth) / 2;
     const y = 40;
-    
-    pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight, undefined, "FAST");
+
+    pdf.addImage(fullImgData, "PNG", x, y, imgWidth, imgHeight);
     pdf.save(`${item.name}_menu_card.pdf`);
   } catch (error) {
     console.error("PDF download error:", error);
     toast.error("Failed to generate PDF");
   } finally {
     // Restore original styles
-    if (qrDiv) {
-      qrDiv.style.marginBottom = originalMarginBottom;
-    }
-    if (downloadBtn) {
-      downloadBtn.style.display = originalBtnDisplay;
-    }
+    if (qrDiv) qrDiv.style.marginBottom = originalMarginBottom;
+    if (downloadBtn) downloadBtn.style.display = originalBtnDisplay;
   }
 };
+
 
 
 
@@ -405,24 +470,25 @@ const handleDownloadPDF = async (item) => {
                 alt={item.name}
                 style={{
       width: "100%",
-      height: "150px",
+      height: "250px",
       objectFit: "cover",
       borderRadius: "8px",
       marginBottom: "12px",
     }}  
               />
               
-              <h3>{item.name}</h3>
-              <p>{item.description}</p>
+              <h3 style={{width:"90%", textAlign: "left",  wordWrap: "break-word"}}>{item.name}</h3>
+              <p style={{width:"100%", textAlign: "left", paddingTop: "10px" , paddingBottom: "10px" , wordWrap: "break-word"}}>{item.description}</p>
               <strong style={{ color: "#28A745" }}>${item.price.toFixed(2)}</strong>
               <div style={{
                 marginTop: "15px",
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center"
+                alignItems: "left",
+                width:"100%",
               }}>
-                <span>{item.category}</span>
-                <button className="download-btn" onClick={() => handleDownloadPDF(item)}>
+                <span style={{width:"70%",wordWrap: "break-word"}}>{item.category}</span>
+                <button style={{width:"30%"}} className="download-btn" onClick={() => handleDownloadPDF(item)}>
                   <FaDownload /> PDF
                 </button>
               </div>

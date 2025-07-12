@@ -876,25 +876,152 @@ const fontOptions = [
     img.src = svgBase64;
   });
 
-  const handleDownloadPDF = async (item) => {
+// const handleDownloadPDF = async (item) => {
+//   const doc = new jsPDF("p", "pt", "a4");
+//   const pagePadding = 40;
+//   const pageWidth = doc.internal.pageSize.getWidth();
+//   const cardWidth = pageWidth - pagePadding * 2;
+//   const textWidth = cardWidth * 0.5;
+
+//   let y = pagePadding;
+
+//   // Load main image
+//   const imageUrl = item.imageUrl?.startsWith("http")
+//     ? item.imageUrl
+//     : `http://localhost:5000${item.imageUrl}`;
+//   let imageDataURL;
+//   try {
+//     imageDataURL = await convertImageToDataURL(imageUrl);
+//   } catch {
+//     toast.error("Failed to load item image");
+//     return;
+//   }
+
+//   // Get QR
+//   let qrDataURL = null;
+//   const qrElement = document.getElementById(`qr-${item._id}`);
+//   if (qrElement) {
+//     try {
+//       qrDataURL = await convertSVGToPNG(qrElement);
+//     } catch {
+//       toast.error("Failed to load QR code");
+//     }
+//   }
+
+//   // Card background
+//   const cardColor = cardColors[item._id] || "#ffffff";
+//   doc.setFillColor(cardColor);
+//   doc.roundedRect(pagePadding, y, cardWidth, 480, 12, 12, "F");
+
+//   y += 20;
+
+//   // Name
+//   doc.setFont("helvetica", "bold");
+//   doc.setFontSize(26);
+//   doc.setTextColor(30, 30, 30);
+
+//   const wrappedName = doc.splitTextToSize(item.name, textWidth);
+//   doc.text(wrappedName, pagePadding + 20, y);
+
+//   const nameHeight = wrappedName.length * 20;
+
+//   // QR
+//   if (qrDataURL) {
+//     doc.addImage(qrDataURL, "PNG", pageWidth - pagePadding - 90, y - 10, 80, 80);
+//   }
+
+//   y += Math.max(80, nameHeight) + 20;
+
+//   // Image
+//   doc.addImage(imageDataURL, "JPEG", pagePadding + 10, y, cardWidth - 20, 150);
+//   y += 150 + 20;
+
+//   // Divider
+//   doc.setDrawColor(150);
+//   doc.setLineWidth(1);
+//   doc.line(pagePadding + 10, y, pagePadding + cardWidth - 10, y);
+//   y += 20;
+
+//   // Category
+//   doc.setFontSize(14);
+//   doc.setTextColor(80, 80, 80);
+//   const wrappedCategory = doc.splitTextToSize(`Category: ${item.category}`, textWidth);
+//   doc.text(wrappedCategory, pagePadding + 20, y);
+//   const categoryHeight = wrappedCategory.length * 16;
+
+//   // Price
+//   doc.setFont("helvetica", "bold");
+//   doc.setTextColor(40, 167, 69);
+//   const price = `$${item.price.toFixed(2)}`;
+//   const wrappedPrice = doc.splitTextToSize(price, textWidth);
+//   doc.text(wrappedPrice, pagePadding + cardWidth - 20 - doc.getTextWidth(price), y);
+//   const priceHeight = wrappedPrice.length * 16;
+
+//   y += Math.max(categoryHeight, priceHeight) + 20;
+
+//   // Divider
+//   doc.setDrawColor(150);
+//   doc.line(pagePadding + 10, y, pagePadding + cardWidth - 10, y);
+//   y += 20;
+
+//   // Description
+//   doc.setFont("helvetica", "normal");
+//   doc.setFontSize(12);
+//   doc.setTextColor(60, 60, 60);
+//   doc.text("Description:", pagePadding + 20, y);
+//   y += 18;
+
+//   const desc = item.description || "-";
+//   const wrappedDesc = doc.splitTextToSize(desc, textWidth);
+//   doc.text(wrappedDesc, pagePadding + 20, y);
+
+//   // Save
+//   doc.save(`${item.name}_menu_card.pdf`);
+// };
+
+
+
+
+
+
+
+const handleDownloadPDF = async (item) => {
   const doc = new jsPDF("p", "pt", "a4");
   const pagePadding = 40;
   const pageWidth = doc.internal.pageSize.getWidth();
   const cardWidth = pageWidth - pagePadding * 2;
+  const textWidth = cardWidth * 0.5;
 
   let y = pagePadding;
 
   // Load main image
-  const imageUrl = item.imageUrl?.startsWith("http") ? item.imageUrl : `http://localhost:5000${item.imageUrl}`;
-  let imageDataURL;
-  try {
-    imageDataURL = await convertImageToDataURL(imageUrl);
-  } catch {
-    toast.error("Failed to load item image");
-    return;
-  }
+  const imageUrl = item.imageUrl?.startsWith("http")
+    ? item.imageUrl
+    : `http://localhost:5000${item.imageUrl}`;
+  
+  const img = new Image();
+  img.crossOrigin = "Anonymous";
 
-  // Get QR
+  const imageDataURL = await new Promise((resolve, reject) => {
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const targetHeight = 250;
+      const scale = targetHeight / img.naturalHeight;
+      const targetWidth = img.naturalWidth * scale;
+
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+
+      ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+      resolve(canvas.toDataURL("image/jpeg"));
+    };
+    img.onerror = reject;
+    img.src = imageUrl + (imageUrl.includes("?") ? "&" : "?") + "cacheBust=" + Date.now();
+  });
+
+  // QR
   let qrDataURL = null;
   const qrElement = document.getElementById(`qr-${item._id}`);
   if (qrElement) {
@@ -908,26 +1035,72 @@ const fontOptions = [
   // Card background
   const cardColor = cardColors[item._id] || "#ffffff";
   doc.setFillColor(cardColor);
-  doc.roundedRect(pagePadding, y, cardWidth, 480, 12, 12, "F");
+  doc.roundedRect(pagePadding, y, cardWidth, 500, 12, 12, "F");
 
   y += 20;
 
-  // Image
-   // --- Title Row: Name + QR code (above image) ---
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(26);
-  doc.setTextColor(30, 30, 30);
-  doc.text(item.name, pagePadding + 20, y); // Name on left
+ // Name
+doc.setFont("helvetica", "bold");
+doc.setFontSize(26);
+doc.setTextColor(30, 30, 30);
 
+const wrappedName = doc.splitTextToSize(item.name, textWidth);
+const nameHeight = wrappedName.length * 20;
+
+y += 40; // 👈 Add margin/padding above the name to push it down
+
+doc.text(wrappedName, pagePadding + 20, y);
+
+y += nameHeight + -80; // spacing after name
+
+
+  // QR
   if (qrDataURL) {
-    doc.addImage(qrDataURL, "PNG", pageWidth - pagePadding - 90, y - 10, 80, 80); // QR on right
+    doc.addImage(qrDataURL, "PNG", pageWidth - pagePadding - 90, y - 10, 80, 80);
   }
 
-  y += 80 + 20;  // Move down by QR height + gap
+  y += Math.max(80, nameHeight) + 20;
 
-  // --- Image ---
-  doc.addImage(imageDataURL, "JPEG", pagePadding + 10, y, cardWidth - 20, 150);
-  y += 150 + 20;  // image height + spacing
+  // Target dimensions
+const targetWidth = cardWidth;
+const targetHeight = 250;
+
+// Image natural dimensions
+const imgWidth = img.naturalWidth;
+const imgHeight = img.naturalHeight;
+const imgRatio = imgWidth / imgHeight;
+const targetRatio = targetWidth / targetHeight;
+
+// Crop logic for object-fit: cover
+let drawWidth = targetWidth;
+let drawHeight = targetHeight;
+let sx = 0, sy = 0, sWidth = imgWidth, sHeight = imgHeight;
+
+if (imgRatio > targetRatio) {
+  // Image is wider than target: crop sides
+  sWidth = imgHeight * targetRatio;
+  sx = (imgWidth - sWidth) / 2;
+} else {
+  // Image is taller than target: crop top/bottom
+  sHeight = imgWidth / targetRatio;
+  sy = (imgHeight - sHeight) / 2;
+}
+
+// Create canvas to crop the image manually
+const canvas = document.createElement("canvas");
+canvas.width = sWidth;
+canvas.height = sHeight;
+const ctx = canvas.getContext("2d");
+
+// Draw cropped image on canvas
+ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
+
+// Convert cropped image to base64
+const croppedDataURL = canvas.toDataURL("image/jpeg");
+
+// Draw to PDF
+doc.addImage(croppedDataURL, "JPEG", pagePadding, y, targetWidth, targetHeight);
+y += targetHeight + 20;
 
 
   // Divider
@@ -936,18 +1109,22 @@ const fontOptions = [
   doc.line(pagePadding + 10, y, pagePadding + cardWidth - 10, y);
   y += 20;
 
-  // Category + Price
+  // Category
   doc.setFontSize(14);
   doc.setTextColor(80, 80, 80);
-  doc.text(`Category: ${item.category}`, pagePadding + 20, y);
+  const wrappedCategory = doc.splitTextToSize(`Category: ${item.category}`, textWidth);
+  doc.text(wrappedCategory, pagePadding + 20, y);
+  const categoryHeight = wrappedCategory.length * 16;
 
+  // Price
   doc.setFont("helvetica", "bold");
-  doc.setTextColor(40, 167, 69); // emerald green
+  doc.setTextColor(40, 167, 69);
   const price = `$${item.price.toFixed(2)}`;
-  const priceWidth = doc.getTextWidth(price);
-  doc.text(price, pagePadding + cardWidth - 20 - priceWidth, y);
+  const wrappedPrice = doc.splitTextToSize(price, textWidth);
+  doc.text(wrappedPrice, pagePadding + cardWidth - 20 - doc.getTextWidth(price), y);
+  const priceHeight = wrappedPrice.length * 16;
 
-  y += 25;
+  y += Math.max(categoryHeight, priceHeight) + 20;
 
   // Divider
   doc.setDrawColor(150);
@@ -955,19 +1132,33 @@ const fontOptions = [
   y += 20;
 
   // Description
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(12);
-  doc.setTextColor(60, 60, 60);
-  doc.text("Description:", pagePadding + 20, y);
-  y += 18;
+doc.setFont("helvetica", "normal");
+doc.setFontSize(12);
+doc.setTextColor(60, 60, 60);
 
-  const desc = item.description || "-";
-  const descLines = doc.splitTextToSize(desc, cardWidth - 40);
-  doc.text(descLines, pagePadding + 20, y);
+const desc = item.description || "-";
+const label = "Description:";
+const labelWidth = doc.getTextWidth(label);
+const labelX = (pageWidth - labelWidth) / 2;
 
-  // Final save
-  doc.save(`${item.name}_menu_card.pdf`);
-};
+doc.text(label, labelX, y); // center the "Description:" label
+y += 18;
+
+const wrappedDesc = doc.splitTextToSize(desc, textWidth);
+
+// Loop to center each line of description
+wrappedDesc.forEach((line, index) => {
+  const lineWidth = doc.getTextWidth(line);
+  const lineX = (pageWidth - lineWidth) / 2;
+  doc.text(line, lineX, y + index * 18);
+});
+
+y += wrappedDesc.length * 18 + 20; // update Y after all lines
+
+doc.save(`${item.name}_menu_card.pdf`);
+}
+
+
 
 
   const filteredItems = menuItems.filter((item) =>
@@ -990,16 +1181,9 @@ const handleCardFontChange = (itemId, font) => {
 };
 
   return (
-    <div style={{ background: dark ? "#1E2A38" : "#f8f9fa", minHeight: "100vh",fontFamily:"Montserrat" }}>
+    <div style={{ background: dark ? "#1E2A38" : "#f8f9fa", minHeight: "100vh",fontFamily:"Montserrat", overflowX:"hidden" }}>
       <Navbar />
-      
-      
-
-
-
-
-
-
+    
            <main style={{ padding: "40px 20px" }}>
   <h2 style={{ textAlign: "center", color: dark ? "#fff" : "#343a40" }}>Menu Items</h2>
 
@@ -1150,23 +1334,24 @@ const handleCardFontChange = (itemId, font) => {
 <div
     style={{
       display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
+      // justifyContent: "space-between",
+      alignItems: "left",
       width:"100%",
       marginBottom: "20px",
       marginTop:"20px",
       
     }}
   >
-   <div style={{ fontFamily: cardFonts[item._id] || fontOptions[0] }}>
+   {/* <div style={{ fontFamily: cardFonts[item._id] || fontOptions[0] }}> */}
     <h4  style={{
-      margin: 0,
-      fontSize: "40px",
+      marginTop: "20px",
+      fontSize: "20px",
       textAlign: "left",
-      alignSelf: "flex-end", // ensures heading sticks to top
+      // alignSelf: "flex-end", // ensures heading sticks to top
+      width:"60%",
+    wordWrap: "break-word"
     }}>{item.name}</h4>
-    </div>
-   
+    {/* </div> */}
    
    
     <QRCode
@@ -1174,6 +1359,7 @@ const handleCardFontChange = (itemId, font) => {
       size={80}
       bgColor="white"
       fgColor="black"
+      style={{width:"40%"}}
       
       value={`${window.location.origin}/view/${restaurantId}/template5`}
     />
@@ -1216,7 +1402,7 @@ const handleCardFontChange = (itemId, font) => {
 />
 
 
-  <div style={{ fontFamily: cardFonts[item._id] || fontOptions[0] }}>
+  {/* <div style={{ fontFamily: cardFonts[item._id] || fontOptions[0] }}> */}
   <div
     style={{
       display: "flex",
@@ -1224,7 +1410,8 @@ const handleCardFontChange = (itemId, font) => {
       alignItems: "center",
       marginBottom: "10px",
       marginTop:"0px",
-      gap:"100px",
+      // gap:"100px",
+      width:"100%"
     }}
   >
     <p
@@ -1232,13 +1419,16 @@ const handleCardFontChange = (itemId, font) => {
         margin: 0,
         fontWeight: "bold",
         color: "#555",
+        textAlign: "left",
+    width:"50%",
+    wordWrap: "break-word"
       }}
     >
       Category: {item.category}
     </p>
-    <strong style={{ color: "#28A745" }}>${item.price.toFixed(2)}</strong>
+    <strong style={{ color: "#28A745" , width:"50%", wordWrap: "break-word"}}>${item.price.toFixed(2)}</strong>
   </div>
-  </div>
+  {/* </div> */}
 
   {/* Divider */}
 <div
@@ -1253,18 +1443,10 @@ const handleCardFontChange = (itemId, font) => {
 
 
   {/* Row 3: Description */}
-  <div style={{ fontFamily: cardFonts[item._id] || fontOptions[0] }}>
-  <p style={{ marginBottom: "0px", color: "#444" }}>{item.description}</p>
-  </div>
+  {/* <div style={{ fontFamily: cardFonts[item._id] || fontOptions[0] }}> */}
+  <p style={{ marginBottom: "0px", color: "#444", width:"100%", wordWrap: "break-word" }}>{item.description}</p>
+  {/* </div> */}
   
-
-
-
-
-
-
-
-
   {/* PDF Download */}
   
 
@@ -1287,36 +1469,6 @@ const handleCardFontChange = (itemId, font) => {
   )}
 </main>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-      
       <ToastContainer position="top-right" autoClose={3000} />
       <Footer />
     </div>

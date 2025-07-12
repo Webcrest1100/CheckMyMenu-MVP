@@ -442,16 +442,20 @@ const handleDownloadPDF = async (item) => {
   }
 
   try {
-    // Optional: Hide download button during capture
+    // Hide download button during snapshot
     const downloadBtn = cardElement.querySelector(".btn-download");
-    if (downloadBtn) downloadBtn.style.display = "none";
+    if (downloadBtn) downloadBtn.style.visibility = "hidden";
+
+    // Wait for DOM updates (very important!)
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const canvas = await html2canvas(cardElement, {
       scale: 2,
       useCORS: true,
+      backgroundColor: null,
     });
 
-    if (downloadBtn) downloadBtn.style.display = "inline-block";
+    if (downloadBtn) downloadBtn.style.visibility = "visible";
 
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "mm", "a4");
@@ -459,13 +463,21 @@ const handleDownloadPDF = async (item) => {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
+    // Maintain aspect ratio (no stretch)
     const imgProps = pdf.getImageProperties(imgData);
     const imgRatio = imgProps.width / imgProps.height;
-    const imgWidth = pdfWidth * 0.85;
-    const imgHeight = imgWidth / imgRatio;
+
+    let imgWidth = pdfWidth * 0.85;
+    let imgHeight = imgWidth / imgRatio;
+
+    // If image too tall, scale down to fit
+    if (imgHeight > pdfHeight - 40) {
+      imgHeight = pdfHeight - 40;
+      imgWidth = imgHeight * imgRatio;
+    }
 
     const marginX = (pdfWidth - imgWidth) / 2;
-    const marginY = 30;
+    const marginY = (pdfHeight - imgHeight) / 2;
 
     pdf.addImage(imgData, "PNG", marginX, marginY, imgWidth, imgHeight);
     pdf.save(`${item.name}_menu_card.pdf`);
@@ -474,6 +486,9 @@ const handleDownloadPDF = async (item) => {
     toast.error("Failed to generate PDF.");
   }
 };
+
+
+
 
 // const handleColorChange = (color, itemId) => {
 //   setCardColors((prev) => ({
@@ -492,7 +507,7 @@ const handleDownloadPDF = async (item) => {
 
 
   return (
-    <div>
+    <div style={{overflowX:"hidden"}}>
       <Navbar />
    {/* <AddLogo/> */}
       <div className="menu-container">
@@ -506,7 +521,7 @@ const handleDownloadPDF = async (item) => {
     fgColor="black"
   />
 </div>
-        <div className="menu-grid">
+        <div className="menu-grid" style={{OverflowX:"hidden"}}>
           {loading ? (
             <p>Loading...</p>
           ) : menuItems.length === 0 ? (
@@ -521,6 +536,9 @@ const handleDownloadPDF = async (item) => {
     backgroundColor: "#1E2A38",
     color: "#ffffff",
     paddingBottom: "30px",
+    width:"100%",
+    
+
   }}
 >
 
@@ -562,6 +580,8 @@ const handleDownloadPDF = async (item) => {
     color: "#ffffff",
     marginBottom: "0.5rem",
     textAlign: "center",
+    width:"90%",
+    wordWrap: "break-word"
   }}
 >
   {item.name}
@@ -573,6 +593,8 @@ const handleDownloadPDF = async (item) => {
     color: "#ffffff",
     marginBottom: "0.5rem",
     textAlign: "center",
+    width:"90%",
+    wordWrap: "break-word"
   }}>{item.description}</p>
 <p  style={{
     fontSize: "0.95rem",
@@ -580,6 +602,8 @@ const handleDownloadPDF = async (item) => {
     color: "#ffffff",
     marginBottom: "0.5rem",
     textAlign: "center",
+    width:"90%",
+    wordWrap: "break-word"
   }}>Price: ${item.price}</p>
 <p  style={{
     fontSize: "0.95rem",
@@ -587,6 +611,8 @@ const handleDownloadPDF = async (item) => {
     color: "#ffffff",
     marginBottom: "0.5rem",
     textAlign: "center",
+    width:"90%",
+    wordWrap: "break-word"
   }}>Category: {item.category}</p>
 
 
