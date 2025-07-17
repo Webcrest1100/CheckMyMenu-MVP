@@ -380,7 +380,7 @@ export default function Template10() {
     try {
       console.log("Updating font for item ID:", itemId); // :wood: debug
       setCardFonts((prev) => ({ ...prev, [itemId]: selectedFont }));
-      await api.put(`/menu/${itemId}`, { font: selectedFont }, {
+      await api.put(`/restaurants/menu/${itemId}`, { font: selectedFont }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Font updated!");
@@ -392,7 +392,7 @@ export default function Template10() {
     try {
       console.log("Updating color for item ID:", itemId);
       setCardColors((prev) => ({ ...prev, [itemId]: selectedColor }));
-      await api.put(`/menu/${itemId}`, { color: selectedColor }, {
+      await api.put(`/restaurants/menu/${itemId}`, { color: selectedColor }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Color updated!");
@@ -404,7 +404,7 @@ export default function Template10() {
   const handleFontColorChange = async (itemId, selectedColor) => {
     try {
       setFontColors((prev) => ({ ...prev, [itemId]: selectedColor }));
-      await api.put(`/menu/${itemId}`, { fontColor: selectedColor }, {
+      await api.put(`/restaurants/menu/${itemId}`, { fontColor: selectedColor }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Font color updated!");
