@@ -676,7 +676,7 @@ export default function Dashboard() {
                 style={dynamicStyles.input}
               />
 
-              <button
+              {/* <button
                 type="button"
                 style={{
                   ...dynamicStyles.button,
@@ -730,7 +730,7 @@ export default function Dashboard() {
                     style={dynamicStyles.input}
                   />
                 </>
-              )}
+              )} */}
               <div className="button-row-restuarant">
                 <button
                   type="submit"
