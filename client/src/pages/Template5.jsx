@@ -21,7 +21,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Menu.css";
 import { SketchPicker } from "react-color";
-import { FaPalette } from "react-icons/fa"; 
+import { FaPalette } from "react-icons/fa";
 import MenuQRCode from './MenuHeadingQRCode';
 
 export default function Template5() {
@@ -131,7 +131,7 @@ export default function Template5() {
     });
     const imageUrl = item.imageUrl?.startsWith("http")
       ? item.imageUrl
-      : `http://localhost:5000${item.imageUrl}`;
+      : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
     setEditImagePreview(imageUrl);
     setShowEditModal(true);
   };
@@ -256,7 +256,7 @@ export default function Template5() {
     // Load main image
     const imageUrl = item.imageUrl?.startsWith("http")
       ? item.imageUrl
-      : `http://localhost:5000${item.imageUrl}`;
+      : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
 
     const img = new Image();
     img.crossOrigin = "Anonymous";
@@ -485,7 +485,7 @@ export default function Template5() {
             }}
           >
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollLeftFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollLeftFn}>
                 ←
               </button>
             )}
@@ -529,7 +529,7 @@ export default function Template5() {
                     }),
                   }}
                 >
-               
+
                   <div
                     style={{
                       display: "flex",
@@ -540,7 +540,7 @@ export default function Template5() {
                       marginTop: "20px",
                     }}
                   >
-                 
+
                   </div>
 
                   <button
@@ -606,7 +606,7 @@ export default function Template5() {
                     src={
                       item.imageUrl.startsWith("http")
                         ? item.imageUrl
-                        : `http://localhost:5000${item.imageUrl}`
+                        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                     }
                     alt={item.name}
                     className="menu-img"
@@ -701,7 +701,7 @@ export default function Template5() {
             </div>
 
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollRightFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollRightFn}>
                 →
               </button>
             )}

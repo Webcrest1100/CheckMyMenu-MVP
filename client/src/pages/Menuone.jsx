@@ -9,7 +9,7 @@ export default function MenuOne() {
   const { restaurantId, itemId } = useParams();
   const [menuItem, setMenuItem] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [reviews, setReviews] = useState([]); 
+  const [reviews, setReviews] = useState([]);
   // const [social, setSocial] = useState({
   //   google: [],
   //   facebook: [],
@@ -44,7 +44,7 @@ export default function MenuOne() {
     }
   };
 
-useEffect(() => {
+  useEffect(() => {
     if (!restaurantId) return;
     (async () => {
       try {
@@ -73,7 +73,7 @@ useEffect(() => {
                 src={
                   menuItem.imageUrl.startsWith("http")
                     ? menuItem.imageUrl
-                    : `http://localhost:5000${menuItem.imageUrl}`
+                    : `${import.meta.env.VITE_API_URL}${menuItem.imageUrl}`
                 }
                 alt={menuItem.name}
                 className="menu-one-image"
@@ -95,7 +95,7 @@ useEffect(() => {
         )}
       </div>
 
-  <section className="reviews">
+      <section className="reviews">
         <h3>Customer Reviews</h3>
         {loading ? (
           <p>Loading reviews…</p>

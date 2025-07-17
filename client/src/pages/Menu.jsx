@@ -117,7 +117,7 @@ export default function MenuPage() {
     // ✅ Ensure full image path for preview
     const imageUrl = item.imageUrl.startsWith("http")
       ? item.imageUrl
-      : `http://localhost:5000${item.imageUrl}`;
+      : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
     setEditImagePreview(imageUrl);
 
     setShowEditModal(true);
@@ -208,7 +208,7 @@ export default function MenuPage() {
 
   //   const imageUrl = item.imageUrl.startsWith("http")
   //     ? item.imageUrl
-  //     : `http://localhost:5000${item.imageUrl}`;
+  //     : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
 
   //   // ✅ Convert image to base64
   //   let bgDataUrl;
@@ -295,97 +295,97 @@ export default function MenuPage() {
 
 
 
-const handleDownloadPDF = async (item) => {
-  const doc = new jsPDF("p", "pt", "a4");
-  const pagePadding = 40;
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
+  const handleDownloadPDF = async (item) => {
+    const doc = new jsPDF("p", "pt", "a4");
+    const pagePadding = 40;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
 
-  const imageUrl = item.imageUrl.startsWith("http")
-    ? item.imageUrl
-    : `http://localhost:5000${item.imageUrl}`;
+    const imageUrl = item.imageUrl.startsWith("http")
+      ? item.imageUrl
+      : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
 
-  try {
-    const bgDataUrl = await convertImageToDataURL(imageUrl);
+    try {
+      const bgDataUrl = await convertImageToDataURL(imageUrl);
 
-    // 🔲 Full-page background image
-    doc.addImage(bgDataUrl, "JPEG", 0, 0, pageWidth, pageHeight);
+      // 🔲 Full-page background image
+      doc.addImage(bgDataUrl, "JPEG", 0, 0, pageWidth, pageHeight);
 
-    // 🟫 Black semi-transparent overlay
-    doc.setFillColor(0, 0, 0);
-    doc.setDrawColor(0, 0, 0);
-    doc.setGState(new doc.GState({ opacity: 0.7 }));
-    doc.rect(0, 0, pageWidth, pageHeight, "F");
+      // 🟫 Black semi-transparent overlay
+      doc.setFillColor(0, 0, 0);
+      doc.setDrawColor(0, 0, 0);
+      doc.setGState(new doc.GState({ opacity: 0.7 }));
+      doc.rect(0, 0, pageWidth, pageHeight, "F");
 
-    // ♻️ Reset opacity
-    doc.setGState(new doc.GState({ opacity: 1 }));
+      // ♻️ Reset opacity
+      doc.setGState(new doc.GState({ opacity: 1 }));
 
-    let y = pagePadding + 20;
-    const textWidth = pageWidth * 0.5;
-    const priceWidth = pageWidth * 0.3;
+      let y = pagePadding + 20;
+      const textWidth = pageWidth * 0.5;
+      const priceWidth = pageWidth * 0.3;
 
-    // 🧾 Item Name
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(26);
-    doc.setTextColor(255, 255, 255);
+      // 🧾 Item Name
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(26);
+      doc.setTextColor(255, 255, 255);
 
-    const wrappedName = doc.splitTextToSize(item.name, textWidth);
-    doc.text(wrappedName, pagePadding, y);
-    const nameHeight = wrappedName.length * 20;
+      const wrappedName = doc.splitTextToSize(item.name, textWidth);
+      doc.text(wrappedName, pagePadding, y);
+      const nameHeight = wrappedName.length * 20;
 
-    // 🔳 QR Code
-    const qrElement = document.getElementById(`qr-${item._id}`);
-    if (qrElement) {
-      const qrImg = await convertSVGToPNG(qrElement);
-      doc.addImage(qrImg, "PNG", pageWidth - pagePadding - 100, y - 65, 100, 100);
+      // 🔳 QR Code
+      const qrElement = document.getElementById(`qr-${item._id}`);
+      if (qrElement) {
+        const qrImg = await convertSVGToPNG(qrElement);
+        doc.addImage(qrImg, "PNG", pageWidth - pagePadding - 100, y - 65, 100, 100);
+      }
+
+      y += nameHeight + 40;
+
+      // ───── Divider
+      doc.setDrawColor(200);
+      doc.setLineWidth(1);
+      doc.line(pagePadding, y, pagePadding + 520, y);
+      y += 20;
+
+      // 🏷️ Category
+      doc.setFontSize(14);
+      doc.setTextColor(255);
+      const wrappedCategory = doc.splitTextToSize(`Category: ${item.category}`, textWidth);
+      doc.text(wrappedCategory, pagePadding, y);
+      const catHeight = wrappedCategory.length * 16;
+
+      // 💲 Price
+      doc.setTextColor(40, 255, 69);
+      const priceText = `Price: $${item.price.toFixed(2)}`;
+      const wrappedPrice = doc.splitTextToSize(priceText, priceWidth);
+      doc.text(wrappedPrice, pagePadding + 350, y);
+      const priceHeight = wrappedPrice.length * 16;
+
+      y += Math.max(catHeight, priceHeight) + 20;
+
+      // ───── Divider
+      doc.setDrawColor(200);
+      doc.line(pagePadding, y, pagePadding + 520, y);
+      y += 20;
+
+      // 📝 Description
+      doc.setFontSize(12);
+      doc.setTextColor(255);
+      doc.text("Description:", pagePadding, y);
+      const wrappedDesc = doc.splitTextToSize(item.description || "-", textWidth);
+      doc.text(wrappedDesc, pagePadding, y + 20);
+      const descHeight = wrappedDesc.length * 14;
+
+      y += 20 + descHeight + 20;
+
+      // 💾 Save
+      doc.save(`${item.name}_menu_card.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      toast.error("Failed to generate PDF");
     }
-
-    y += nameHeight + 40;
-
-    // ───── Divider
-    doc.setDrawColor(200);
-    doc.setLineWidth(1);
-    doc.line(pagePadding, y, pagePadding + 520, y);
-    y += 20;
-
-    // 🏷️ Category
-    doc.setFontSize(14);
-    doc.setTextColor(255);
-    const wrappedCategory = doc.splitTextToSize(`Category: ${item.category}`, textWidth);
-    doc.text(wrappedCategory, pagePadding, y);
-    const catHeight = wrappedCategory.length * 16;
-
-    // 💲 Price
-    doc.setTextColor(40, 255, 69);
-    const priceText = `Price: $${item.price.toFixed(2)}`;
-    const wrappedPrice = doc.splitTextToSize(priceText, priceWidth);
-    doc.text(wrappedPrice, pagePadding + 350, y);
-    const priceHeight = wrappedPrice.length * 16;
-
-    y += Math.max(catHeight, priceHeight) + 20;
-
-    // ───── Divider
-    doc.setDrawColor(200);
-    doc.line(pagePadding, y, pagePadding + 520, y);
-    y += 20;
-
-    // 📝 Description
-    doc.setFontSize(12);
-    doc.setTextColor(255);
-    doc.text("Description:", pagePadding, y);
-    const wrappedDesc = doc.splitTextToSize(item.description || "-", textWidth);
-    doc.text(wrappedDesc, pagePadding, y + 20);
-    const descHeight = wrappedDesc.length * 14;
-
-    y += 20 + descHeight + 20;
-
-    // 💾 Save
-    doc.save(`${item.name}_menu_card.pdf`);
-  } catch (err) {
-    console.error("PDF generation failed:", err);
-    toast.error("Failed to generate PDF");
-  }
-};
+  };
 
 
 
@@ -629,10 +629,10 @@ const handleDownloadPDF = async (item) => {
   };
 
   return (
-    <div  style={dynamicStyles.container}>
+    <div style={dynamicStyles.container}>
       <Navbar />
 
-      <main style={{ padding: "103px" , overflowX:"hidden" }}>
+      <main style={{ padding: "103px", overflowX: "hidden" }}>
         <h2 style={{ textAlign: "center", color: dark ? "#fff" : "#343a40" }}>
           Menu Items
         </h2>
@@ -675,7 +675,7 @@ const handleDownloadPDF = async (item) => {
             cursor: "pointer",
           }}
         >
-           Add Menu Item
+          Add Menu Item
         </button>
 
         {filteredItems.length > 0 ? (
@@ -688,7 +688,7 @@ const handleDownloadPDF = async (item) => {
             }}
           >
             {filteredItems.length >= 3 && (
-              <button style={{color:"white", backgroundColor:"#FFC107"}} className="scroll-button" onClick={scrollLeftFn}>
+              <button style={{ color: "white", backgroundColor: "#FFC107" }} className="scroll-button" onClick={scrollLeftFn}>
                 ←
               </button>
             )}
@@ -736,7 +736,7 @@ const handleDownloadPDF = async (item) => {
                     src={
                       item.imageUrl.startsWith("http")
                         ? item.imageUrl
-                        : `http://localhost:5000${item.imageUrl}`
+                        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                     }
                     alt={item.name}
                     className="menu-img"
@@ -756,25 +756,25 @@ const handleDownloadPDF = async (item) => {
                       alignItems: "center",
                       width: "100%",
                       marginBottom: "0px",
-                      marginTop:"20px",
+                      marginTop: "20px",
 
                     }}
                   >
                     <h4
                       style={{
                         fontSize: "20px",
-                        alignItems:"left",
+                        alignItems: "left",
                         textAlign: "left",
                         alignSelf: "flex-end", // ensures heading sticks to top
                         width: "60%",
                         margin: "0px",
-                        wordWrap: "break-word" ,
+                        wordWrap: "break-word",
                       }}
                     >
                       {item.name}
                     </h4>
                     <QRCode
-                      style={{width:"40%"}}
+                      style={{ width: "40%" }}
                       id={`qr-${item._id}`}
                       size={80}
                       bgColor="white"
@@ -800,9 +800,9 @@ const handleDownloadPDF = async (item) => {
                       display: "flex",
                       marginBottom: "10px",
                       marginTop: "0px",
-                      wordWrap: "break-word" ,
-                       width:"100%",
-                     
+                      wordWrap: "break-word",
+                      width: "100%",
+
                     }}
                   >
                     <p
@@ -810,14 +810,14 @@ const handleDownloadPDF = async (item) => {
                         margin: 0,
                         fontWeight: "bold",
                         color: "#555",
-                        width:"50%",
-                        textAlign:"left",
-                        marginTop:"10px"
+                        width: "50%",
+                        textAlign: "left",
+                        marginTop: "10px"
                       }}
                     >
                       Category: {item.category}
                     </p>
-                    <strong style={{ color: "#28A745" , width:"50%", textAlign:"right", marginTop:"10px"}}>
+                    <strong style={{ color: "#28A745", width: "50%", textAlign: "right", marginTop: "10px" }}>
                       ${item.price.toFixed(2)}
                     </strong>
                   </div>
@@ -834,7 +834,7 @@ const handleDownloadPDF = async (item) => {
                   />
 
                   {/* Row 3: Description */}
-                  <p style={{ marginBottom: "0px", color: "#444", width:"100%" , wordWrap: "break-word", textAlign: "left" }}>
+                  <p style={{ marginBottom: "0px", color: "#444", width: "100%", wordWrap: "break-word", textAlign: "left" }}>
                     {item.description}
                   </p>
 
@@ -892,7 +892,7 @@ const handleDownloadPDF = async (item) => {
                         <a
                           href={`https://wa.me/?text=${encodeURIComponent(
                             window.location.origin +
-                              `/view/${restaurantId}/menu/${item._id}`
+                            `/view/${restaurantId}/menu/${item._id}`
                           )}`}
                           target="_blank"
                           rel="noreferrer"
@@ -967,7 +967,7 @@ const handleDownloadPDF = async (item) => {
             </div>
 
             {filteredItems.length >= 3 && (
-              <button style={{color:"white", backgroundColor:"#FFC107"}} className="scroll-button" onClick={scrollRightFn}>
+              <button style={{ color: "white", backgroundColor: "#FFC107" }} className="scroll-button" onClick={scrollRightFn}>
                 →
               </button>
             )}
@@ -987,7 +987,7 @@ const handleDownloadPDF = async (item) => {
             style={dynamicStyles.form}
           >
             <h4 className="formfield1" >
-              Name <span style={{color: "red"}}> * </span>
+              Name <span style={{ color: "red" }}> * </span>
             </h4>
             <input
               type="text"
@@ -1008,7 +1008,7 @@ const handleDownloadPDF = async (item) => {
               style={dynamicStyles.input}
             />
             <h4 className="formfield" >
-              Price <span style={{color: "red"}}> * </span>
+              Price <span style={{ color: "red" }}> * </span>
             </h4>
             <input
               type="number"
@@ -1021,7 +1021,7 @@ const handleDownloadPDF = async (item) => {
               style={dynamicStyles.input}
             />
             <h4 className="formfield" >
-              Category <span style={{color: "red"}}> * </span>
+              Category <span style={{ color: "red" }}> * </span>
             </h4>
             <input
               type="text"
@@ -1034,7 +1034,7 @@ const handleDownloadPDF = async (item) => {
             />
             {/* <h4 className="formfield1" style={{  justifyContent: "left" }}>Item image </h4> */}
             <h4 className="formfield1" style={{ justifyContent: "left" }}>
-              Image <span style={{color: "red"}}> * </span>
+              Image <span style={{ color: "red" }}> * </span>
             </h4>
             <input
               type="file"
@@ -1062,7 +1062,7 @@ const handleDownloadPDF = async (item) => {
                 gap: "30px",
               }}
             >
-              <button type="submit" style={{backgroundColor: "#FFC107"}} className="add-btn">
+              <button type="submit" style={{ backgroundColor: "#FFC107" }} className="add-btn">
                 Add
               </button>
               <button
@@ -1085,7 +1085,7 @@ const handleDownloadPDF = async (item) => {
             style={dynamicStyles.form}
           >
             <h4 className="formfield1" >
-              Name <span style={{color: "red"}}> * </span>
+              Name <span style={{ color: "red" }}> * </span>
             </h4>
             <input
               type="text"
@@ -1110,7 +1110,7 @@ const handleDownloadPDF = async (item) => {
             />
 
             <h4 className="formfield" style={{ justifyContent: "left" }}>
-              Price <span style={{color: "red"}}> * </span>
+              Price <span style={{ color: "red" }}> * </span>
             </h4>
             <input
               type="number"
@@ -1124,7 +1124,7 @@ const handleDownloadPDF = async (item) => {
             />
 
             <h4 className="formfield" style={{ justifyContent: "left" }}>
-              Category <span style={{color: "red"}}> * </span>
+              Category <span style={{ color: "red" }}> * </span>
             </h4>
             <input
               type="text"
@@ -1137,7 +1137,7 @@ const handleDownloadPDF = async (item) => {
             />
 
             <h4 className="formfield" style={{ justifyContent: "left" }}>
-              Image <span style={{color: "red"}}> * </span>
+              Image <span style={{ color: "red" }}> * </span>
             </h4>
             <input
               type="file"
@@ -1166,7 +1166,7 @@ const handleDownloadPDF = async (item) => {
                 gap: "30px",
               }}
             >
-              <button type="submit" style={{backgroundColor:"#FFC107", padding: "12px"}} className="add-btn">
+              <button type="submit" style={{ backgroundColor: "#FFC107", padding: "12px" }} className="add-btn">
                 Update
               </button>
               <button
@@ -1193,7 +1193,7 @@ const handleDownloadPDF = async (item) => {
       yellow: "#FFC107",
       charcoal: "#343A40",
 
-        scrollButton: {
+      scrollButton: {
         fontSize: "1.5rem",
         padding: "0.5rem",
         cursor: "pointer",
@@ -1206,7 +1206,7 @@ const handleDownloadPDF = async (item) => {
       container: {
         fontFamily: "Montserrat",
         boxSizing: "border-box",
-        overflowX:"hidden"
+        overflowX: "hidden"
 
       },
       main: {

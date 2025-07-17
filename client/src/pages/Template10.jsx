@@ -120,12 +120,12 @@ export default function Template10() {
         res.data.forEach((item) => {
           fonts[item._id] = item.font || "Arial";
           colors[item._id] = item.color || "#ffffff";
-          fontColorMap[item._id] = item.fontColor || "#000000"; 
+          fontColorMap[item._id] = item.fontColor || "#000000";
         });
 
         setCardFonts(fonts);
         setCardColors(colors);
-        setFontColors(fontColorMap); 
+        setFontColors(fontColorMap);
       } catch (err) {
         console.error("Failed to fetch menu items:", err);
       }
@@ -156,7 +156,7 @@ export default function Template10() {
   const convertImageToDataURL = (url) => {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      img.crossOrigin = "Anonymous"; 
+      img.crossOrigin = "Anonymous";
       img.onload = () => {
         const canvas = document.createElement("canvas");
         canvas.width = img.width;
@@ -239,7 +239,7 @@ export default function Template10() {
 
       const imageUrl = item.imageUrl.startsWith("http")
         ? item.imageUrl
-        : `http://localhost:5000${item.imageUrl}`;
+        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
       const itemImageData = await convertImageToDataURL(imageUrl);
 
       const img = new Image();
@@ -299,10 +299,10 @@ export default function Template10() {
       const wrappedName = doc.splitTextToSize(item.name, contentWidth);
       const nameHeight = wrappedName.length * 24;
 
-      y += 10; 
+      y += 10;
       doc.text(wrappedName, pagePadding, y);
 
-      y += nameHeight + -80; 
+      y += nameHeight + -80;
 
       const qrSize = 80;
       const qrElement = document.getElementById(`qr-${item._id}`);
@@ -337,12 +337,12 @@ export default function Template10() {
       doc.text(categoryLines, pagePadding, y);
       const catHeight = categoryLines.length * 18;
 
-      y += catHeight + 10; 
+      y += catHeight + 10;
 
       const priceText = `Price: $${item.price.toFixed(2)}`;
-      doc.text(priceText, pagePadding, y); 
+      doc.text(priceText, pagePadding, y);
 
-      y += 30; 
+      y += 30;
 
       // Divider
       doc.line(pagePadding, y, pageWidth - pagePadding, y);
@@ -376,7 +376,7 @@ export default function Template10() {
     setExpandedCard(expandedCard === itemId ? null : itemId);
   };
   const dynamicStyles = getStyles(dark);
-const handleFontChange = async (itemId, selectedFont) => {
+  const handleFontChange = async (itemId, selectedFont) => {
     try {
       console.log("Updating font for item ID:", itemId); // :wood: debug
       setCardFonts((prev) => ({ ...prev, [itemId]: selectedFont }));
@@ -424,7 +424,7 @@ const handleFontChange = async (itemId, selectedFont) => {
     >
       <Navbar />
       <main style={{ padding: "40px 20px" }}>
-      <MenuQRCode restaurantId={restaurantId} template="template1" />
+        <MenuQRCode restaurantId={restaurantId} template="template1" />
 
         {filteredItems.length > 0 ? (
           <div
@@ -436,7 +436,7 @@ const handleFontChange = async (itemId, selectedFont) => {
             }}
           >
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollLeftFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollLeftFn}>
                 ←
               </button>
             )}
@@ -465,7 +465,7 @@ const handleFontChange = async (itemId, selectedFont) => {
                     borderRadius: "10px",
                     padding: "16px",
                     marginBottom: "20px",
-                    backgroundColor: cardColors[item._id] || "#fff", 
+                    backgroundColor: cardColors[item._id] || "#fff",
                     boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
                     maxWidth: "400px",
                     cursor: "pointer",
@@ -561,8 +561,8 @@ const handleFontChange = async (itemId, selectedFont) => {
                         }}
                       >
                         {[
-                          "#000000", 
-                          "#ffffff", 
+                          "#000000",
+                          "#ffffff",
                         ].map((color) => (
                           <option
                             key={color}
@@ -581,7 +581,7 @@ const handleFontChange = async (itemId, selectedFont) => {
                     src={
                       item.imageUrl.startsWith("http")
                         ? item.imageUrl
-                        : `http://localhost:5000${item.imageUrl}`
+                        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                     }
                     alt={item.name}
                     className="menu-img"
@@ -594,7 +594,7 @@ const handleFontChange = async (itemId, selectedFont) => {
                       paddingTop: "20px",
                     }}
                   />
-                  
+
                   <div
                     style={{
                       display: "flex",
@@ -619,7 +619,7 @@ const handleFontChange = async (itemId, selectedFont) => {
                     >
                       {item.name}
                     </h4>
-                    
+
                     <QRCode
                       id={`qr-${item._id}`}
                       size={80}
@@ -634,12 +634,12 @@ const handleFontChange = async (itemId, selectedFont) => {
                     style={{
                       width: "100%",
                       height: "2px",
-                      backgroundColor: "#999", 
+                      backgroundColor: "#999",
                       margin: "10px ",
                       borderRadius: "2px",
                     }}
                   />
-                  
+
                   <div
                     style={{
                       display: "flex",
@@ -738,7 +738,7 @@ const handleFontChange = async (itemId, selectedFont) => {
               ))}
             </div>
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollRightFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollRightFn}>
                 →
               </button>
             )}

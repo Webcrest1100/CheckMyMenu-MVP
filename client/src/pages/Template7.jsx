@@ -119,7 +119,7 @@ export default function Template7() {
     });
     const imageUrl = item.imageUrl?.startsWith("http")
       ? item.imageUrl
-      : `http://localhost:5000${item.imageUrl}`;
+      : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
     setEditImagePreview(imageUrl);
     setShowEditModal(true);
   };
@@ -252,7 +252,7 @@ export default function Template7() {
       // 🖼️ Image conversion
       const imageUrl = item.imageUrl.startsWith("http")
         ? item.imageUrl
-        : `http://localhost:5000${item.imageUrl}`;
+        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
       const imgData = await convertImageToDataURL(imageUrl);
 
       // 🔳 QR code conversion
@@ -427,7 +427,7 @@ export default function Template7() {
       <Navbar />
 
       <main style={{ padding: "40px 20px" }}>
-             <MenuQRCode restaurantId={restaurantId} template="template7" />
+        <MenuQRCode restaurantId={restaurantId} template="template7" />
 
         {filteredItems.length > 0 ? (
           <div
@@ -438,11 +438,11 @@ export default function Template7() {
               userSelect: "none",
               background: "#343434",
               paddingBottom: "80px",
-            
+
             }}
           >
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollLeftFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollLeftFn}>
                 ←
               </button>
             )}
@@ -460,7 +460,7 @@ export default function Template7() {
                 gap: "20px",
                 cursor: isDragging ? "grabbing" : "grab",
                 padding: "10px",
-                marginTop:"65px"
+                marginTop: "65px"
               }}
             >
               {filteredItems.map((item) => (
@@ -494,7 +494,7 @@ export default function Template7() {
                       src={
                         item.imageUrl.startsWith("http")
                           ? item.imageUrl
-                          : `http://localhost:5000${item.imageUrl}`
+                          : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                       }
                       alt={item.name}
                       className="menu-img"
@@ -643,7 +643,7 @@ export default function Template7() {
               ))}
             </div>
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollRightFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollRightFn}>
                 →
               </button>
             )}

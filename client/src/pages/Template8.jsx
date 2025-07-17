@@ -121,7 +121,7 @@ export default function MasonryMenu() {
     >
       <Navbar />
       <main style={{ padding: "40px 20px" }}>
-      <MenuQRCode restaurantId={restaurantId} template="template8" />
+        <MenuQRCode restaurantId={restaurantId} template="template8" />
         <div className="masonry-grid">
           {menuItems.map((item) => (
             <div
@@ -134,7 +134,7 @@ export default function MasonryMenu() {
                 src={
                   item.imageUrl.startsWith("http")
                     ? item.imageUrl
-                    : `http://localhost:5000${item.imageUrl}`
+                    : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                 }
                 alt={item.name}
                 style={{

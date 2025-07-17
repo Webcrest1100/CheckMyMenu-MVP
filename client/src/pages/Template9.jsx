@@ -53,7 +53,7 @@ export default function Template9() {
   const token = localStorage.getItem("token");
   const [expandedCard, setExpandedCard] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
-  
+
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -121,7 +121,7 @@ export default function Template9() {
     });
     const imageUrl = item.imageUrl?.startsWith("http")
       ? item.imageUrl
-      : `http://localhost:5000${item.imageUrl}`;
+      : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
     setEditImagePreview(imageUrl);
     setShowEditModal(true);
   };
@@ -248,7 +248,7 @@ export default function Template9() {
       // Load Image
       const imageUrl = item.imageUrl?.startsWith("http")
         ? item.imageUrl
-        : `http://localhost:5000${item.imageUrl}`;
+        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
       const imageDataUrl = await convertImageToDataURL(imageUrl);
 
       // Card Background
@@ -433,7 +433,7 @@ export default function Template9() {
       <Navbar />
 
       <main style={{ padding: "40px 20px" }}>
-      <MenuQRCode restaurantId={restaurantId} template="template8" />
+        <MenuQRCode restaurantId={restaurantId} template="template8" />
 
         {filteredItems.length > 0 ? (
           <div
@@ -445,7 +445,7 @@ export default function Template9() {
             }}
           >
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollLeftFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollLeftFn}>
                 ←
               </button>
             )}
@@ -550,7 +550,7 @@ export default function Template9() {
                     src={
                       item.imageUrl.startsWith("http")
                         ? item.imageUrl
-                        : `http://localhost:5000${item.imageUrl}`
+                        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                     }
                     alt={item.name}
                     className="menu-img"
@@ -634,7 +634,7 @@ export default function Template9() {
             </div>
 
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollRightFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollRightFn}>
                 →
               </button>
             )}

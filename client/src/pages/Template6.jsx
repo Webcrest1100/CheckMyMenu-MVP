@@ -82,7 +82,7 @@ export default function Template6() {
     >
       <Navbar />
       <main style={{ padding: "40px 20px" }}>
-      <MenuQRCode restaurantId={restaurantId} template="template6" />
+        <MenuQRCode restaurantId={restaurantId} template="template6" />
         <div
           style={{
             display: "flex",
@@ -117,7 +117,7 @@ export default function Template6() {
                   src={
                     item.imageUrl.startsWith("http")
                       ? item.imageUrl
-                      : `http://localhost:5000${item.imageUrl}`
+                      : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                   }
                   alt={item.name}
                   style={{

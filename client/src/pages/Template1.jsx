@@ -157,7 +157,7 @@ export default function Template1() {
   return (
     <div style={{ overflowX: "hidden" }}>
       <Navbar />
-      
+
       <div className="menu-container">
         {/* <h2 className="menu-heading">Menu Management</h2>
         <div
@@ -202,7 +202,7 @@ export default function Template1() {
                     src={
                       item.imageUrl.startsWith("http")
                         ? item.imageUrl
-                        : `http://localhost:5000${item.imageUrl}`
+                        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                     }
                     alt={item.name}
                     className="menu-img"
