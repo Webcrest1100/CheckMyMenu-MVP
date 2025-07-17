@@ -6,18 +6,42 @@ import Footer from "./Footer";
 import { useTheme } from "./ThemeContext";
 import { jsPDF } from "jspdf";
 import QRCode from "react-qr-code";
-import { FaFacebookF, FaTwitter, FaWhatsapp, FaInstagram, FaLinkedinIn, FaLink, FaEdit, FaTrash, FaDownload } from "react-icons/fa";
+import {
+  FaFacebookF,
+  FaTwitter,
+  FaWhatsapp,
+  FaInstagram,
+  FaLinkedinIn,
+  FaLink,
+  FaEdit,
+  FaTrash,
+  FaDownload,
+} from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Menu.css";
 import UploadLogo from "./UploadLogo";
+import MenuQRCode from './MenuHeadingQRCode';
+
 export default function Template10() {
   const { dark } = useTheme();
   const [menuItems, setMenuItems] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [newItem, setNewItem] = useState({ name: "", description: "", price: "", category: "", image: null });
-  const [editForm, setEditForm] = useState({ name: "", description: "", price: "", category: "", image: null });
+  const [newItem, setNewItem] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    image: null,
+  });
+  const [editForm, setEditForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    image: null,
+  });
   const [editingItem, setEditingItem] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [editImagePreview, setEditImagePreview] = useState(null);
@@ -30,16 +54,49 @@ export default function Template10() {
   const token = localStorage.getItem("token");
   const [expandedCard, setExpandedCard] = useState(null);
   const fontOptions = [
-    "Arial", "Times New Roman", "Courier New", "Georgia", "Verdana",
-    "Tahoma", "Trebuchet MS", "Lucida Console", "Segoe UI", "Comic Sans MS"
+    "Arial",
+    "Times New Roman",
+    "Courier New",
+    "Georgia",
+    "Verdana",
+    "Tahoma",
+    "Trebuchet MS",
+    "Lucida Console",
+    "Segoe UI",
+    "Comic Sans MS",
   ];
   const [cardFonts, setCardFonts] = useState({});
   const colorOptions = [
-    "#ffffff", "#f8f9fa", "#ffc107", "#28a745", "#343a40", "#007bff",
-    "#6f42c1", "#dc3545", "#17a2b8", "#fd7e14", "#20c997", "#6610f2",
-    "#e83e8c", "#ff6b6b", "#1E2A38", "#00bcd4", "#9c27b0", "#4caf50",
-    "#8bc34a", "#cddc39", "#ffeb3b", "#ff9800", "#795548", "#607d8b",
-    "#3f51b5", "#f44336", "#2196f3", "#00bfa5", "#ff5722", "#880e4f"
+    "#ffffff",
+    "#f8f9fa",
+    "#ffc107",
+    "#28a745",
+    "#343a40",
+    "#007bff",
+    "#6f42c1",
+    "#dc3545",
+    "#17a2b8",
+    "#fd7e14",
+    "#20c997",
+    "#6610f2",
+    "#e83e8c",
+    "#ff6b6b",
+    "#1E2A38",
+    "#00bcd4",
+    "#9c27b0",
+    "#4caf50",
+    "#8bc34a",
+    "#cddc39",
+    "#ffeb3b",
+    "#ff9800",
+    "#795548",
+    "#607d8b",
+    "#3f51b5",
+    "#f44336",
+    "#2196f3",
+    "#00bfa5",
+    "#ff5722",
+    "#880e4f",
   ];
   const [cardColors, setCardColors] = useState({});
   const [restaurantLogoUrl, setRestaurantLogoUrl] = useState(null);
@@ -56,7 +113,6 @@ export default function Template10() {
 
         setMenuItems(res.data);
 
-        // ✅ Fonts, Colors, and Font Colors
         const fonts = {};
         const colors = {};
         const fontColorMap = {};
@@ -64,12 +120,12 @@ export default function Template10() {
         res.data.forEach((item) => {
           fonts[item._id] = item.font || "Arial";
           colors[item._id] = item.color || "#ffffff";
-          fontColorMap[item._id] = item.fontColor || "#000000"; // default font color
+          fontColorMap[item._id] = item.fontColor || "#000000"; 
         });
 
         setCardFonts(fonts);
         setCardColors(colors);
-        setFontColors(fontColorMap); // <- This is what you're asking about
+        setFontColors(fontColorMap); 
       } catch (err) {
         console.error("Failed to fetch menu items:", err);
       }
@@ -77,7 +133,6 @@ export default function Template10() {
 
     fetchMenuItems();
   }, [restaurantId, token]);
-
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -94,12 +149,14 @@ export default function Template10() {
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  const scrollLeftFn = () => scrollContainerRef.current.scrollBy({ left: -300, behavior: "smooth" });
-  const scrollRightFn = () => scrollContainerRef.current.scrollBy({ left: 300, behavior: "smooth" });
+  const scrollLeftFn = () =>
+    scrollContainerRef.current.scrollBy({ left: -300, behavior: "smooth" });
+  const scrollRightFn = () =>
+    scrollContainerRef.current.scrollBy({ left: 300, behavior: "smooth" });
   const convertImageToDataURL = (url) => {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      img.crossOrigin = "Anonymous"; // Allow CORS
+      img.crossOrigin = "Anonymous"; 
       img.onload = () => {
         const canvas = document.createElement("canvas");
         canvas.width = img.width;
@@ -115,307 +172,201 @@ export default function Template10() {
       img.src = url;
     });
   };
-  const convertSVGToPNG = (svgElement) => new Promise((resolve, reject) => {
-    const svg = new XMLSerializer().serializeToString(svgElement);
-    const svgBase64 = `data:image/svg+xml;base64,${btoa(svg)}`;
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL("image/png"));
-    };
-    img.onerror = reject;
-    img.src = svgBase64;
-  });
+  const convertSVGToPNG = (svgElement) =>
+    new Promise((resolve, reject) => {
+      const svg = new XMLSerializer().serializeToString(svgElement);
+      const svgBase64 = `data:image/svg+xml;base64,${btoa(svg)}`;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = reject;
+      img.src = svgBase64;
+    });
   const fontMap = {
-    "Arial": "helvetica",
-    "Helvetica": "helvetica",
+    Arial: "helvetica",
+    Helvetica: "helvetica",
     "Times New Roman": "times",
-    "Georgia": "times",
+    Georgia: "times",
     "Courier New": "courier",
-    "Verdana": "helvetica",
-    "Tahoma": "helvetica",
+    Verdana: "helvetica",
+    Tahoma: "helvetica",
     "Trebuchet MS": "helvetica",
     "Lucida Console": "courier",
     "Segoe UI": "helvetica",
-    "Comic Sans MS": "courier" // closest fallback
+    "Comic Sans MS": "courier",
   };
 
-  // git remote add origin https://github.com/Webcrest1100/CheckMyMenu-MVP.git
-  // https://github.com/Webcrest1100/CheckMyMenu-MVP
+  const handleDownloadPDF = async (item) => {
+    const doc = new jsPDF("p", "pt", "a4");
+    const pagePadding = 40;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let y = pagePadding;
 
-// const handleDownloadPDF = async (item) => {
-//   const doc = new jsPDF("p", "pt", "a4");
-//   const pagePadding = 40;
-//   const pageWidth = doc.internal.pageSize.getWidth();
-//   const pageHeight = doc.internal.pageSize.getHeight();
-//   let y = pagePadding;
+    const fontFamily = cardFonts[item._id] || "Arial";
+    const jsPDFfont = fontMap[fontFamily] || "helvetica";
+    const bgColor = cardColors[item._id] || "#ffffff";
+    const fontColor = fontColors[item._id] || "#000000";
+    const contentWidth = (pageWidth - 2 * pagePadding) * 0.5;
 
-//   const fontFamily = cardFonts[item._id] || "Arial";
-//   const jsPDFfont = fontMap[fontFamily] || "helvetica";
-//   const bgColor = cardColors[item._id] || "#ffffff";
-//   const fontColor = fontColors[item._id] || "#000000";
+    const hexToRgb = (hex) => {
+      const bigint = parseInt(hex.replace("#", ""), 16);
+      return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+    };
 
-//   const hexToRgb = (hex) => {
-//     const bigint = parseInt(hex.replace("#", ""), 16);
-//     return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
-//   };
+    try {
 
-//   try {
-//     // 🎨 Background
-//     const [bgR, bgG, bgB] = hexToRgb(bgColor);
-//     doc.setFillColor(bgR, bgG, bgB);
-//     doc.rect(0, 0, pageWidth, pageHeight, "F");
+      const [bgR, bgG, bgB] = hexToRgb(bgColor);
+      doc.setFillColor(bgR, bgG, bgB);
+      doc.rect(0, 0, pageWidth, pageHeight, "F");
 
-//     // 🖼️ Logo
-//     const logoUrl = restaurantLogoUrl;
-//     if (logoUrl) {
-//       const logoData = await convertImageToDataURL(logoUrl);
-//       const logoWidth = 100;
-//       const logoHeight = 100;
-//       const logoX = (pageWidth - logoWidth) / 2;
-//       doc.addImage(logoData, "PNG", logoX, y, logoWidth, logoHeight);
-//     }
+      const logoUrl = restaurantLogoUrl;
+      if (logoUrl) {
+        const logoData = await convertImageToDataURL(logoUrl);
+        const logoWidth = 100;
+        const logoHeight = 100;
+        const logoX = (pageWidth - logoWidth) / 2;
+        doc.addImage(logoData, "PNG", logoX, y, logoWidth, logoHeight);
+      }
 
-//     y += 120;
+      y += 120;
 
-//     // 🍽️ Image with object-fit: cover (center crop)
-//     const imageUrl = item.imageUrl.startsWith("http")
-//       ? item.imageUrl
-//       : `http://localhost:5000${item.imageUrl}`;
-//     const itemImageData = await convertImageToDataURL(imageUrl);
+      const imageUrl = item.imageUrl.startsWith("http")
+        ? item.imageUrl
+        : `http://localhost:5000${item.imageUrl}`;
+      const itemImageData = await convertImageToDataURL(imageUrl);
 
-//     const img = new Image();
-//     img.src = itemImageData;
-//     await new Promise((resolve) => (img.onload = resolve));
+      const img = new Image();
+      img.src = itemImageData;
+      await new Promise((resolve) => (img.onload = resolve));
 
-//     const targetWidth = pageWidth - 2 * pagePadding;
-//     const targetHeight = 250;
-//     const canvas = document.createElement("canvas");
-//     canvas.width = targetWidth;
-//     canvas.height = targetHeight;
-//     const ctx = canvas.getContext("2d");
+      const targetWidth = pageWidth - 2 * pagePadding;
+      const targetHeight = 250;
 
-//     const imgRatio = img.width / img.height;
-//     const targetRatio = targetWidth / targetHeight;
+      const canvas = document.createElement("canvas");
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext("2d");
 
-//     let srcX = 0, srcY = 0, srcW = img.width, srcH = img.height;
+      const imgRatio = img.width / img.height;
+      const targetRatio = targetWidth / targetHeight;
 
-//     if (imgRatio > targetRatio) {
-//       srcW = img.height * targetRatio;
-//       srcX = (img.width - srcW) / 2;
-//     } else {
-//       srcH = img.width / targetRatio;
-//       srcY = (img.height - srcH) / 2;
-//     }
+      let srcX = 0,
+        srcY = 0,
+        srcW = img.width,
+        srcH = img.height;
+      if (imgRatio > targetRatio) {
+        srcW = img.height * targetRatio;
+        srcX = (img.width - srcW) / 2;
+      } else {
+        srcH = img.width / targetRatio;
+        srcY = (img.height - srcH) / 2;
+      }
 
-//     ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, targetWidth, targetHeight);
-//     const croppedImageData = canvas.toDataURL("image/jpeg");
-//     doc.addImage(croppedImageData, "JPEG", pagePadding, y, targetWidth, targetHeight);
-//     y += targetHeight + 20;
+      ctx.drawImage(
+        img,
+        srcX,
+        srcY,
+        srcW,
+        srcH,
+        0,
+        0,
+        targetWidth,
+        targetHeight
+      );
+      const croppedImageData = canvas.toDataURL("image/jpeg");
+      doc.addImage(
+        croppedImageData,
+        "JPEG",
+        pagePadding,
+        y,
+        targetWidth,
+        targetHeight
+      );
+      y += targetHeight + 80;
 
-//     // 🔤 Name + QR
-//     const [r, g, b] = hexToRgb(fontColor);
-//     doc.setFont(jsPDFfont, "bold");
-//     doc.setFontSize(26);
-//     doc.setTextColor(r, g, b);
+      const [r, g, b] = hexToRgb(fontColor);
+      doc.setFont(jsPDFfont, "bold");
+      doc.setFontSize(26);
+      doc.setTextColor(r, g, b);
 
-//     const qrSize = 80;
-//     const qrY = y + 10;
-//     const nameY = qrY + qrSize - 4; // Align to bottom of QR
-//     doc.text(item.name, pagePadding, nameY);
+      const wrappedName = doc.splitTextToSize(item.name, contentWidth);
+      const nameHeight = wrappedName.length * 24;
 
-//     const qrElement = document.getElementById(`qr-${item._id}`);
-//     if (qrElement) {
-//       const qrImg = await convertSVGToPNG(qrElement);
-//       doc.addImage(qrImg, "PNG", pageWidth - pagePadding - qrSize, qrY, qrSize, qrSize);
-//     }
+      y += 10; 
+      doc.text(wrappedName, pagePadding, y);
 
-//     y = qrY + qrSize + 30;
+      y += nameHeight + -80; 
 
-//     // Divider
-//     doc.setDrawColor(100);
-//     doc.setLineWidth(1);
-//     doc.line(pagePadding, y, pageWidth - pagePadding, y);
-//     y += 20;
+      const qrSize = 80;
+      const qrElement = document.getElementById(`qr-${item._id}`);
+      if (qrElement) {
+        const qrImg = await convertSVGToPNG(qrElement);
+        doc.addImage(
+          qrImg,
+          "PNG",
+          pageWidth - pagePadding - qrSize,
+          y - 10,
+          qrSize,
+          qrSize
+        );
+      }
 
-//     // 📂 Category + 💰 Price
-//     doc.setFontSize(14);
-//     doc.setFont(jsPDFfont, "normal");
-//     doc.setTextColor(r, g, b);
-//     doc.text(`Category: ${item.category}`, pagePadding, y);
-//     const priceText = `Price: $${item.price.toFixed(2)}`;
-//     const priceWidth = doc.getTextWidth(priceText);
-//     doc.text(priceText, pageWidth - pagePadding - priceWidth, y); // right-align
+      y += Math.max(nameHeight, qrSize) + 30;
 
-//     y += 30;
+      // Divider
+      doc.setDrawColor(100);
+      doc.setLineWidth(1);
+      doc.line(pagePadding, y, pageWidth - pagePadding, y);
+      y += 20;
 
-//     // Divider
-//     doc.line(pagePadding, y, pageWidth - pagePadding, y);
-//     y += 20;
+      doc.setFontSize(14);
+      doc.setFont(jsPDFfont, "normal");
+      doc.setTextColor(r, g, b);
 
-//     // 📝 Description
-//     doc.setFontSize(12);
-//     doc.setTextColor(r, g, b);
-//     const descLines = doc.splitTextToSize(`Description: ${item.description || "-"}`, pageWidth - 2 * pagePadding);
-//     doc.text(descLines, pagePadding, y);
+      const categoryLines = doc.splitTextToSize(
+        `Category: ${item.category}`,
+        contentWidth
+      );
+      doc.text(categoryLines, pagePadding, y);
+      const catHeight = categoryLines.length * 18;
 
-//     // 💾 Save
-//     doc.save(`${item.name}_menu_card.pdf`);
-//   } catch (err) {
-//     console.error("Error generating PDF:", err);
-//     toast.error("Failed to generate PDF");
-//   }
-// };
+      y += catHeight + 10; 
 
+      const priceText = `Price: $${item.price.toFixed(2)}`;
+      doc.text(priceText, pagePadding, y); 
 
+      y += 30; 
 
-const handleDownloadPDF = async (item) => {
-  const doc = new jsPDF("p", "pt", "a4");
-  const pagePadding = 40;
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  let y = pagePadding;
+      // Divider
+      doc.line(pagePadding, y, pageWidth - pagePadding, y);
+      y += 20;
 
-  const fontFamily = cardFonts[item._id] || "Arial";
-  const jsPDFfont = fontMap[fontFamily] || "helvetica";
-  const bgColor = cardColors[item._id] || "#ffffff";
-  const fontColor = fontColors[item._id] || "#000000";
-  const contentWidth = (pageWidth - 2 * pagePadding) * 0.5; // 50% width
+      doc.setFontSize(12);
+      const descLines = doc.splitTextToSize(
+        `Description: ${item.description || "-"}`,
+        contentWidth
+      );
 
-  const hexToRgb = (hex) => {
-    const bigint = parseInt(hex.replace("#", ""), 16);
-    return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+      descLines.forEach((line, index) => {
+        const lineWidth = doc.getTextWidth(line);
+        const x = (pageWidth - lineWidth) / 2;
+        doc.text(line, x, y + index * 18);
+      });
+
+      y += descLines.length * 18 + 20;
+
+      doc.save(`${item.name}_menu_card.pdf`);
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+    }
   };
-
-  try {
-    // Background
-    const [bgR, bgG, bgB] = hexToRgb(bgColor);
-    doc.setFillColor(bgR, bgG, bgB);
-    doc.rect(0, 0, pageWidth, pageHeight, "F");
-
-    // Logo
-    const logoUrl = restaurantLogoUrl;
-    if (logoUrl) {
-      const logoData = await convertImageToDataURL(logoUrl);
-      const logoWidth = 100;
-      const logoHeight = 100;
-      const logoX = (pageWidth - logoWidth) / 2;
-      doc.addImage(logoData, "PNG", logoX, y, logoWidth, logoHeight);
-    }
-
-    y += 120;
-
-    // Image
-    const imageUrl = item.imageUrl.startsWith("http")
-      ? item.imageUrl
-      : `http://localhost:5000${item.imageUrl}`;
-    const itemImageData = await convertImageToDataURL(imageUrl);
-
-    const img = new Image();
-    img.src = itemImageData;
-    await new Promise((resolve) => (img.onload = resolve));
-
-    const targetWidth = pageWidth - 2 * pagePadding;
-    const targetHeight = 250;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
-    const ctx = canvas.getContext("2d");
-
-    const imgRatio = img.width / img.height;
-    const targetRatio = targetWidth / targetHeight;
-
-    let srcX = 0, srcY = 0, srcW = img.width, srcH = img.height;
-    if (imgRatio > targetRatio) {
-      srcW = img.height * targetRatio;
-      srcX = (img.width - srcW) / 2;
-    } else {
-      srcH = img.width / targetRatio;
-      srcY = (img.height - srcH) / 2;
-    }
-
-    ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, targetWidth, targetHeight);
-    const croppedImageData = canvas.toDataURL("image/jpeg");
-    doc.addImage(croppedImageData, "JPEG", pagePadding, y, targetWidth, targetHeight);
-    y += targetHeight + 80;
-
-    const [r, g, b] = hexToRgb(fontColor);
-    doc.setFont(jsPDFfont, "bold");
-    doc.setFontSize(26);
-    doc.setTextColor(r, g, b);
-
-    const wrappedName = doc.splitTextToSize(item.name, contentWidth);
-const nameHeight = wrappedName.length * 24;
-
-y += 10; // Add 10pt top margin before drawing name
-doc.text(wrappedName, pagePadding, y);
-
-y += nameHeight + -80; // Continue spacing after name
-
-
-    // QR code
-    const qrSize = 80;
-    const qrElement = document.getElementById(`qr-${item._id}`);
-    if (qrElement) {
-      const qrImg = await convertSVGToPNG(qrElement);
-      doc.addImage(qrImg, "PNG", pageWidth - pagePadding - qrSize, y - 10, qrSize, qrSize);
-    }
-
-    y += Math.max(nameHeight, qrSize) + 30;
-
-    // Divider
-    doc.setDrawColor(100);
-    doc.setLineWidth(1);
-    doc.line(pagePadding, y, pageWidth - pagePadding, y);
-    y += 20;
-
-    // Category + Price (both wrapped at 50% and 30%)
-    doc.setFontSize(14);
-    doc.setFont(jsPDFfont, "normal");
-    doc.setTextColor(r, g, b);
-
-    const categoryLines = doc.splitTextToSize(`Category: ${item.category}`, contentWidth);
-doc.text(categoryLines, pagePadding, y);
-const catHeight = categoryLines.length * 18;
-
-y += catHeight + 10; // move Y down after category
-
-const priceText = `Price: $${item.price.toFixed(2)}`;
-doc.text(priceText, pagePadding, y); // aligned left under category
-
-y += 30; // add spacing after price
-
-
-    // Divider
-    doc.line(pagePadding, y, pageWidth - pagePadding, y);
-    y += 20;
-
-  // Description (center aligned)
-doc.setFontSize(12);
-const descLines = doc.splitTextToSize(`Description: ${item.description || "-"}`, contentWidth);
-
-// Draw each line centered
-descLines.forEach((line, index) => {
-  const lineWidth = doc.getTextWidth(line);
-  const x = (pageWidth - lineWidth) / 2;
-  doc.text(line, x, y + index * 18);
-});
-
-y += descLines.length * 18 + 20; // update y after description
-
-
-    // Save
-    doc.save(`${item.name}_menu_card.pdf`);
-  } catch (err) {
-    console.error("Error generating PDF:", err);
-    
-  }
-};
 
   const filteredItems = menuItems.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -425,17 +376,14 @@ y += descLines.length * 18 + 20; // update y after description
     setExpandedCard(expandedCard === itemId ? null : itemId);
   };
   const dynamicStyles = getStyles(dark);
-  const handleFontChange = async (itemId, selectedFont) => {
+const handleFontChange = async (itemId, selectedFont) => {
     try {
-      console.log("Updating font for item ID:", itemId); // 🪵 debug
-
+      console.log("Updating font for item ID:", itemId); // :wood: debug
       setCardFonts((prev) => ({ ...prev, [itemId]: selectedFont }));
-
       await api.put(`/menu/${itemId}`, { font: selectedFont }, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      
+      toast.success("Font updated!");
     } catch (err) {
       console.error("Failed to update font:", err);
     }
@@ -443,41 +391,40 @@ y += descLines.length * 18 + 20; // update y after description
   const handleColorChange = async (itemId, selectedColor) => {
     try {
       console.log("Updating color for item ID:", itemId);
-
       setCardColors((prev) => ({ ...prev, [itemId]: selectedColor }));
-
       await api.put(`/menu/${itemId}`, { color: selectedColor }, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      
+      toast.success("Color updated!");
     } catch (err) {
       console.error("Failed to update color:", err);
-      
+      toast.error("Color update failed!");
     }
   };
-
   const handleFontColorChange = async (itemId, selectedColor) => {
     try {
       setFontColors((prev) => ({ ...prev, [itemId]: selectedColor }));
-
       await api.put(`/menu/${itemId}`, { fontColor: selectedColor }, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      
+      toast.success("Font color updated!");
     } catch (err) {
       console.error("Failed to update font color:", err);
-     
+      toast.error("Font color update failed!");
     }
   };
 
   return (
-    <div style={{ background: dark ? "#1E2A38" : "#f8f9fa", minHeight: "100vh",fontFamily:"Montserrat" }}>
+    <div
+      style={{
+        background: dark ? "#1E2A38" : "#f8f9fa",
+        minHeight: "100vh",
+        fontFamily: "Montserrat",
+      }}
+    >
       <Navbar />
       <main style={{ padding: "40px 20px" }}>
-        <h2 style={{ textAlign: "center", color: dark ? "#fff" : "#343a40" }}>Menu Items</h2>
-
+      <MenuQRCode restaurantId={restaurantId} template="template1" />
 
         {filteredItems.length > 0 ? (
           <div
@@ -489,7 +436,7 @@ y += descLines.length * 18 + 20; // update y after description
             }}
           >
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" onClick={scrollLeftFn}>
+              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollLeftFn}>
                 ←
               </button>
             )}
@@ -514,75 +461,33 @@ y += descLines.length * 18 + 20; // update y after description
                   key={item._id}
                   onClick={() => toggleCardExpand(item._id)}
                   style={{
-
                     border: "1px solid #ccc",
                     borderRadius: "10px",
                     padding: "16px",
                     marginBottom: "20px",
-                    backgroundColor: cardColors[item._id] || "#fff", // 🎨 dynamic color
+                    backgroundColor: cardColors[item._id] || "#fff", 
                     boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
                     maxWidth: "400px",
                     cursor: "pointer",
                     transition: "all 0.3s ease",
-                    transform: expandedCard === item._id ? "scale(1.05)" : "scale(1)",
+                    transform:
+                      expandedCard === item._id ? "scale(1.05)" : "scale(1)",
                     zIndex: expandedCard === item._id ? 10 : 1,
                     position: "relative",
                     ...(expandedCard === item._id && {
-                      boxShadow: "0 10px 20px rgba(0,0,0,0.2)"
-                    })
+                      boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
+                    }),
                   }}
                 >
-
-
-
                   <div style={{ marginBottom: "10px" }}>
-                    <label style={{ fontSize: "12px", fontWeight: "bold" }}>Font:</label>
+                    <label style={{ fontSize: "12px", fontWeight: "bold" }}>
+                      Font:
+                    </label>
                     <select
                       value={cardFonts[item._id] || "Arial"}
-                      onChange={(e) => handleFontChange(item._id, e.target.value)}
-                      style={{
-                        marginLeft: "10px",
-                        padding: "4px",
-                        borderRadius: "6px",
-                        fontSize: "12px"
-                      }}
-                    >
-                      {fontOptions.map((font) => (
-                        <option key={font} value={font} style={{ fontFamily: font }}>
-                          {font}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-<div style={{display:"flex",flexDirection:"row",gap:"18px"}}>
-                  <div>
-                  <div style={{ marginTop: "10px" }}>
-                    <label style={{ fontSize: "12px", fontWeight: "bold" }}>Card Color:</label>
-                    <select
-                      value={cardColors[item._id] || "#ffffff"}
-                      onChange={(e) => handleColorChange(item._id, e.target.value)}
-                      style={{
-                        marginLeft: "10px",
-                        padding: "4px",
-                        borderRadius: "6px",
-                        fontSize: "12px"
-                      }}
-                    >
-                      {colorOptions.map((color) => (
-                        <option key={color} value={color} style={{ backgroundColor: color }}>
-                          {color}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-</div>
-
-                  <div style={{ marginTop: "10px" }}>
-                    <label style={{ fontSize: "12px", fontWeight: "bold" }}>Font Color:</label>
-                    <select
-                      value={fontColors[item._id] || "#000000"}
-                      onChange={(e) => handleFontColorChange(item._id, e.target.value)}
+                      onChange={(e) =>
+                        handleFontChange(item._id, e.target.value)
+                      }
                       style={{
                         marginLeft: "10px",
                         padding: "4px",
@@ -590,20 +495,86 @@ y += descLines.length * 18 + 20; // update y after description
                         fontSize: "12px",
                       }}
                     >
-                      {[
-                        "#000000",   // dark
-                        "#ffffff",  // light
-                      ].map((color) => (
-                        <option key={color} value={color} style={{ backgroundColor: color }}>
-                          {color}
+                      {fontOptions.map((font) => (
+                        <option
+                          key={font}
+                          value={font}
+                          style={{ fontFamily: font }}
+                        >
+                          {font}
                         </option>
                       ))}
                     </select>
                   </div>
 
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: "18px",
+                    }}
+                  >
+                    <div>
+                      <div style={{ marginTop: "10px" }}>
+                        <label style={{ fontSize: "12px", fontWeight: "bold" }}>
+                          Card Color:
+                        </label>
+                        <select
+                          value={cardColors[item._id] || "#ffffff"}
+                          onChange={(e) =>
+                            handleColorChange(item._id, e.target.value)
+                          }
+                          style={{
+                            marginLeft: "10px",
+                            padding: "4px",
+                            borderRadius: "6px",
+                            fontSize: "12px",
+                          }}
+                        >
+                          {colorOptions.map((color) => (
+                            <option
+                              key={color}
+                              value={color}
+                              style={{ backgroundColor: color }}
+                            >
+                              {color}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
 
-              </div>
-                  
+                    <div style={{ marginTop: "10px" }}>
+                      <label style={{ fontSize: "12px", fontWeight: "bold" }}>
+                        Font Color:
+                      </label>
+                      <select
+                        value={fontColors[item._id] || "#000000"}
+                        onChange={(e) =>
+                          handleFontColorChange(item._id, e.target.value)
+                        }
+                        style={{
+                          marginLeft: "10px",
+                          padding: "4px",
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                        }}
+                      >
+                        {[
+                          "#000000", 
+                          "#ffffff", 
+                        ].map((color) => (
+                          <option
+                            key={color}
+                            value={color}
+                            style={{ backgroundColor: color }}
+                          >
+                            {color}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
 
                   {/* <UploadLogo restaurantId={restaurantId} setLogoInParent={setRestaurantLogoUrl}  /> */}
                   <img
@@ -620,10 +591,10 @@ y += descLines.length * 18 + 20; // update y after description
                       objectFit: "cover",
                       borderRadius: "8px",
                       marginBottom: "12px",
-                      paddingTop:"20px"
+                      paddingTop: "20px",
                     }}
                   />
-                  {/* Row 1: Name + QR */}
+                  
                   <div
                     style={{
                       display: "flex",
@@ -635,23 +606,27 @@ y += descLines.length * 18 + 20; // update y after description
                     }}
                   >
                     {/* <div style={{ fontFamily: cardFonts[item._id] || "Arial" }}> */}
-                      <h4 style={{
+                    <h4
+                      style={{
                         margin: 0,
                         fontSize: "25px",
                         textAlign: "left",
                         alignSelf: "flex-end",
                         wordWrap: "break-word",
-                        width:"50%",
+                        width: "50%",
                         color: fontColors[item._id] || "#000000",
-                      }}>{item.name}</h4>
-                    {/* </div> */}
+                      }}
+                    >
+                      {item.name}
+                    </h4>
+                    
                     <QRCode
                       id={`qr-${item._id}`}
                       size={80}
                       bgColor="white"
                       fgColor="black"
                       value={`${window.location.origin}/view/${restaurantId}/template10`}
-                      style={{width:"50%",}}
+                      style={{ width: "50%" }}
                     />
                   </div>
                   {/* Divider */}
@@ -659,47 +634,55 @@ y += descLines.length * 18 + 20; // update y after description
                     style={{
                       width: "100%",
                       height: "2px",
-                      backgroundColor: "#999", // darker than #ccc
+                      backgroundColor: "#999", 
                       margin: "10px ",
                       borderRadius: "2px",
                     }}
                   />
-                  {/* Row 2: Category + Price */}
+                  
                   <div
                     style={{
                       display: "flex",
-                      flexDirection:"row",
+                      flexDirection: "row",
                       justifyContent: "space-between",
                       alignItems: "center",
                       marginBottom: "10px",
                       marginTop: "0px",
-                      // gap: "100px",
-                      width:"100%",
+                      width: "100%",
                     }}
                   >
-                    <div style={{ fontFamily: cardFonts[item._id] || "Arial", textAlign:"left",width:"100%" }}>
-                      <p style={{
-                        marginBottom: "10px",
-                        fontWeight: "bold",
-                        width:"50%",
+                    <div
+                      style={{
+                        fontFamily: cardFonts[item._id] || "Arial",
+                        textAlign: "left",
+                        width: "100%",
+                      }}
+                    >
+                      <p
+                        style={{
+                          marginBottom: "10px",
+                          fontWeight: "bold",
+                          width: "50%",
 
-                        textAlign:"left",
-                        wordWrap: "break-word",
-                        color: fontColors[item._id] || "#555",
-                      }}>
+                          textAlign: "left",
+                          wordWrap: "break-word",
+                          color: fontColors[item._id] || "#555",
+                        }}
+                      >
                         Category: {item.category}
                       </p>
 
-
-                      <strong style={{ color: fontColors[item._id] || "#28A745",  
-                        // marginRight:"60px",
-                        textAlign:"left",
-                        alignItems:"left",
-                        width:"100%",
-                        wordWrap: "break-word", }}>
+                      <strong
+                        style={{
+                          color: fontColors[item._id] || "#28A745",
+                          textAlign: "left",
+                          alignItems: "left",
+                          width: "100%",
+                          wordWrap: "break-word",
+                        }}
+                      >
                         ${item.price.toFixed(2)}
                       </strong>
-
                     </div>
                   </div>
                   {/* Divider */}
@@ -707,19 +690,25 @@ y += descLines.length * 18 + 20; // update y after description
                     style={{
                       width: "100%",
                       height: "2px",
-                      backgroundColor: "#999", // darker than #ccc
+                      backgroundColor: "#999",
                       marginBottom: "20px",
                       borderRadius: "2px",
                     }}
                   />
-
-                  {/* Row 3: Description */}
                   {/* <div style={{ fontFamily: cardFonts[item._id] || "Arial" }}> */}
 
-
-                    <p style={{ marginTop: "10pxx", marginBottom: "0px", color: fontColors[item._id] || "#444", width:"100%", wordWrap: "break-word", textAlign:"center" }}>
-                      {item.description}
-                    </p>
+                  <p
+                    style={{
+                      marginTop: "10pxx",
+                      marginBottom: "0px",
+                      color: fontColors[item._id] || "#444",
+                      width: "100%",
+                      wordWrap: "break-word",
+                      textAlign: "center",
+                    }}
+                  >
+                    {item.description}
+                  </p>
 
                   {/* </div> */}
                   <button
@@ -749,7 +738,7 @@ y += descLines.length * 18 + 20; // update y after description
               ))}
             </div>
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" onClick={scrollRightFn}>
+              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollRightFn}>
                 →
               </button>
             )}
@@ -762,8 +751,14 @@ y += descLines.length * 18 + 20; // update y after description
       </main>
       {showAddModal && (
         <div className="modal-overlay-add">
-          <form className="modal-box-add" onSubmit={handleSubmit} style={dynamicStyles.form}>
-            <h4 className="formfield1" style={{ justifyContent: "left" }}>Name *</h4>
+          <form
+            className="modal-box-add"
+            onSubmit={handleSubmit}
+            style={dynamicStyles.form}
+          >
+            <h4 className="formfield1" style={{ justifyContent: "left" }}>
+              Name *
+            </h4>
             <input
               type="text"
               required
@@ -771,32 +766,46 @@ y += descLines.length * 18 + 20; // update y after description
               onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
               style={dynamicStyles.input}
             />
-            <h4 className="formfield" style={{ justifyContent: "left" }}>Description</h4>
+            <h4 className="formfield" style={{ justifyContent: "left" }}>
+              Description
+            </h4>
             <input
               type="text"
               value={newItem.description}
-              onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+              onChange={(e) =>
+                setNewItem({ ...newItem, description: e.target.value })
+              }
               style={dynamicStyles.input}
             />
-            <h4 className="formfield" style={{ justifyContent: "left" }}>Price *</h4>
+            <h4 className="formfield" style={{ justifyContent: "left" }}>
+              Price *
+            </h4>
             <input
               type="number"
               step="0.01"
               required
               value={newItem.price}
-              onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+              onChange={(e) =>
+                setNewItem({ ...newItem, price: e.target.value })
+              }
               style={dynamicStyles.input}
             />
-            <h4 className="formfield" style={{ justifyContent: "left" }}>Category *</h4>
+            <h4 className="formfield" style={{ justifyContent: "left" }}>
+              Category *
+            </h4>
             <input
               type="text"
               required
               value={newItem.category}
-              onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+              onChange={(e) =>
+                setNewItem({ ...newItem, category: e.target.value })
+              }
               style={dynamicStyles.input}
             />
             {/* <h4 className="formfield1" style={{  justifyContent: "left" }}>Item image </h4> */}
-            <h4 className="formfield1" style={{ justifyContent: "left" }}>Image *</h4>
+            <h4 className="formfield1" style={{ justifyContent: "left" }}>
+              Image *
+            </h4>
             <input
               type="file"
               required
@@ -804,9 +813,28 @@ y += descLines.length * 18 + 20; // update y after description
               onChange={handleImageChange}
               style={dynamicStyles.input}
             />
-            {imagePreview && <img src={imagePreview} alt="Preview" style={{ maxWidth: "100%", maxHeight: "300px", marginTop: "10px" }} />}
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "10px", gap: "30px" }}>
-              <button type="submit" className="add-btn">Add</button>
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "300px",
+                  marginTop: "10px",
+                }}
+              />
+            )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "10px",
+                gap: "30px",
+              }}
+            >
+              <button type="submit" className="add-btn">
+                Add
+              </button>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
@@ -820,44 +848,66 @@ y += descLines.length * 18 + 20; // update y after description
       )}
       {showEditModal && (
         <div className="modal-overlay-add">
-          <form className="modal-box-add" onSubmit={handleEditSubmit} style={dynamicStyles.form}>
-            <h4 className="formfield1" style={{ justifyContent: "left" }}>Name *</h4>
+          <form
+            className="modal-box-add"
+            onSubmit={handleEditSubmit}
+            style={dynamicStyles.form}
+          >
+            <h4 className="formfield1" style={{ justifyContent: "left" }}>
+              Name *
+            </h4>
             <input
               type="text"
               required
               value={editForm.name}
-              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              onChange={(e) =>
+                setEditForm({ ...editForm, name: e.target.value })
+              }
               style={dynamicStyles.input}
             />
 
-            <h4 className="formfield" style={{ justifyContent: "left" }}>Description</h4>
+            <h4 className="formfield" style={{ justifyContent: "left" }}>
+              Description
+            </h4>
             <input
               type="text"
               value={editForm.description}
-              onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+              onChange={(e) =>
+                setEditForm({ ...editForm, description: e.target.value })
+              }
               style={dynamicStyles.input}
             />
 
-            <h4 className="formfield" style={{ justifyContent: "left" }}>Price</h4>
+            <h4 className="formfield" style={{ justifyContent: "left" }}>
+              Price
+            </h4>
             <input
               type="number"
               step="0.01"
               required
               value={editForm.price}
-              onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+              onChange={(e) =>
+                setEditForm({ ...editForm, price: e.target.value })
+              }
               style={dynamicStyles.input}
             />
 
-            <h4 className="formfield" style={{ justifyContent: "left" }}>Category</h4>
+            <h4 className="formfield" style={{ justifyContent: "left" }}>
+              Category
+            </h4>
             <input
               type="text"
               required
               value={editForm.category}
-              onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+              onChange={(e) =>
+                setEditForm({ ...editForm, category: e.target.value })
+              }
               style={dynamicStyles.input}
             />
 
-            <h4 className="formfield" style={{ justifyContent: "left" }}>Image</h4>
+            <h4 className="formfield" style={{ justifyContent: "left" }}>
+              Image
+            </h4>
             <input
               type="file"
               accept="image/*"
@@ -866,10 +916,27 @@ y += descLines.length * 18 + 20; // update y after description
             />
 
             {editImagePreview && (
-              <img src={editImagePreview} alt="Preview" style={{ maxWidth: "100%", maxHeight: "300px", marginTop: "10px" }} />
+              <img
+                src={editImagePreview}
+                alt="Preview"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "300px",
+                  marginTop: "10px",
+                }}
+              />
             )}
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "10px", gap: "30px" }}>
-              <button type="submit" className="add-btn">Update</button>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "10px",
+                gap: "30px",
+              }}
+            >
+              <button type="submit" className="add-btn">
+                Update
+              </button>
               <button
                 type="button"
                 onClick={() => setShowEditModal(false)}
@@ -909,26 +976,3 @@ function getStyles(dark) {
     },
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

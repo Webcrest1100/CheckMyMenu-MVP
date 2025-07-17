@@ -1,49 +1,39 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
-const restaurantRoutes = require("./routes/restaurantRoutes");
-const authRoutes = require("./routes/authRoutes");
-const menuRoutes = require("./routes/menuRoutes");
-const publicRoutes = require("./routes/public");
+
+const authRoutes         = require("./routes/authRoutes");
+const restaurantRoutes   = require("./routes/restaurantRoutes");
+const menuRoutes         = require("./routes/menuRoutes");
+const publicRoutes       = require("./routes/public");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
-const webhookRoutes = require("./routes/webhookRoutes");
-const adminRoutes = require("./routes/adminRoutes");
+const webhookRoutes      = require("./routes/webhookRoutes");
+const adminRoutes        = require("./routes/adminRoutes");
 
 const app = express();
 
-// CORS
+// 1) WHISTLISTED: the webhook must see the RAW body, so we mount it first
+app.use("/api/webhook", webhookRoutes);
+
+// 2) now parse JSON everywhere else
 app.use(cors());
-
-//
-// 1) Webhook endpoint with raw body parser
-//
-app.use(
-  "/api/webhook",
-  express.raw({ type: "application/json" }),
-  webhookRoutes
-);
-
-//
-// 2) All other JSON routes
-//
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/restaurants", restaurantRoutes);
-// app.use("/api/restaurants", socialReviews);
-app.use("/api/restaurants", menuRoutes);
-app.use("/api/public", publicRoutes);
-app.use("/api/subscribe", subscriptionRoutes);
-app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/auth",         authRoutes);
+app.use("/api/restaurants",  restaurantRoutes);
+app.use("/api/restaurants",  menuRoutes);
+app.use("/api/public",       publicRoutes);
+app.use("/api/subscribe",    subscriptionRoutes);
+app.use("/api/admin",        adminRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
-    app.listen(process.env.PORT, () =>
-      console.log(`Server running on port ${process.env.PORT}`)
+    app.listen(process.env.PORT || 5000, () =>
+      console.log(`Server running on port ${process.env.PORT || 5000}`)
     );
   })
-  .catch((err) => console.error("MongoDB error:", err));
+  .catch((err) => console.error("MongoDB connection error:", err));

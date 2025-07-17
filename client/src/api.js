@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const handleSaveTemplate = async () => {
   try {
-    const token = localStorage.getItem("token"); // Owner ka token
+    const token = localStorage.getItem("token"); 
     const response = await axios.put(
       `http://localhost:5000/api/restaurants/${restaurant._id}/template`,
       { selectedTemplate },

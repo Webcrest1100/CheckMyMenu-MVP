@@ -9,18 +9,19 @@ export default function MenuOne() {
   const { restaurantId, itemId } = useParams();
   const [menuItem, setMenuItem] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [social, setSocial] = useState({
-    google: [],
-    facebook: [],
-    instagram: [],
-  });
+  const [reviews, setReviews] = useState([]); 
+  // const [social, setSocial] = useState({
+  //   google: [],
+  //   facebook: [],
+  //   instagram: [],
+  // });
 
-  useEffect(() => {
-    api
-      .get(`/restaurants/${restaurantId}/social-reviews`)
-      .then((r) => setSocial(r.data))
-      .catch(console.error);
-  }, [restaurantId]);
+  // useEffect(() => {
+  //   api
+  //     .get(`/restaurants/${restaurantId}/social-reviews`)
+  //     .then((r) => setSocial(r.data))
+  //     .catch(console.error);
+  // }, [restaurantId]);
 
   useEffect(() => {
     if (restaurantId && itemId) {
@@ -42,6 +43,20 @@ export default function MenuOne() {
       setLoading(false);
     }
   };
+
+useEffect(() => {
+    if (!restaurantId) return;
+    (async () => {
+      try {
+        const { data } = await api.get(`/restaurants/${restaurantId}/reviews`);
+        setReviews(data);
+      } catch (err) {
+        console.error("Could not load reviews:", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [restaurantId]);
 
   return (
     <div className="menu-one-page">
@@ -79,6 +94,24 @@ export default function MenuOne() {
           </div>
         )}
       </div>
+
+  <section className="reviews">
+        <h3>Customer Reviews</h3>
+        {loading ? (
+          <p>Loading reviews…</p>
+        ) : reviews.length > 0 ? (
+          reviews.map((r, i) => (
+            <div key={i} className="review">
+              <strong>{r.author}</strong>{" "}
+              <em>({new Date(r.date).toLocaleDateString()})</em>
+              <p>{r.text}</p>
+              <span className="source">{r.source}</span>
+            </div>
+          ))
+        ) : (
+          <p>No reviews yet.</p>
+        )}
+      </section>
 
       {/* <div>
       <h2>Customer Reviews</h2>

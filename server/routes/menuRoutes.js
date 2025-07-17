@@ -92,67 +92,93 @@ const fs = require("fs");
 const path = require("path");
 
 // ✅ PUT: Update Existing Menu Item
-router.put(
-  "/:restaurantId/menu/:menuItemId",
-  protect,
-  upload.single("image"),
-  async (req, res) => {
-    try {
-      const { name, description, price, category } = req.body;
+// router.put(
+//   "/:restaurantId/menu/:menuItemId",
+//   protect,
+//   upload.single("image"),
+//   async (req, res) => {
+//     try {
+//       const { name, description, price, category } = req.body;
 
-      if (!name || !description || !price || !category) {
-        return res.status(400).json({ msg: "All fields are required" });
-      }
+//       if (!name || !description || !price || !category) {
+//         return res.status(400).json({ msg: "All fields are required" });
+//       }
 
-      if (isNaN(price) || Number(price) <= 0) {
-        return res.status(400).json({ msg: "Price must be a positive number" });
-      }
+//       if (isNaN(price) || Number(price) <= 0) {
+//         return res.status(400).json({ msg: "Price must be a positive number" });
+//       }
 
-      const updateData = {
-        name: name.trim(),
-        description: description.trim(),
-        price: parseFloat(price),
-        category: category.trim(),
-      };
+//       const updateData = {
+//         name: name.trim(),
+//         description: description.trim(),
+//         price: parseFloat(price),
+//         category: category.trim(),
+//       };
 
-      const item = await MenuItem.findOne({
-        _id: req.params.menuItemId,
-        restaurant: req.params.restaurantId,
-      });
+//       const item = await MenuItem.findOne({
+//         _id: req.params.menuItemId,
+//         restaurant: req.params.restaurantId,
+//       });
 
-      if (!item) {
-        return res.status(404).json({ msg: "Menu item not found" });
-      }
+//       if (!item) {
+//         return res.status(404).json({ msg: "Menu item not found" });
+//       }
 
-      // If a new image is uploaded, delete the old one
-      if (req.file && req.file.filename) {
-        if (item.imageUrl) {
-          const oldImagePath = path.join(__dirname, "..", item.imageUrl);
-          fs.unlink(oldImagePath, (err) => {
-            if (err) {
-              console.warn("Failed to delete old image:", oldImagePath);
-            }
-          });
-        }
+//       // If a new image is uploaded, delete the old one
+//       if (req.file && req.file.filename) {
+//         if (item.imageUrl) {
+//           const oldImagePath = path.join(__dirname, "..", item.imageUrl);
+//           fs.unlink(oldImagePath, (err) => {
+//             if (err) {
+//               console.warn("Failed to delete old image:", oldImagePath);
+//             }
+//           });
+//         }
 
-        updateData.imageUrl = `/uploads/${req.file.filename}`;
-      }
+//         updateData.imageUrl = `/uploads/${req.file.filename}`;
+//       }
 
-      const updatedItem = await MenuItem.findByIdAndUpdate(
-        item._id,
-        updateData,
-        { new: true }
-      );
+//       const updatedItem = await MenuItem.findByIdAndUpdate(
+//         item._id,
+//         updateData,
+//         { new: true }
+//       );
 
-      res.json(updatedItem);
-    } catch (err) {
-      console.error("Update error:", err);
-      res
-        .status(500)
-        .json({ msg: "Failed to update menu item", error: err.message });
+//       res.json(updatedItem);
+//     } catch (err) {
+//       console.error("Update error:", err);
+//       res
+//         .status(500)
+//         .json({ msg: "Failed to update menu item", error: err.message });
+//     }
+//   }
+// );
+
+
+
+
+router.put("/menu/:id", upload.single("image"), async (req, res) => {
+  const { name, description, price, category, font, color, fontColor } = req.body;
+  try {
+    const menuItem = await MenuItem.findById(req.params.id);
+    if (!menuItem) return res.status(404).json({ error: "Item not found" });
+    if (name) menuItem.name = name;
+    if (description) menuItem.description = description;
+    if (price) menuItem.price = price;
+    if (category) menuItem.category = category;
+    if (font) menuItem.font = font;
+    if (color) menuItem.color = color;
+    if (fontColor) menuItem.fontColor = fontColor; // :white_check_mark: add this
+    if (req.file) {
+      menuItem.imageUrl = `/uploads/${req.file.filename}`;
     }
+    await menuItem.save();
+    res.json(menuItem);
+  } catch (err) {
+    console.error("Error updating item:", err);
+    res.status(500).json({ error: "Update failed" });
   }
-);
+});
 
 // ✅ DELETE: Delete Menu Item
 router.delete("/:restaurantId/menu/:menuItemId", protect, async (req, res) => {

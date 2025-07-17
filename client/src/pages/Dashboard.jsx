@@ -49,6 +49,11 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [fbPageId, setFbPageId] = useState("");
+  const [fbPageToken, setFbPageToken] = useState("");
+  const [igBusinessId, setIgBusinessId] = useState("");
+  const [igAccessToken, setIgAccessToken] = useState("");
+
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
@@ -100,28 +105,25 @@ export default function Dashboard() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const paymentSuccess = params.get("payment");
-
-    if (paymentSuccess === "success") {
-      const fetchUpdatedUser = async () => {
+    if (params.get("payment") === "success") {
+      async function refetchAll() {
         try {
-          const token = localStorage.getItem("token");
-          const res = await api.get("/auth/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setUser(res.data);
+          const [me, rests] = await Promise.all([
+            api.get("/auth/me"),
+            api.get("/restaurants"),
+          ]);
+          setUser(me.data);
+          setRestaurants(rests.data);
         } catch (err) {
-          console.error("Failed to refresh user after payment", err);
+          console.error("Refetch after payment failed:", err);
         }
-      };
-
-      fetchUpdatedUser();
+      }
+      refetchAll();
       setShowAddModal(true);
       toast.success("Payment successful! You can now add your restaurant.");
-
-      const cleanUrl = window.location.pathname;
-      navigate(cleanUrl, { replace: true });
+      navigate(window.location.pathname, { replace: true });
     }
-  }, [location.search]);
+  }, [location.search, navigate]);
 
   const handleMouseDown = (e) => {
     if (!scrollContainerRef.current) return;
@@ -142,19 +144,17 @@ export default function Dashboard() {
   };
 
   const handleAddRestaurant = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
+    e.preventDefault(); // 1x only
 
+    const token = localStorage.getItem("token");
     if (!newRestaurant.trim()) {
       return toast.error("Enter a restaurant name");
     }
 
-    // Check quota
+    // quota check (unchanged)
     const allowed = user?.allowedRestaurants ?? 0;
     const used = restaurants.length;
-    const remaining = allowed - used;
-
-    if (remaining <= 0) {
+    if (allowed - used <= 0) {
       toast.error(
         "You’ve reached your restaurant limit. Please upgrade your plan."
       );
@@ -163,12 +163,28 @@ export default function Dashboard() {
       return;
     }
 
-    try {
-      const payload = {
-        name: newRestaurant,
-        socialLinks,
-      };
+    // 2) debug log
+    console.log({
+      fbPageId,
+      fbPageToken,
+      igBusinessId,
+      igAccessToken,
+      socialLinks,
+      newRestaurant,
+    });
 
+    // 3) build payload
+    const payload = {
+      name: newRestaurant,
+      socialLinks,
+      // only include if non-empty:
+      ...(fbPageId && { facebookPageId: fbPageId }),
+      ...(fbPageToken && { facebookPageToken: fbPageToken }),
+      ...(igBusinessId && { instagramBusinessId: igBusinessId }),
+      ...(igAccessToken && { instagramAccessToken: igAccessToken }),
+    };
+
+    try {
       const res = await api.post("/restaurants", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -189,11 +205,65 @@ export default function Dashboard() {
     }
   };
 
+  //   const handleAddRestaurant = async (e) => {
+  //     e.preventDefault();
+  //     const token = localStorage.getItem("token");
+
+  //     if (!newRestaurant.trim()) {
+  //       return toast.error("Enter a restaurant name");
+  //     }
+
+  //     // Check quota
+  //     const allowed = user?.allowedRestaurants ?? 0;
+  //     const used = restaurants.length;
+  //     const remaining = allowed - used;
+
+  //     if (remaining <= 0) {
+  //       toast.error(
+  //         "You’ve reached your restaurant limit. Please upgrade your plan."
+  //       );
+  //       setShowAddModal(false);
+  //       setShowPlans(true);
+  //       return;
+  //     }
+
+  //     try {
+
+  //       const payload = {
+  //         name: newRestaurant,
+  //         socialLinks,
+  //           facebookPageId:      fbPageId     || undefined,
+  //   facebookPageToken:   fbPageToken  || undefined,
+  //  instagramBusinessId: igBusinessId || undefined,
+  //  instagramAccessToken: igAccessToken|| undefined,
+
+  //       };
+
+  //       const res = await api.post("/restaurants", payload, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+
+  //       // Update restaurants
+  //       setRestaurants((prev) => [...prev, res.data]);
+
+  //       // Reset form state
+  //       setNewRestaurant("");
+  //       setSocialLinks({ facebook: "", instagram: "", twitter: "", website: "" });
+
+  //       // Show success and close modal
+  //       toast.success("Restaurant added successfully!");
+  //       setShowAddModal(false);
+  //     } catch (err) {
+  //       console.error("Failed to add restaurant", err);
+  //       toast.error(err?.response?.data?.msg || "Add failed");
+  //     }
+  //   };
+
   const handleSwitchRestaurant = (id) => {
     setSelectedRestaurantForTemplate(id);
     setShowTemplateModal(true);
   };
-
+  const [showInput, setShowInput] = useState(false);
   const handleTemplateChoice = (num) => {
     localStorage.setItem("menuTemplate", String(num));
     localStorage.setItem("restaurantId", selectedRestaurantForTemplate);
@@ -304,7 +374,7 @@ export default function Dashboard() {
     <div style={dynamicStyles.container}>
       <Navbar />
 
-      <main style={dynamicStyles.main} >
+      <main style={dynamicStyles.main}>
         <h2 style={dynamicStyles.welcome}>
           Welcome, <span style={dynamicStyles.email}>{user.email}</span>
         </h2>
@@ -498,9 +568,11 @@ export default function Dashboard() {
         </div>
 
         {showPlans && (
-          <div className="modal-overlay" style={{fontFamily: "Montserrat"}}>
+          <div className="modal-overlay" style={{ fontFamily: "Montserrat" }}>
             <div className="modal-box">
-              <h3 style={{ marginBottom: "14px" , fontSize: "26px"  }}>Choose a Subscription</h3>
+              <h3 style={{ marginBottom: "14px", fontSize: "26px" }}>
+                Choose a Subscription
+              </h3>
               <div
                 style={{
                   // display: "list-item",
@@ -522,7 +594,8 @@ export default function Dashboard() {
                   // monthly/annual/etc.
                   const interval = plan.recurring.interval;
                   return (
-                    <button style={{backgroundColor: "#FFC107" , color: "white"}}
+                    <button
+                      style={{ backgroundColor: "#FFC107", color: "white" }}
                       key={plan.id}
                       onClick={() => handlePayment(plan.id, count)}
                     >
@@ -547,14 +620,17 @@ export default function Dashboard() {
         )}
 
         {showAddModal && (
-          <div className="modal-overlay-add">
+          <div className="modal-overlay-add-restuarant">
             <form
-              className="modal-box-add"
+              className="modal-box-add-restuarant"
               onSubmit={handleAddRestaurant}
               style={dynamicStyles.form}
             >
-              <h4 className="formfield1" style={{ justifyContent: "left" }}>
-                Name <span style={{color: "red"}}> * </span>
+              <h4
+                className="formfield1-restuarant"
+                style={{ justifyContent: "left" }}
+              >
+                Name <span style={{ color: "red" }}> * </span>
               </h4>
               <input
                 type="text"
@@ -563,7 +639,7 @@ export default function Dashboard() {
                 required
                 style={dynamicStyles.input}
               />
-              <h4 className="formfield">Facebook</h4>
+              <h4 className="formfield-restuarant">Facebook</h4>
               <input
                 type="url"
                 value={socialLinks.facebook}
@@ -572,7 +648,7 @@ export default function Dashboard() {
                 }
                 style={dynamicStyles.input}
               />
-              <h4 className="formfield">Instagram</h4>
+              <h4 className="formfield-restuarant">Instagram</h4>
               <input
                 type="url"
                 value={socialLinks.instagram}
@@ -581,7 +657,7 @@ export default function Dashboard() {
                 }
                 style={dynamicStyles.input}
               />
-              <h4 className="formfield1">Twitter</h4>
+              <h4 className="formfield1-restuarant">Twitter</h4>
               <input
                 type="url"
                 value={socialLinks.twitter}
@@ -590,7 +666,7 @@ export default function Dashboard() {
                 }
                 style={dynamicStyles.input}
               />
-              <h4 className="formfield">Website</h4>
+              <h4 className="formfield-restuarant">Website</h4>
               <input
                 type="url"
                 value={socialLinks.website}
@@ -599,14 +675,71 @@ export default function Dashboard() {
                 }
                 style={dynamicStyles.input}
               />
-              <div
+
+              <button
+                type="button"
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "10px",
+                  ...dynamicStyles.button,
+                  backgroundColor: "#FFC107",
                 }}
+                onClick={() => setShowInput(!showInput)}
               >
-                <button type="submit" style={{...dynamicStyles.button, backgroundColor: "#FFC107"}}>
+                {" "}
+                Show more Inputs
+              </button>
+              {showInput && (
+                <>
+                  <h4 style={{ textAlign: "center", marginTop: "10px" }}>
+                    If you want to add reviews on the Menu page, please add the
+                    following information:
+                  </h4>
+                  <h4 className="formfield-restuarant">Facebook Page ID</h4>
+                  <input
+                    type="text"
+                    value={fbPageId}
+                    onChange={(e) => setFbPageId(e.target.value)}
+                    placeholder=" e.g. 5481640000000000"
+                    style={dynamicStyles.input}
+                  />
+                  <h4 className="formfield-restuarant">Facebook Page Token</h4>
+                  <input
+                    type="text"
+                    value={fbPageToken}
+                    onChange={(e) => setFbPageToken(e.target.value)}
+                    placeholder="long-lived page token"
+                    style={dynamicStyles.input}
+                  />
+                  <h4 className="formfield-restuarant">
+                    Instagram Business ID
+                  </h4>
+                  <input
+                    type="text"
+                    value={igBusinessId}
+                    onChange={(e) => setIgBusinessId(e.target.value)}
+                    placeholder="e.g. 17841400000000000"
+                    style={dynamicStyles.input}
+                  />
+                  <h4 className="formfield-restuarant">
+                    Instagram Access Token
+                  </h4>
+                  <input
+                    type="text"
+                    value={igAccessToken}
+                    onChange={(e) => setIgAccessToken(e.target.value)}
+                    placeholder="long-lived IG token"
+                    style={dynamicStyles.input}
+                  />
+                </>
+              )}
+              <div className="button-row-restuarant">
+                <button
+                  type="submit"
+                  style={{
+                    ...dynamicStyles.button,
+                    backgroundColor: "#FFC107",
+                    marginRight: "10px",
+                  }}
+                >
                   Add
                 </button>
                 <button
@@ -616,7 +749,6 @@ export default function Dashboard() {
                     ...dynamicStyles.button,
                     backgroundColor: "#6c757d",
                     color: "#fff",
-                    marginLeft: "10px",
                   }}
                 >
                   Cancel
@@ -628,63 +760,14 @@ export default function Dashboard() {
       </main>
 
       {showManageOptions && (
-        <div className="modal-overlay">
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100vw",
-              height: "100vh",
-              backgroundColor: "rgba(0,0,0,0.4)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 9999,
-            }}
-          >
-            <div
-              className="model1"
-              style={{
-                backgroundColor: "#fff",
-                padding: "30px 40px",
-                borderRadius: "12px",
-                boxShadow: "0 0 15px rgba(0,0,0,0.2)",
-                width: "fit-content",
-                minWidth: "300px",
-                textAlign: "center",
-              }}
-            >
-              {/* Heading */}
-              <h2
-                style={{
-                  marginBottom: "25px",
-                  fontSize: "24px",
-                  color: "#333",
-                }}
-              >
-                Choose an Option
-              </h2>
+        <div className="modal-overlay-choose">
+          <div>
+            <div className="model1">
+              <h2>Choose an Option</h2>
 
-              {/* First row: Go to Menu + Customize */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: "20px",
-                  marginBottom: "20px",
-                  flexWrap: "wrap",
-                }}
-              >
+              <div className="modal-buttons">
                 <button
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#FFC107",
-                    border: "none",
-                    borderRadius: "6px",
-                    color: "#fff",
-                    cursor: "pointer",
-                  }}
+                  className="modal-button"
                   onClick={() => {
                     localStorage.setItem(
                       "restaurantId",
@@ -700,14 +783,7 @@ export default function Dashboard() {
                 </button>
 
                 <button
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#FFC107",
-                    border: "none",
-                    borderRadius: "6px",
-                    color: "#fff",
-                    cursor: "pointer",
-                  }}
+                  className="modal-button"
                   onClick={() => {
                     setShowManageOptions(false);
                     setShowTemplateModal(true);
@@ -719,14 +795,7 @@ export default function Dashboard() {
 
               <div>
                 <button
-                  style={{
-                    padding: "8px 24px",
-                    backgroundColor: "#6c757d",
-                    border: "none",
-                    borderRadius: "6px",
-                    color: "#fff",
-                    cursor: "pointer",
-                  }}
+                  className="modal-cancel"
                   onClick={() => setShowManageOptions(false)}
                 >
                   Cancel
@@ -738,18 +807,19 @@ export default function Dashboard() {
       )}
 
       {showTemplateModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
+        <div className="modal-overlay-layout">
+          <div className="modal-box-layout">
             <h3>Choose a Menu Layout</h3>
 
             <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(5, 1fr)",
-                gap: "20px",
-                padding: "20px",
-                justifyItems: "center",
-              }}
+              className="template-grid"
+              // style={{
+              //   display: "grid",
+              //   gridTemplateColumns: "repeat(5, 1fr)",
+              //   gap: "20px",
+              //   padding: "20px",
+              //   justifyItems: "center",
+              // }}
             >
               <div
                 style={{ cursor: "pointer", textAlign: "center" }}
@@ -927,6 +997,7 @@ export default function Dashboard() {
                 padding: "10px 20px",
                 borderRadius: "5px",
                 cursor: "pointer",
+                marginLeft: "45%",
               }}
               onClick={() => setShowTemplateModal(false)}
             >
@@ -983,15 +1054,15 @@ function getStyles(dark) {
       background: "#F8F9FA",
       minHeight: "100vh",
       color: dark ? colors.white : colors.charcoal,
+      overflowX: "hidden",
     },
     main: {
-      margin: "180px auto",
-      padding: "40px 20px 50px",
+      margin: "245px auto",
+      padding: "43px 20px 70px",
       background: dark ? "#263544" : "#ffff",
       borderRadius: "16px",
       boxShadow: "0 8px 30px rgba(0, 0, 0, 0.1)",
       maxWidth: "90%",
-     
     },
     welcome: {
       fontSize: "28px",
@@ -1058,8 +1129,8 @@ function getStyles(dark) {
       padding: "8px 16px",
       cursor: "pointer",
       border: "8px",
-      backgroundColor: "#F5C56A",
-      color: dark ? "#FFFFFF" : "#000000",
+      backgroundColor: "#FFC107",
+      color: "white",
       borderRadius: "8px",
       boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
     },

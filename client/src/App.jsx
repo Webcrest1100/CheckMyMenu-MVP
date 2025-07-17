@@ -60,15 +60,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/admin"
-          element={
-            <RequireAdmin>
-              {" "}
-              <AdminDashboard />{" "}
-            </RequireAdmin>
-          }
-        />
+        <Route path="/admin" element={ <RequireAdmin> {" "} <AdminDashboard /> {" "} </RequireAdmin> }/>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -77,12 +69,9 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/upload-logo" element={<UploadLogoPage />} />
-        
         <Route path="/menu" element={<Menu />} />
-        <Route path="/template1" element={<Template1 />} />{" "}
-        {/* Changed to lowercase */}
-        <Route path="/template2" element={<Template2 />} />{" "}
-        {/* Changed to lowercase */}
+        <Route path="/template1" element={<Template1 />} />
+        <Route path="/template2" element={<Template2 />} />
         <Route path="/template3" element={<Template3 />} />
         <Route path="/template4" element={<Template4 />} />
         <Route path="/template5" element={<Template5 />} />
@@ -91,12 +80,19 @@ export default function App() {
         <Route path="/template8" element={<Template8 />} />
         <Route path="/template9" element={<Template9 />} />
         <Route path="/template10" element={<Template10 />} />
-        <Route
-          path="/view/:restaurantId/template1/:itemId"
-          element={<Template1 />}
-        />{" "}
-        {/* Changed to lowercase */}
+        <Route path="/view/:restaurantId/template1/:itemId" element={<Template1 />} />
         <Route path="/view/:restaurantId/menu/:itemId" element={<MenuOne />} />
+        <Route path="/view/:restaurantId/menu" element={<Menu />} />
+        <Route path="/view/:restaurantId/template1" element={<Template1 />} />
+        <Route path="/view/:restaurantId/template2" element={<Template2 />} />
+        <Route path="/view/:restaurantId/template3" element={<Template3 />} />
+        <Route path="/view/:restaurantId/template4" element={<Template4 />} />
+        <Route path="/view/:restaurantId/template5" element={<Template5 />} />
+        <Route path="/view/:restaurantId/template6" element={<Template6 />} />
+        <Route path="/view/:restaurantId/template7" element={<Template7 />} />
+        <Route path="/view/:restaurantId/template8" element={<Template8 />} />
+        <Route path="/view/:restaurantId/template9" element={<Template9 />} />
+        <Route path="/view/:restaurantId/template10" element={<Template10 />} />
       </Routes>
     </BrowserRouter>
   );

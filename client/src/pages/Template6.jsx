@@ -11,6 +11,7 @@ import { FaDownload } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Template6.css";
+import MenuQRCode from './MenuHeadingQRCode';
 export default function Template6() {
   const { dark } = useTheme();
   const [menuItems, setMenuItems] = useState([]);
@@ -71,20 +72,26 @@ export default function Template6() {
     }
   };
   return (
-    <div style={{ background: dark ? "#1E2A38" : "#F8F9FA", minHeight: "100vh", fontFamily: "Montserrat", overflowX:"hidden" }}>
+    <div
+      style={{
+        background: dark ? "#1E2A38" : "#F8F9FA",
+        minHeight: "100vh",
+        fontFamily: "Montserrat",
+        overflowX: "hidden",
+      }}
+    >
       <Navbar />
       <main style={{ padding: "40px 20px" }}>
-        <h2 style={{ textAlign: "center", color: dark ? "#fff" : "#343A40" }}>Menu Items</h2>
-        <div style={{ textAlign: "center", marginBottom: "30px", display: "flex", justifyContent: "center", gap: "10px" }}>
-          <h2 style={{ marginBottom: "10px" }}>Scan to View Menu</h2>
-          <QRCode
-            value={`${window.location.origin}/view/${restaurantId}/template6`}
-            size={120}
-            bgColor="white"
-            fgColor="black"
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "20px", padding: "20px"}}>
+      <MenuQRCode restaurantId={restaurantId} template="template6" />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "20px",
+            padding: "20px",
+          }}
+        >
           {menuItems.map((item) => (
             <div
               key={item._id}
@@ -105,8 +112,7 @@ export default function Template6() {
                 background: "#F8F9FA",
               }}
             >
-              <div style={{ }}>
-              
+              <div style={{}}>
                 <img
                   src={
                     item.imageUrl.startsWith("http")
@@ -115,16 +121,12 @@ export default function Template6() {
                   }
                   alt={item.name}
                   style={{
-                    
-                    // height: "300px" ,
-                    // objectFit: "cover",
                     borderRadius: "8px",
-                    width: "420px" 
+                    width: "420px",
                   }}
                 />
               </div>
-           
-              
+
               <QRCode
                 id={`qr-hidden-${item._id}`}
                 value={`${window.location.origin}/view/${restaurantId}/template6`}
@@ -132,10 +134,10 @@ export default function Template6() {
                 bgColor="white"
                 fgColor="black"
                 style={{
-                    width: "20%" 
-                  }}
+                  width: "20%",
+                }}
               />
-              
+
               <div
                 style={{
                   flex: 1,
@@ -145,25 +147,43 @@ export default function Template6() {
                   justifyContent: "center",
                   height: "100%",
                   gap: "20px",
-                  width:"420px"
+                  width: "420px",
                 }}
-              ><p
-      style={{
-        margin: 0,
-        fontWeight: "bold",
-        color: "#555",
-        textAlign: "right",
-    width:"50%",
-    wordWrap: "break-word"
-      }}
-    >
-      Category: {item.category}
-    </p>
-               
-                <div style={{ fontSize: "40px", fontWeight: "bold", textAlign: "right" , width:"100%" ,wordWrap: "break-word"}}>
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    fontWeight: "bold",
+                    color: "#555",
+                    textAlign: "right",
+                    width: "50%",
+                    wordWrap: "break-word",
+                  }}
+                >
+                  Category: {item.category}
+                </p>
+
+                <div
+                  style={{
+                    fontSize: "40px",
+                    fontWeight: "bold",
+                    textAlign: "right",
+                    width: "100%",
+                    wordWrap: "break-word",
+                  }}
+                >
                   {item.name}
                 </div>
-                <div style={{ fontSize: "38px", color: "#28A745", fontWeight: "bold", textAlign: "right", width:"100%",wordWrap: "break-word" }}>
+                <div
+                  style={{
+                    fontSize: "38px",
+                    color: "#28A745",
+                    fontWeight: "bold",
+                    textAlign: "right",
+                    width: "100%",
+                    wordWrap: "break-word",
+                  }}
+                >
                   ${item.price.toFixed(2)}
                 </div>
                 <button
