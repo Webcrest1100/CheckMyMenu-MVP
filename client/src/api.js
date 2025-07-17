@@ -3,9 +3,9 @@ import axios from 'axios';
 
 const handleSaveTemplate = async () => {
   try {
-    const token = localStorage.getItem("token"); 
+    const token = localStorage.getItem("token");
     const response = await axios.put(
-      `http://localhost:5000/api/restaurants/${restaurant._id}/template`,
+      `${import.meta.env.VITE_API_URL}/api/restaurants/${restaurant._id}/template`,
       { selectedTemplate },
       {
         headers: {
@@ -25,7 +25,7 @@ const handleSaveTemplate = async () => {
 
 
 export const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
   timeout: 10000,
 });
 

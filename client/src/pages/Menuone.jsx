@@ -73,7 +73,7 @@ export default function MenuOne() {
                 src={
                   menuItem.imageUrl.startsWith("http")
                     ? menuItem.imageUrl
-                    : `http://localhost:5000${menuItem.imageUrl}`
+                    : `${import.meta.env.VITE_API_URL}${menuItem.imageUrl}`
                 }
                 alt={menuItem.name}
                 className="menu-one-image"

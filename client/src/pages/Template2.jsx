@@ -126,7 +126,7 @@ export default function Template2() {
     <div style={{ overflowX: "hidden" }}>
       <Navbar />
       <div className="menu-container">
-       <MenuQRCode restaurantId={restaurantId} template="template2" />
+        <MenuQRCode restaurantId={restaurantId} template="template2" />
         <div className="menu-grid">
           {loading ? (
             <p>Loading...</p>
@@ -202,7 +202,7 @@ export default function Template2() {
                     src={
                       item.imageUrl.startsWith("http")
                         ? item.imageUrl
-                        : `http://localhost:5000${item.imageUrl}`
+                        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                     }
                     alt={item.name}
                     className="menu-img"

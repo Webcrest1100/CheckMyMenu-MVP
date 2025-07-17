@@ -118,7 +118,7 @@ export default function Template4() {
     // ✅ Ensure full image path for preview
     const imageUrl = item.imageUrl.startsWith("http")
       ? item.imageUrl
-      : `http://localhost:5000${item.imageUrl}`;
+      : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
     setEditImagePreview(imageUrl);
 
     setShowEditModal(true);
@@ -216,7 +216,7 @@ export default function Template4() {
       // 🖼️ Load Image
       const imageUrl = item.imageUrl.startsWith("http")
         ? item.imageUrl
-        : `http://localhost:5000${item.imageUrl}`;
+        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`;
       const imageDataURL = await convertImageToDataURL(imageUrl);
 
       // 🟫 Category
@@ -599,7 +599,7 @@ export default function Template4() {
       <Navbar />
 
       <main style={{ maxWidth: "1200px", margin: "auto", padding: "2rem 1rem", fontFamily: "Montserrat" }}>
-       {/* <h2 style={{ textAlign: "center", fontSize: "2rem", fontWeight: "bold", color: "#1e2a38", marginBottom: "2rem"}}>Menu Management</h2>
+        {/* <h2 style={{ textAlign: "center", fontSize: "2rem", fontWeight: "bold", color: "#1e2a38", marginBottom: "2rem"}}>Menu Management</h2>
         <div
           style={{
             textAlign: "center",
@@ -630,7 +630,7 @@ export default function Template4() {
             }}
           >
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollLeftFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollLeftFn}>
                 ←
               </button>
             )}
@@ -690,7 +690,7 @@ export default function Template4() {
                     src={
                       item.imageUrl.startsWith("http")
                         ? item.imageUrl
-                        : `http://localhost:5000${item.imageUrl}`
+                        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
                     }
                     alt={item.name}
                     className="menu-img"
@@ -828,7 +828,7 @@ export default function Template4() {
             </div>
 
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{color:"white", backgroundColor:"#FFC107"}} onClick={scrollRightFn}>
+              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollRightFn}>
                 →
               </button>
             )}

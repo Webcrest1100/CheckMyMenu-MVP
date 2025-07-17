@@ -15,7 +15,7 @@ export default function UploadLogo({ restaurantId, setLogoInParent }) {
       try {
         const res = await api.get(`/logo/${restaurantId}`);
         if (res.data.logo) {
-          const fullUrl = `http://localhost:5000${res.data.logo}`;
+          const fullUrl = `${import.meta.env.VITE_API_URL}${res.data.logo}`;
           setLogoUrl(fullUrl);
           setLogoInParent?.(fullUrl); // LIFT TO PARENT
         }
@@ -42,7 +42,7 @@ export default function UploadLogo({ restaurantId, setLogoInParent }) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      const fullUrl = `http://localhost:5000${res.data.logo}`;
+      const fullUrl = `${import.meta.env.VITE_API_URL}${res.data.logo}`;
       setLogoUrl(fullUrl);
       setLogoInParent?.(fullUrl); // UPDATE PARENT
       setShowModal(false);
