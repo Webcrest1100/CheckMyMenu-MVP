@@ -56,7 +56,7 @@ import Template9 from "./pages/Template9";
 import Template10 from "./pages/Template10";
 import UploadLogoPage from "./pages/UploadLogoPage";
 import Redirect from "./pages/Redirect";
-import NewTemplate1 from "./pages/newTemplate1";
+
 
 export default function App() {
   return (
@@ -97,10 +97,6 @@ export default function App() {
         <Route path="/view/:restaurantId/menu/:itemId" element={<MenuOne />} />
         <Route path="/view/:restaurantId/menu" element={<Menu />} />
         <Route path="/view/:restaurantId/template1" element={<Template1 />} />
-        {/* <Route
-          path="/view/:restaurantId/template1"
-          element={<NewTemplate1 />}
-        /> */}
         <Route path="/view/:restaurantId/template2" element={<Template2 />} />
         <Route path="/view/:restaurantId/template3" element={<Template3 />} />
         <Route path="/view/:restaurantId/template4" element={<Template4 />} />
