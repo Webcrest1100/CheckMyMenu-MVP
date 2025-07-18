@@ -14,7 +14,7 @@ module.exports = async function sendEmail({ to, subject, text, html }) {
   if (!to || !subject) {
     throw new Error("sendEmail: 'to' and 'subject' are required");
   }
-  console.log(`📧 Email sent to ${to}: ${info.messageId}`);
+ 
 
   // Create transporter for Gmail using OAuth2 or App Password
   const transporter = nodemailer.createTransport({
@@ -43,4 +43,4 @@ module.exports = async function sendEmail({ to, subject, text, html }) {
     console.error("❌ sendEmail error:", err);
     throw err;
   }
-};
+};  
