@@ -292,9 +292,6 @@ export default function MenuPage() {
   //   doc.save(`${item.name}_menu_card.pdf`);
   // };
 
-
-
-
   const handleDownloadPDF = async (item) => {
     const doc = new jsPDF("p", "pt", "a4");
     const pagePadding = 40;
@@ -337,7 +334,14 @@ export default function MenuPage() {
       const qrElement = document.getElementById(`qr-${item._id}`);
       if (qrElement) {
         const qrImg = await convertSVGToPNG(qrElement);
-        doc.addImage(qrImg, "PNG", pageWidth - pagePadding - 100, y - 65, 100, 100);
+        doc.addImage(
+          qrImg,
+          "PNG",
+          pageWidth - pagePadding - 100,
+          y - 65,
+          100,
+          100
+        );
       }
 
       y += nameHeight + 40;
@@ -351,7 +355,10 @@ export default function MenuPage() {
       // 🏷️ Category
       doc.setFontSize(14);
       doc.setTextColor(255);
-      const wrappedCategory = doc.splitTextToSize(`Category: ${item.category}`, textWidth);
+      const wrappedCategory = doc.splitTextToSize(
+        `Category: ${item.category}`,
+        textWidth
+      );
       doc.text(wrappedCategory, pagePadding, y);
       const catHeight = wrappedCategory.length * 16;
 
@@ -373,7 +380,10 @@ export default function MenuPage() {
       doc.setFontSize(12);
       doc.setTextColor(255);
       doc.text("Description:", pagePadding, y);
-      const wrappedDesc = doc.splitTextToSize(item.description || "-", textWidth);
+      const wrappedDesc = doc.splitTextToSize(
+        item.description || "-",
+        textWidth
+      );
       doc.text(wrappedDesc, pagePadding, y + 20);
       const descHeight = wrappedDesc.length * 14;
 
@@ -386,9 +396,6 @@ export default function MenuPage() {
       toast.error("Failed to generate PDF");
     }
   };
-
-
-
 
   // ✅ Utility: Convert image to base64 (cross-browser safe)
   function convertImageToDataURL(src) {
@@ -632,7 +639,7 @@ export default function MenuPage() {
     <div style={dynamicStyles.container}>
       <Navbar />
 
-      <main style={{ padding: "103px", overflowX: "hidden" }}>
+      <main style={{ maxWidth: "1048px", margin: "auto" }}>
         <h2 style={{ textAlign: "center", color: dark ? "#fff" : "#343a40" }}>
           Menu Items
         </h2>
@@ -688,7 +695,11 @@ export default function MenuPage() {
             }}
           >
             {filteredItems.length >= 3 && (
-              <button style={{ color: "white", backgroundColor: "#FFC107" }} className="scroll-button" onClick={scrollLeftFn}>
+              <button
+                style={{ color: "white", backgroundColor: "#FFC107" }}
+                className="scroll-button"
+                onClick={scrollLeftFn}
+              >
                 ←
               </button>
             )}
@@ -757,7 +768,6 @@ export default function MenuPage() {
                       width: "100%",
                       marginBottom: "0px",
                       marginTop: "20px",
-
                     }}
                   >
                     <h4
@@ -802,7 +812,6 @@ export default function MenuPage() {
                       marginTop: "0px",
                       wordWrap: "break-word",
                       width: "100%",
-
                     }}
                   >
                     <p
@@ -812,12 +821,19 @@ export default function MenuPage() {
                         color: "#555",
                         width: "50%",
                         textAlign: "left",
-                        marginTop: "10px"
+                        marginTop: "10px",
                       }}
                     >
                       Category: {item.category}
                     </p>
-                    <strong style={{ color: "#28A745", width: "50%", textAlign: "right", marginTop: "10px" }}>
+                    <strong
+                      style={{
+                        color: "#28A745",
+                        width: "50%",
+                        textAlign: "right",
+                        marginTop: "10px",
+                      }}
+                    >
                       ${item.price.toFixed(2)}
                     </strong>
                   </div>
@@ -834,7 +850,15 @@ export default function MenuPage() {
                   />
 
                   {/* Row 3: Description */}
-                  <p style={{ marginBottom: "0px", color: "#444", width: "100%", wordWrap: "break-word", textAlign: "left" }}>
+                  <p
+                    style={{
+                      marginBottom: "0px",
+                      color: "#444",
+                      width: "100%",
+                      wordWrap: "break-word",
+                      textAlign: "left",
+                    }}
+                  >
                     {item.description}
                   </p>
 
@@ -892,7 +916,7 @@ export default function MenuPage() {
                         <a
                           href={`https://wa.me/?text=${encodeURIComponent(
                             window.location.origin +
-                            `/view/${restaurantId}/menu/${item._id}`
+                              `/view/${restaurantId}/menu/${item._id}`
                           )}`}
                           target="_blank"
                           rel="noreferrer"
@@ -967,7 +991,11 @@ export default function MenuPage() {
             </div>
 
             {filteredItems.length >= 3 && (
-              <button style={{ color: "white", backgroundColor: "#FFC107" }} className="scroll-button" onClick={scrollRightFn}>
+              <button
+                style={{ color: "white", backgroundColor: "#FFC107" }}
+                className="scroll-button"
+                onClick={scrollRightFn}
+              >
                 →
               </button>
             )}
@@ -986,7 +1014,7 @@ export default function MenuPage() {
             onSubmit={handleSubmit}
             style={dynamicStyles.form}
           >
-            <h4 className="formfield1" >
+            <h4 className="formfield1">
               Name <span style={{ color: "red" }}> * </span>
             </h4>
             <input
@@ -996,9 +1024,7 @@ export default function MenuPage() {
               onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
               style={dynamicStyles.input}
             />
-            <h4 className="formfield" >
-              Description
-            </h4>
+            <h4 className="formfield">Description</h4>
             <input
               type="text"
               value={newItem.description}
@@ -1007,7 +1033,7 @@ export default function MenuPage() {
               }
               style={dynamicStyles.input}
             />
-            <h4 className="formfield" >
+            <h4 className="formfield">
               Price <span style={{ color: "red" }}> * </span>
             </h4>
             <input
@@ -1020,7 +1046,7 @@ export default function MenuPage() {
               }
               style={dynamicStyles.input}
             />
-            <h4 className="formfield" >
+            <h4 className="formfield">
               Category <span style={{ color: "red" }}> * </span>
             </h4>
             <input
@@ -1062,7 +1088,11 @@ export default function MenuPage() {
                 gap: "30px",
               }}
             >
-              <button type="submit" style={{ backgroundColor: "#FFC107" }} className="add-btn">
+              <button
+                type="submit"
+                style={{ backgroundColor: "#FFC107" }}
+                className="add-btn"
+              >
                 Add
               </button>
               <button
@@ -1084,7 +1114,7 @@ export default function MenuPage() {
             onSubmit={handleEditSubmit}
             style={dynamicStyles.form}
           >
-            <h4 className="formfield1" >
+            <h4 className="formfield1">
               Name <span style={{ color: "red" }}> * </span>
             </h4>
             <input
@@ -1166,7 +1196,11 @@ export default function MenuPage() {
                 gap: "30px",
               }}
             >
-              <button type="submit" style={{ backgroundColor: "#FFC107", padding: "12px" }} className="add-btn">
+              <button
+                type="submit"
+                style={{ backgroundColor: "#FFC107", padding: "12px" }}
+                className="add-btn"
+              >
                 Update
               </button>
               <button
@@ -1206,8 +1240,7 @@ export default function MenuPage() {
       container: {
         fontFamily: "Montserrat",
         boxSizing: "border-box",
-        overflowX: "hidden"
-
+        overflowX: "hidden",
       },
       main: {
         margin: "40px auto 40px",

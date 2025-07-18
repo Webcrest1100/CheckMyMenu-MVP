@@ -21,7 +21,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Menu.css";
 import UploadLogo from "./UploadLogo";
-import MenuQRCode from './MenuHeadingQRCode';
+import MenuQRCode from "./MenuHeadingQRCode";
 
 export default function Template10() {
   const { dark } = useTheme();
@@ -221,7 +221,6 @@ export default function Template10() {
     };
 
     try {
-
       const [bgR, bgG, bgB] = hexToRgb(bgColor);
       doc.setFillColor(bgR, bgG, bgB);
       doc.rect(0, 0, pageWidth, pageHeight, "F");
@@ -380,9 +379,13 @@ export default function Template10() {
     try {
       console.log("Updating font for item ID:", itemId); // :wood: debug
       setCardFonts((prev) => ({ ...prev, [itemId]: selectedFont }));
-      await api.put(`/restaurants/menu/${itemId}`, { font: selectedFont }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.put(
+        `/restaurants/menu/${itemId}`,
+        { font: selectedFont },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       toast.success("Font updated!");
     } catch (err) {
       console.error("Failed to update font:", err);
@@ -392,9 +395,13 @@ export default function Template10() {
     try {
       console.log("Updating color for item ID:", itemId);
       setCardColors((prev) => ({ ...prev, [itemId]: selectedColor }));
-      await api.put(`/restaurants/menu/${itemId}`, { color: selectedColor }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.put(
+        `/restaurants/menu/${itemId}`,
+        { color: selectedColor },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       toast.success("Color updated!");
     } catch (err) {
       console.error("Failed to update color:", err);
@@ -404,9 +411,13 @@ export default function Template10() {
   const handleFontColorChange = async (itemId, selectedColor) => {
     try {
       setFontColors((prev) => ({ ...prev, [itemId]: selectedColor }));
-      await api.put(`/restaurants/menu/${itemId}`, { fontColor: selectedColor }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.put(
+        `/restaurants/menu/${itemId}`,
+        { fontColor: selectedColor },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       toast.success("Font color updated!");
     } catch (err) {
       console.error("Failed to update font color:", err);
@@ -424,7 +435,7 @@ export default function Template10() {
     >
       <Navbar />
       <main style={{ padding: "40px 20px" }}>
-        <MenuQRCode restaurantId={restaurantId} template="template1" />
+        <MenuQRCode restaurantId={restaurantId} template="template10" />
 
         {filteredItems.length > 0 ? (
           <div
@@ -436,7 +447,11 @@ export default function Template10() {
             }}
           >
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollLeftFn}>
+              <button
+                className="scroll-button"
+                style={{ color: "white", backgroundColor: "#FFC107" }}
+                onClick={scrollLeftFn}
+              >
                 ←
               </button>
             )}
@@ -560,10 +575,7 @@ export default function Template10() {
                           fontSize: "12px",
                         }}
                       >
-                        {[
-                          "#000000",
-                          "#ffffff",
-                        ].map((color) => (
+                        {["#000000", "#ffffff"].map((color) => (
                           <option
                             key={color}
                             value={color}
@@ -738,7 +750,11 @@ export default function Template10() {
               ))}
             </div>
             {filteredItems.length >= 3 && (
-              <button className="scroll-button" style={{ color: "white", backgroundColor: "#FFC107" }} onClick={scrollRightFn}>
+              <button
+                className="scroll-button"
+                style={{ color: "white", backgroundColor: "#FFC107" }}
+                onClick={scrollRightFn}
+              >
                 →
               </button>
             )}

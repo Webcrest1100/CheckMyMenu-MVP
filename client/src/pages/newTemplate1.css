@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap");
+
+.menu-wrapper {
+    padding: 40px 20px;
+    background-color: #000;
+    border: 5px double gold !important;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.menu-title {
+    font-size: 36px;
+    color: gold !important;
+    margin-bottom: 30px;
+    border-bottom: 2px solid gold !important;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.menu-columns {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+.menu-section {
+    padding: 0 10px;
+}
+
+.menu-category {
+    font-size: 24px;
+    color: gold !important;
+    margin-bottom: 25px;
+    border-bottom: 2px solid gold !important;
+    padding-bottom: 5px;
+    text-align: left;
+}
+
+.menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.menu-line-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.menu-line-img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid gold !important;
+    flex-shrink: 0;
+}
+
+.menu-line-text {
+    flex: 1;
+    text-align: left;
+    padding-top: 2px;
+}
+
+.menu-line-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.item-name {
+    color: #fff;
+}
+
+.item-price {
+    color: gold !important;
+    font-weight: 500;
+}
+
+.item-description {
+    font-size: 14px;
+    color: #bbb;
+    line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .menu-line-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .menu-line-img {
+        width: 100%;
+        height: 180px;
+    }
+
+    .menu-line-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

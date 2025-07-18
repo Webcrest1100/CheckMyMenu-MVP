@@ -55,14 +55,24 @@ import Template8 from "./pages/Template8";
 import Template9 from "./pages/Template9";
 import Template10 from "./pages/Template10";
 import UploadLogoPage from "./pages/UploadLogoPage";
+import Redirect from "./pages/Redirect";
+import NewTemplate1 from "./pages/newTemplate1";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/admin" element={ <RequireAdmin> {" "} <AdminDashboard /> {" "} </RequireAdmin> }/>
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              {" "}
+              <AdminDashboard />{" "}
+            </RequireAdmin>
+          }
+        />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Redirect />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/coming" element={<Coming />} />
@@ -80,10 +90,17 @@ export default function App() {
         <Route path="/template8" element={<Template8 />} />
         <Route path="/template9" element={<Template9 />} />
         <Route path="/template10" element={<Template10 />} />
-        <Route path="/view/:restaurantId/template1/:itemId" element={<Template1 />} />
+        <Route
+          path="/view/:restaurantId/template1/:itemId"
+          element={<Template1 />}
+        />
         <Route path="/view/:restaurantId/menu/:itemId" element={<MenuOne />} />
         <Route path="/view/:restaurantId/menu" element={<Menu />} />
         <Route path="/view/:restaurantId/template1" element={<Template1 />} />
+        {/* <Route
+          path="/view/:restaurantId/template1"
+          element={<NewTemplate1 />}
+        /> */}
         <Route path="/view/:restaurantId/template2" element={<Template2 />} />
         <Route path="/view/:restaurantId/template3" element={<Template3 />} />
         <Route path="/view/:restaurantId/template4" element={<Template4 />} />

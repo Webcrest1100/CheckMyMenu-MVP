@@ -12,9 +12,18 @@ export default function Navbar() {
     navigate("/");
   };
 
+  const handleLogoClick = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <nav className="navbar">
-      <div className="logo-container" onClick={() => navigate("/")}>
+      <div className="logo-container" onClick={handleLogoClick}>
         <img src={logo} alt="Logo" className="logo" />
       </div>
 

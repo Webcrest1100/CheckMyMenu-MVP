@@ -358,6 +358,11 @@ export default function Dashboard() {
     }
   };
 
+  const handlePrintQR = (link) => {
+    console.log(window.location.host, link);
+    window.location.replace(`${window.location.host}${link}`);
+  };
+
   const dynamicStyles = getStyles(dark);
 
   {
@@ -780,6 +785,15 @@ export default function Dashboard() {
                   }}
                 >
                   Go to Menu
+                </button>
+                <button
+                  className="but"
+                  style={dynamicStyles.boxbut}
+                  onClick={() => {
+                    handlePrintQR(`/view/${selectedId}/template1`);
+                  }}
+                >
+                  Print QR
                 </button>
 
                 <button
