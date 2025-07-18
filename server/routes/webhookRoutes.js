@@ -1,8 +1,9 @@
 // routes/webhookRoutes.js
-const express = require("express");
-const router  = express.Router();
-const stripe  = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const User    = require("../models/User");
+const express   = require("express");
+const router    = express.Router();
+const stripe    = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const User      = require("../models/User");
+const sendEmail = require("../utils/sendEmail");              // ← add this
 
 // helper to safely convert a UNIX timestamp to JS Date
 const safeDate = ts =>
@@ -12,10 +13,9 @@ const safeDate = ts =>
 
 router.post(
   "/",
-  // Stripe requires the raw body to verify signatures
-  express.raw({ type: "application/json" }),
+  express.raw({ type: "application/json" }), // raw body for signature
   async (req, res) => {
-       console.log("→ [webhook] got raw body:", req.body.toString().slice(0,200));
+    console.log("→ [webhook] got raw body:", req.body.toString().slice(0,200));
     let event;
     try {
       const sig = req.headers["stripe-signature"];
@@ -32,17 +32,16 @@ router.post(
 
     switch (event.type) {
       case "checkout.session.completed": {
-          console.log("→ [webhook] handling checkout.session.completed");
+        console.log("→ [webhook] handling checkout.session.completed");
         const sess   = event.data.object;
         const subId  = sess.subscription;
         const userId = sess.metadata.userId;
-        // count was passed in metadata when creating the session
         const count  = parseInt(sess.metadata.count, 10) || 0;
 
-        // fetch the full subscription so we can read its status & period end
+        // fetch subscription for dates & status
         const sub = await stripe.subscriptions.retrieve(subId);
 
-        // guard: only credit once
+        // find & guard
         const user = await User.findById(userId);
         if (!user) {
           console.warn(`⚠️ No user ${userId} found`);
@@ -53,7 +52,7 @@ router.post(
           break;
         }
 
-        // build our update payload
+        // update user record
         const update = {
           $inc: { allowedRestaurants: count },
           stripeSubscriptionId: subId,
@@ -61,25 +60,64 @@ router.post(
         };
         const periodEnd = safeDate(sub.current_period_end);
         if (periodEnd) update.currentPeriodEnd = periodEnd;
-
         await User.findByIdAndUpdate(userId, update);
         console.log(`✅ Credited user ${userId} +${count} restaurant(s)`);
+
+        // ── EMAIL THE CUSTOMER ──
+       try {
+        await sendEmail({
+          to: user.email,
+          subject: "Your subscription is active 🎉",
+          html: `
+            <p>Hi ${user.email},</p>
+            <p>Thanks for subscribing! You’ve been credited with 
+              <strong>${count}</strong> additional restaurant slot${count>1?"s":""}.
+            </p>
+            ${ periodEnd
+              ? `<p>Your next billing date is <strong>${periodEnd.toLocaleDateString()}</strong>.</p>`
+              : ""
+            }
+            <p>Enjoy the app!</p>
+          `
+        });
+        console.log("✅ [webhook] customer email sent");
+      } catch (err) {
+        console.error("❌ [webhook] failed sending customer email:", err);
+      }
+
+        // ── EMAIL THE ADMIN ──
+        if (process.env.ADMIN_EMAIL) {
+         try {
+          await sendEmail({
+            to: process.env.ADMIN_EMAIL,
+            subject: "New subscription received",
+            html: `
+              <p>User <strong>${user.email}</strong> just subscribed for 
+                <strong>${count}</strong> restaurant slot${count>1?"s":""}.
+              </p>
+              <p>Subscription ID: <code>${subId}</code></p>
+            `
+          });
+          console.log("✅ [webhook] admin email sent");
+        } catch (err) {
+          console.error("❌ [webhook] failed sending admin email:", err);
+        }
+      }
         break;
       }
 
-      // (optional) keep your renewals / cancellations in sync
+      // keep your other handlers in place…
       case "invoice.payment_succeeded":
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const sub  = event.data.object;
-        const user = await User.findOne({ stripeSubscriptionId: sub.id });
-        if (user) {
-          const update = { subscriptionStatus: sub.status };
-          const periodEnd = safeDate(sub.current_period_end);
-          if (periodEnd) update.currentPeriodEnd = periodEnd;
-
-          await User.findByIdAndUpdate(user._id, update);
-          console.log(`🔄 Updated ${user.email} → ${sub.status}`);
+        const sub2 = event.data.object;
+        const user2 = await User.findOne({ stripeSubscriptionId: sub2.id });
+        if (user2) {
+          const upd = { subscriptionStatus: sub2.status };
+          const pe = safeDate(sub2.current_period_end);
+          if (pe) upd.currentPeriodEnd = pe;
+          await User.findByIdAndUpdate(user2._id, upd);
+          console.log(`🔄 Updated ${user2.email} → ${sub2.status}`);
         }
         break;
       }
@@ -88,7 +126,7 @@ router.post(
         // ignore other events
     }
 
-    // let Stripe know we received the event
+    // ack to Stripe
     res.json({ received: true });
   }
 );

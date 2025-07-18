@@ -13,7 +13,6 @@ const adminRoutes        = require("./routes/adminRoutes");
 
 const app = express();
 
-// 1) WHISTLISTED: the webhook must see the RAW body, so we mount it first
 app.use("/api/webhook", webhookRoutes);
 
 // 2) now parse JSON everywhere else
