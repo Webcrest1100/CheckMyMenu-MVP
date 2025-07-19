@@ -56,7 +56,6 @@ import Template9 from "./pages/Template9";
 import Template10 from "./pages/Template10";
 import UploadLogoPage from "./pages/UploadLogoPage";
 import Redirect from "./pages/Redirect";
-import NewTemplate1 from "./pages/newTemplate1";
 import Navbar from "./pages/Navbar";
 import Footer from "./pages/Footer";
 
@@ -103,10 +102,16 @@ export default function App() {
           <Route path="/template8" element={<Template8 />} />
           <Route path="/template9" element={<Template9 />} />
           <Route path="/template10" element={<Template10 />} />
-          <Route path="/view/:restaurantId/menu/:itemId" element={<MenuOne />} />
+          <Route
+            path="/view/:restaurantId/menu/:itemId"
+            element={<MenuOne />}
+          />
           <Route path="/view/:restaurantId/menu" element={<Menu />} />
-          <Route path="/view/:restaurantId/template1/:itemId" element={<Template1 />} />
-          <Route path="/view/:restaurantId/template1" element={<NewTemplate1 />} />
+          <Route
+            path="/view/:restaurantId/template1/:itemId"
+            element={<Template1 />}
+          />
+          <Route path="/view/:restaurantId/template1" element={<Template1 />} />
           <Route path="/view/:restaurantId/template2" element={<Template2 />} />
           <Route path="/view/:restaurantId/template3" element={<Template3 />} />
           <Route path="/view/:restaurantId/template4" element={<Template4 />} />
@@ -115,7 +120,10 @@ export default function App() {
           <Route path="/view/:restaurantId/template7" element={<Template7 />} />
           <Route path="/view/:restaurantId/template8" element={<Template8 />} />
           <Route path="/view/:restaurantId/template9" element={<Template9 />} />
-          <Route path="/view/:restaurantId/template10" element={<Template10 />} />
+          <Route
+            path="/view/:restaurantId/template10"
+            element={<Template10 />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>
