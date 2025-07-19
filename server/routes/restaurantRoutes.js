@@ -6,8 +6,8 @@ const User = require("../models/User");
 const Restaurant = require("../models/Restaurant");
 const MenuItem = require("../models/MenuItem");
 const upload = require("../middleware/multer");
-  const { getFacebookReviews, getInstagramReviews } = require("../utils/socialReviews");
-
+// const { fetchGoogleReviews } = require("../services/socialReviews");
+const { fetchGoogleReviews } = require("../utils/googleReviews");
 
 // — CREATE a new restaurant (with quota check AND API-fields) —
 router.post("/", protect, async (req, res) => {
@@ -27,24 +27,15 @@ router.post("/", protect, async (req, res) => {
     console.log("→ create-restaurant payload:", req.body);
 
     // 4) pull out all fields
-    const {
-      name,
-      socialLinks = {},
-      facebookPageId,
-      facebookPageToken,
-      instagramBusinessId,
-      instagramAccessToken,
-    } = req.body;
+  
+    const { name, socialLinks = {}, googlePlaceId } = req.body;
 
     // 5) create & return
     const restaurant = await Restaurant.create({
       name,
       owner: req.user._id,
       socialLinks,
-      facebookPageId,
-      facebookPageToken,
-      instagramBusinessId,
-      instagramAccessToken,
+      googlePlaceId,
     });
 
     return res.status(201).json(restaurant);
@@ -55,22 +46,19 @@ router.post("/", protect, async (req, res) => {
 });
 
 
+// — FETCH SOCIAL REVIEWS FOR A RESTAURANT —
 router.get("/:id/reviews", protect, async (req, res) => {
+  const rest = await Restaurant.findById(req.params.id);
+  if (!rest) return res.sendStatus(404);
+
+  // no GooglePlaceId → empty array
+  if (!rest.googlePlaceId) {
+    return res.json([]);
+  }
+
   try {
-    const rest = await Restaurant.findById(req.params.id);
-    if (!rest) return res.sendStatus(404);
-
-    const [fb, ig] = await Promise.all([
-      getFacebookReviews(rest.facebookPageId,     rest.facebookPageToken),
-      getInstagramReviews(rest.instagramBusinessId, rest.instagramAccessToken),
-    ]);
-
-    // merge, sort descending by date, and cap at, say, 10 total
-    const combined = [...fb, ...ig]
-      .sort((a, b) => b.date - a.date)
-      .slice(0, 10);
-
-    res.json(combined);
+    const reviews = await fetchGoogleReviews(rest.googlePlaceId);
+    res.json(reviews);
   } catch (err) {
     console.error("Fetch reviews error:", err);
     res.status(500).json({ msg: "Could not fetch reviews" });

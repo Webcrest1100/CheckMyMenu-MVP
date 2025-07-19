@@ -64,10 +64,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [fbPageId, setFbPageId] = useState("");
-  const [fbPageToken, setFbPageToken] = useState("");
-  const [igBusinessId, setIgBusinessId] = useState("");
-  const [igAccessToken, setIgAccessToken] = useState("");
+  const [GooglePlaceId, setGooglePlaceId] = useState("");
   const qrRef = useRef(null);
   const templateGridRef = useRef(null);
   const [isDraggingTemplate, setIsDraggingTemplate] = useState(false);
@@ -229,33 +226,24 @@ export default function Dashboard() {
 
     // 3) build payload
     const payload = {
-      name: newRestaurant,
-      socialLinks,
-      // only include if non-empty:
-      ...(fbPageId && { facebookPageId: fbPageId }),
-      ...(fbPageToken && { facebookPageToken: fbPageToken }),
-      ...(igBusinessId && { instagramBusinessId: igBusinessId }),
-      ...(igAccessToken && { instagramAccessToken: igAccessToken }),
-    };
+    name: newRestaurant,
+    socialLinks,
+    ...(GooglePlaceId && { googlePlaceId: GooglePlaceId }),
+  };
 
     try {
       const res = await api.post("/restaurants", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // Update restaurants
-      setRestaurants((prev) => [...prev, res.data]);
-
-      // Reset form state
-      setNewRestaurant("");
-      setSocialLinks({ facebook: "", instagram: "", twitter: "", website: "" });
-
-      // Show success and close modal
-      toast.success("Restaurant added successfully!");
-      setShowAddModal(false);
-    } catch (err) {
-      console.error("Failed to add restaurant", err);
-      toast.error(err?.response?.data?.msg || "Add failed");
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setRestaurants(prev => [...prev, res.data]);
+    setNewRestaurant("");
+    setSocialLinks({ facebook: "", instagram: "", twitter: "", website: "" });
+    setGooglePlaceId("");     // reset your new field
+    toast.success("Restaurant added successfully!");
+    setShowAddModal(false);
+  } catch (err) {
+    console.error("Failed to add restaurant", err);
+    toast.error(err?.response?.data?.msg || "Add failed");
     }
   };
 
@@ -798,7 +786,7 @@ export default function Dashboard() {
                 style={dynamicStyles.input}
               />
 
-              {/* <button
+              <button
                 type="button"
                 style={{
                   ...dynamicStyles.button,
@@ -818,41 +806,13 @@ export default function Dashboard() {
                   <h4 className="formfield-restuarant">Facebook Page ID</h4>
                   <input
                     type="text"
-                    value={fbPageId}
-                    onChange={(e) => setFbPageId(e.target.value)}
-                    placeholder=" e.g. 5481640000000000"
-                    style={dynamicStyles.input}
-                  />
-                  <h4 className="formfield-restuarant">Facebook Page Token</h4>
-                  <input
-                    type="text"
-                    value={fbPageToken}
-                    onChange={(e) => setFbPageToken(e.target.value)}
-                    placeholder="long-lived page token"
-                    style={dynamicStyles.input}
-                  />
-                  <h4 className="formfield-restuarant">
-                    Instagram Business ID
-                  </h4>
-                  <input
-                    type="text"
-                    value={igBusinessId}
-                    onChange={(e) => setIgBusinessId(e.target.value)}
-                    placeholder="e.g. 17841400000000000"
-                    style={dynamicStyles.input}
-                  />
-                  <h4 className="formfield-restuarant">
-                    Instagram Access Token
-                  </h4>
-                  <input
-                    type="text"
-                    value={igAccessToken}
-                    onChange={(e) => setIgAccessToken(e.target.value)}
-                    placeholder="long-lived IG token"
+                    value={GooglePlaceId}
+                    onChange={e => setGooglePlaceId(e.target.value)}
+                    placeholder="e.g. ChIJN1t_tDeuEmsRUsoyG83frY4"
                     style={dynamicStyles.input}
                   />
                 </>
-              )} */}
+              )}
               <div className="button-row-restuarant">
                 <button
                   type="submit"
