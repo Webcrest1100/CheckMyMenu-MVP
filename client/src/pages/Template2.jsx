@@ -1,279 +1,51 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { api } from "../api";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
-import QRCode from "react-qr-code";
-import { jsPDF } from "jspdf";
-import {
-  FaWhatsapp,
-  FaLink,
-  FaChevronLeft,
-  FaChevronRight,
-} from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { SketchPicker } from "react-color";
+import React, { useEffect, useState } from "react";
 import "./Template2.css";
-import html2canvas from "html2canvas";
-import { useRef } from "react";
-import MenuQRCode from './MenuHeadingQRCode';
+import { fetchMenuData } from "../utils/fetchMenuItems";
+import { useParams } from "react-router-dom";
 
-export default function Template2() {
-  const token = localStorage.getItem("token");
-  const navigate = useNavigate();
-  const restaurantId = localStorage.getItem("restaurantId");
-  const cardRefs = useRef({});
-
-  const [menuItems, setMenuItems] = useState([]);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(6);
-  const [totalPages, setTotalPages] = useState(1);
-  const [cardColor, setCardColor] = useState("#ffffff");
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [confirmId, setConfirmId] = useState(null);
+const Template2 = () => {
+  const [data, setData] = useState([]);
+  const { restaurantId } = useParams();
+  const LSRestaurantId = localStorage.getItem("restaurantId");
 
   useEffect(() => {
-    const fetchMenuItems = async () => {
-      try {
-        setLoading(true);
-        const params = { page, limit };
-        if (debouncedSearch) params.search = debouncedSearch;
-        if (categoryFilter) params.category = categoryFilter;
-
-        const res = await api.get(`/restaurants/${restaurantId}/menu`, {
-          params,
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (Array.isArray(res.data)) {
-          setMenuItems(res.data);
-          setTotalPages(1);
-        } else {
-          setMenuItems(res.data.items || []);
-          setTotalPages(res.data.totalPages || 1);
-        }
-      } catch (err) {
-        console.error("Error fetching menu items:", err);
-        toast.error("Failed to load menu items");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (restaurantId && token) fetchMenuItems();
-  }, [restaurantId, token, debouncedSearch, categoryFilter, page]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      setPage(1);
-    }, 400);
-    return () => clearTimeout(timeout);
-  }, [search]);
-
-  const handleDownloadPDF = async (item) => {
-    const cardElement = cardRefs.current[item._id];
-    if (!cardElement) return toast.error("Card not found");
-
-    try {
-      const downloadBtn = cardElement.querySelector(".btn-download");
-      if (downloadBtn) downloadBtn.style.visibility = "hidden";
-
-      // Force width for accurate rendering
-      const originalWidth = cardElement.style.width;
-      cardElement.style.width = "600px";
-      await new Promise((r) => setTimeout(r, 100));
-
-      // Capture the entire card as it appears
-      const canvas = await html2canvas(cardElement, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
-
-      cardElement.style.width = originalWidth;
-      if (downloadBtn) downloadBtn.style.visibility = "";
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const imgProps = pdf.getImageProperties(imgData);
-      const imgRatio = imgProps.width / imgProps.height;
-
-      const imgWidth = pdfWidth * 0.85;
-      const imgHeight = imgWidth / imgRatio;
-
-      const marginX = (pdfWidth - imgWidth) / 2;
-      const marginY = 30;
-
-      pdf.addImage(imgData, "PNG", marginX, marginY, imgWidth, imgHeight);
-      pdf.save(`${item.name}_menu_card.pdf`);
-    } catch (err) {
-      console.error("Error generating PDF:", err);
-      toast.error("Failed to generate PDF");
-    }
-  };
+    fetchMenuData({
+      restaurantId: restaurantId ? restaurantId : LSRestaurantId,
+      onSuccess: setData,
+      onError: (err) => console.log(err),
+    });
+  }, []);
 
   return (
-    <div style={{ overflowX: "hidden" }}>
-      <Navbar />
-      <div className="menu-container">
-        <MenuQRCode restaurantId={restaurantId} template="template2" />
-        <div className="menu-grid">
-          {loading ? (
-            <p>Loading...</p>
-          ) : menuItems.length === 0 ? (
-            <div>No items found</div>
-          ) : (
-            menuItems.map((item) => (
-              <div
-                key={item._id}
-                ref={(el) => (cardRefs.current[item._id] = el)}
-                className="menu-card"
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: "10px",
-                  padding: "16px",
-                  marginBottom: "20px",
-                  backgroundColor: "#fff",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                  cursor: "pointer",
-                  width: "100%",
-                  transition: "all 0.3s ease",
-                }}
-              >
-                <h3
-                  style={{
-                    textAlign: "center",
-                    width: "90%",
-                    wordWrap: "break-word",
-                  }}
-                  className="menu-title"
+    <div className="luxury-menu2-container">
+      <h1 className="luxury-menu2-heading">Menu</h1>
+      <div className="luxury-menu2-list">
+        {data?.map((item) => (
+          <div className="luxury-menu2-row" key={item._id}>
+            {item.imageUrl && (
+              <img
+                src={`${import.meta.env.VITE_API_URL}${item.imageUrl}`}
+                alt={item.name}
+                className="luxury-menu2-img"
+              />
+            )}
+            <div className="luxury-menu2-info">
+              <div className="luxury-menu2-main">
+                <span
+                  className="luxury-menu2-name"
+                  style={{ color: "#FFD700" }}
                 >
                   {item.name}
-                </h3>
-                <p
-                  style={{
-                    textAlign: "center",
-                    width: "90%",
-                    wordWrap: "break-word",
-                  }}
-                >
-                  {item.description}
-                </p>
-                <p
-                  style={{
-                    textAlign: "center",
-                    width: "90%",
-                    wordWrap: "break-word",
-                  }}
-                  className="menu-price"
-                >
-                  Price: ${item.price}
-                </p>
-                <p
-                  style={{
-                    textAlign: "center",
-                    width: "90%",
-                    wordWrap: "break-word",
-                  }}
-                  className="menu-category"
-                >
-                  Category: {item.category}
-                </p>
-
-                <QRCode
-                  id={`qr-${item._id}`}
-                  style={{ marginBottom: "10px" }}
-                  size={80}
-                  value={`${window.location.origin}/view/${restaurantId}/template2`}
-                />
-
-                {item.imageUrl ? (
-                  <img
-                    src={
-                      item.imageUrl.startsWith("http")
-                        ? item.imageUrl
-                        : `${import.meta.env.VITE_API_URL}${item.imageUrl}`
-                    }
-                    alt={item.name}
-                    className="menu-img"
-                    style={{
-                      width: "100%",
-                      height: "150px",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      borderRadius: "8px",
-                      marginBottom: "12px",
-                    }}
-                  />
-                ) : (
-                  <div className="image-placeholder">No Image</div>
-                )}
-                <button
-                  onClick={() => handleDownloadPDF(item)}
-                  className="btn-download"
-                  style={{
-                    backgroundColor: "#1E2A38",
-                    color: "#fff",
-                    border: "none",
-                    padding: "0.4rem 0.8rem",
-                    borderRadius: "6px",
-                    fontWeight: "500",
-                    cursor: "pointer",
-                  }}
-                >
-                  Download PDF
-                </button>
+                </span>
+                <span className="luxury-menu2-price">${item.price}</span>
               </div>
-            ))
-          )}
-        </div>
-
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button
-              onClick={() => handlePageChange(page - 1)}
-              disabled={page === 1}
-            >
-              <FaChevronLeft /> Prev
-            </button>
-            <span>
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => handlePageChange(page + 1)}
-              disabled={page === totalPages}
-            >
-              Next <FaChevronRight />
-            </button>
-          </div>
-        )}
-
-        {confirmId && (
-          <div className="modal-overlay">
-            <div className="modal-box">
-              <p>Are you sure you want to delete this item?</p>
-              <button onClick={confirmDelete} className="btn-confirm">
-                Yes
-              </button>
-              <button onClick={() => setConfirmId(null)} className="btn-cancel">
-                Cancel
-              </button>
+              <span className="luxury-menu2-desc">{item.description}</span>
             </div>
           </div>
-        )}
+        ))}
       </div>
-      <Footer />
-      <ToastContainer />
     </div>
   );
-}
+};
+
+export default Template2;

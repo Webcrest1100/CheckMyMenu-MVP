@@ -33,7 +33,7 @@
 //   );
 // }
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import RequireAdmin from "./pages/RequireAdmin";
@@ -56,56 +56,67 @@ import Template9 from "./pages/Template9";
 import Template10 from "./pages/Template10";
 import UploadLogoPage from "./pages/UploadLogoPage";
 import Redirect from "./pages/Redirect";
-
+import NewTemplate1 from "./pages/newTemplate1";
+import Navbar from "./pages/Navbar";
+import Footer from "./pages/Footer";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public/Admin routes */}
         <Route
           path="/admin"
           element={
             <RequireAdmin>
-              {" "}
-              <AdminDashboard />{" "}
+              <AdminDashboard />
             </RequireAdmin>
           }
         />
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Redirect />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/coming" element={<Coming />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/upload-logo" element={<UploadLogoPage />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/template1" element={<Template1 />} />
-        <Route path="/template2" element={<Template2 />} />
-        <Route path="/template3" element={<Template3 />} />
-        <Route path="/template4" element={<Template4 />} />
-        <Route path="/template5" element={<Template5 />} />
-        <Route path="/template6" element={<Template6 />} />
-        <Route path="/template7" element={<Template7 />} />
-        <Route path="/template8" element={<Template8 />} />
-        <Route path="/template9" element={<Template9 />} />
-        <Route path="/template10" element={<Template10 />} />
+
+        {/* Main layout with Navbar and Footer */}
         <Route
-          path="/view/:restaurantId/template1/:itemId"
-          element={<Template1 />}
-        />
-        <Route path="/view/:restaurantId/menu/:itemId" element={<MenuOne />} />
-        <Route path="/view/:restaurantId/menu" element={<Menu />} />
-        <Route path="/view/:restaurantId/template1" element={<Template1 />} />
-        <Route path="/view/:restaurantId/template2" element={<Template2 />} />
-        <Route path="/view/:restaurantId/template3" element={<Template3 />} />
-        <Route path="/view/:restaurantId/template4" element={<Template4 />} />
-        <Route path="/view/:restaurantId/template5" element={<Template5 />} />
-        <Route path="/view/:restaurantId/template6" element={<Template6 />} />
-        <Route path="/view/:restaurantId/template7" element={<Template7 />} />
-        <Route path="/view/:restaurantId/template8" element={<Template8 />} />
-        <Route path="/view/:restaurantId/template9" element={<Template9 />} />
-        <Route path="/view/:restaurantId/template10" element={<Template10 />} />
+          element={
+            <>
+              <Navbar />
+              <Outlet />
+              <Footer />
+            </>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/coming" element={<Coming />} />
+          <Route path="/upload-logo" element={<UploadLogoPage />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/template1" element={<Template1 />} />
+          <Route path="/template2" element={<Template2 />} />
+          <Route path="/template3" element={<Template3 />} />
+          <Route path="/template4" element={<Template4 />} />
+          <Route path="/template5" element={<Template5 />} />
+          <Route path="/template6" element={<Template6 />} />
+          <Route path="/template7" element={<Template7 />} />
+          <Route path="/template8" element={<Template8 />} />
+          <Route path="/template9" element={<Template9 />} />
+          <Route path="/template10" element={<Template10 />} />
+          <Route path="/view/:restaurantId/menu/:itemId" element={<MenuOne />} />
+          <Route path="/view/:restaurantId/menu" element={<Menu />} />
+          <Route path="/view/:restaurantId/template1/:itemId" element={<Template1 />} />
+          <Route path="/view/:restaurantId/template1" element={<NewTemplate1 />} />
+          <Route path="/view/:restaurantId/template2" element={<Template2 />} />
+          <Route path="/view/:restaurantId/template3" element={<Template3 />} />
+          <Route path="/view/:restaurantId/template4" element={<Template4 />} />
+          <Route path="/view/:restaurantId/template5" element={<Template5 />} />
+          <Route path="/view/:restaurantId/template6" element={<Template6 />} />
+          <Route path="/view/:restaurantId/template7" element={<Template7 />} />
+          <Route path="/view/:restaurantId/template8" element={<Template8 />} />
+          <Route path="/view/:restaurantId/template9" element={<Template9 />} />
+          <Route path="/view/:restaurantId/template10" element={<Template10 />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

@@ -9,7 +9,7 @@ export default function MenuOne() {
   const { restaurantId, itemId } = useParams();
   const [menuItem, setMenuItem] = useState(null);
   const [loading, setLoading] = useState(false);
-  // const [reviews, setReviews] = useState([]); 
+  // const [reviews, setReviews] = useState([]);
   // const [social, setSocial] = useState({
   //   google: [],
   //   facebook: [],
@@ -44,23 +44,22 @@ export default function MenuOne() {
     }
   };
 
-// useEffect(() => {
-//     if (!restaurantId) return;
-//     (async () => {
-//       try {
-//         const { data } = await api.get(`/restaurants/${restaurantId}/reviews`);
-//         setReviews(data);
-//       } catch (err) {
-//         console.error("Could not load reviews:", err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     })();
-//   }, [restaurantId]);
+  // useEffect(() => {
+  //     if (!restaurantId) return;
+  //     (async () => {
+  //       try {
+  //         const { data } = await api.get(`/restaurants/${restaurantId}/reviews`);
+  //         setReviews(data);
+  //       } catch (err) {
+  //         console.error("Could not load reviews:", err);
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     })();
+  //   }, [restaurantId]);
 
   return (
     <div className="menu-one-page">
-      <Navbar />
       <div className="menu-one-container">
         {loading ? (
           <div className="menu-one-loading">Loading...</div>
@@ -95,7 +94,7 @@ export default function MenuOne() {
         )}
       </div>
 
-  {/* <section className="reviews">
+      {/* <section className="reviews">
         <h3>Customer Reviews</h3>
         {loading ? (
           <p>Loading reviews…</p>
@@ -156,8 +155,6 @@ export default function MenuOne() {
         }
       </section>
     </div> */}
-
-      <Footer />
     </div>
   );
 }

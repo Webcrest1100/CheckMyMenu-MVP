@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { api } from "../api";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+
 import { useTheme } from "./ThemeContext";
 import { jsPDF } from "jspdf";
 import {
@@ -637,8 +636,6 @@ export default function MenuPage() {
 
   return (
     <div style={dynamicStyles.container}>
-      <Navbar />
-
       <main style={{ maxWidth: "1048px", margin: "auto" }}>
         <h2 style={{ textAlign: "center", color: dark ? "#fff" : "#343a40" }}>
           Menu Items
@@ -783,14 +780,6 @@ export default function MenuPage() {
                     >
                       {item.name}
                     </h4>
-                    <QRCode
-                      style={{ width: "40%" }}
-                      id={`qr-${item._id}`}
-                      size={80}
-                      bgColor="white"
-                      fgColor="black"
-                      value={`${window.location.origin}/view/${restaurantId}/menu/${item._id}`}
-                    />
                   </div>
 
                   {/* Divider */}
@@ -1216,7 +1205,6 @@ export default function MenuPage() {
       )}
 
       <ToastContainer position="top-right" autoClose={3000} />
-      <Footer />
     </div>
   );
 

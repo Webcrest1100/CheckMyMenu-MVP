@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { api } from "../api";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
+import QRCode from "react-qr-code";
 import Footer from "./Footer";
 import {
   FaFacebookF,
@@ -16,6 +17,8 @@ import "./Dashboard.css";
 import { useTheme } from "./ThemeContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { printMenu } from "../utils/printMenu";
+import { fetchMenuData } from "../utils/fetchMenuItems";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -53,7 +56,7 @@ export default function Dashboard() {
   const [fbPageToken, setFbPageToken] = useState("");
   const [igBusinessId, setIgBusinessId] = useState("");
   const [igAccessToken, setIgAccessToken] = useState("");
-
+  const qrRef = useRef(null);
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
@@ -204,6 +207,21 @@ export default function Dashboard() {
       toast.error(err?.response?.data?.msg || "Add failed");
     }
   };
+
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    if (selectedRestaurantForTemplate) {
+      fetchMenuData({
+        restaurantId: selectedRestaurantForTemplate,
+        onSuccess: setData,
+      });
+    }
+  }, [selectedRestaurantForTemplate]);
+  const grouped = data?.reduce((acc, item) => {
+    const category = item.category || "Uncategorized";
+    acc[category] = [...(acc[category] || []), item];
+    return acc;
+  }, {});
 
   //   const handleAddRestaurant = async (e) => {
   //     e.preventDefault();
@@ -358,9 +376,36 @@ export default function Dashboard() {
     }
   };
 
-  const handlePrintQR = (link) => {
-    console.log(window.location.host, link);
-    window.location.replace(`${window.location.host}${link}`);
+  const handlePrintQR = () => {
+    const svg = qrRef.current;
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svg);
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    const svgBlob = new Blob([svgString], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+
+      const pngUrl = canvas.toDataURL("image/png");
+      const downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = "qr-code.png";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    };
+
+    img.src = url;
   };
 
   const dynamicStyles = getStyles(dark);
@@ -377,8 +422,6 @@ export default function Dashboard() {
 
   return (
     <div style={dynamicStyles.container}>
-      <Navbar />
-
       <main style={dynamicStyles.main}>
         <h2 style={dynamicStyles.welcome}>
           Welcome, <span style={dynamicStyles.email}>{user.email}</span>
@@ -467,7 +510,7 @@ export default function Dashboard() {
             {restaurants.length > 0 ? (
               restaurants.map((r) => (
                 <div key={r._id} className="bcd">
-                  <h4>{r.name}</h4>
+                  <h4 style={{ color: "#000000" }}>{r.name}</h4>
                   <p style={dynamicStyles.cardId}>ID: {r._id}</p>
                   {r.socialLinks && (
                     <div style={{ marginTop: "8px" }}>
@@ -787,16 +830,6 @@ export default function Dashboard() {
                   Go to Menu
                 </button>
                 <button
-                  className="but"
-                  style={dynamicStyles.boxbut}
-                  onClick={() => {
-                    handlePrintQR(`/view/${selectedId}/template1`);
-                  }}
-                >
-                  Print QR
-                </button>
-
-                <button
                   className="modal-button"
                   onClick={() => {
                     setShowManageOptions(false);
@@ -804,6 +837,26 @@ export default function Dashboard() {
                   }}
                 >
                   Customize
+                </button>
+              </div>
+              <div className="modal-buttons">
+                {!!data.length && (
+                  <button
+                    className="modal-button"
+                    onClick={() => {
+                      printMenu(`.menu-wrapper`);
+                    }}
+                  >
+                    Print Menu
+                  </button>
+                )}
+                <button
+                  className="modal-button"
+                  onClick={() => {
+                    handlePrintQR(`/view/${selectedId}/template1`);
+                  }}
+                >
+                  Print QR
                 </button>
               </div>
 
@@ -1021,7 +1074,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      <Footer />
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -1047,6 +1099,54 @@ export default function Dashboard() {
           }}
         >
           <div className="spinner"></div>
+        </div>
+      )}
+
+      {/* Hidden QRCODE */}
+      <div
+        style={{
+          background: "white",
+          padding: "16px",
+          display: "none",
+        }}
+      >
+        <QRCode
+          size={200}
+          value={`${window.location.host}/view/${selectedRestaurantForTemplate}/template1`}
+          ref={qrRef}
+        />
+      </div>
+      {/* Hidden Template 1 */}
+      {!!data.length && (
+        <div className="menu-wrapper" style={{ display: "none" }}>
+          <h1 className="menu-title">MAIN’S</h1>
+          <div className="menu-columns">
+            {Object.keys(grouped).map((category) => (
+              <div className="menu-section" key={category}>
+                <h2 className="menu-category">{category.toUpperCase()}</h2>
+                <div className="menu-list">
+                  {grouped[category].map((item) => (
+                    <div className="menu-line-item" key={item._id}>
+                      <img
+                        src={`${import.meta.env.VITE_API_URL}${item.imageUrl}`}
+                        alt={item.name}
+                        className="menu-line-img"
+                      />
+                      <div className="menu-line-text">
+                        <div className="menu-line-header">
+                          <span className="item-name">{item.name}</span>
+                          <span className="item-price">Rs. {item.price}</span>
+                        </div>
+                        <div className="item-description">
+                          {item.description}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

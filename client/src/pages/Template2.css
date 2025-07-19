@@ -1,144 +1,120 @@
-.menu-container {
-  padding: 2rem;
+.luxury-menu2-container {
+  background: #121212;
+  color: #e5e5e5;
+  padding: 40px 10px;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  max-width: 600px;
+  margin: 20px auto;
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(212, 175, 55, 0.10);
+  border: 2px solid #d4af37;
 }
 
-.menu-heading {
+.luxury-menu2-heading {
+  font-size: 3rem;
+  color: #d4af37;
   text-align: center;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  font-weight: bold;
-  color: #1e2a38;
+  margin-bottom: 2.5rem;
+  font-family: 'Cormorant Garamond', serif;
+  letter-spacing: 2px;
+  font-weight: 700;
 }
 
-.menu-grid {
+.luxury-menu2-list {
+  width: 100%;
+}
+
+.luxury-menu2-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  justify-content: center;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1.5px solid #a38d2d22;
 }
 
-.menu-card {
+.luxury-menu2-row:last-child {
+  border-bottom: none;
+}
+
+.luxury-menu2-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
   border-radius: 12px;
-  padding: 1rem;
-  margin: 0.5rem;
-  background-color: var(--card-bg, #ffffff);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
-  border-top: 5px solid var(--card-border, #28a745);
-  flex: 1 1 280px;
-  max-width: 300px;
+  margin-right: 18px;
+  border: 1px solid #d4af37;
+  box-shadow: 0 2px 12px rgba(212, 175, 55, 0.09);
+}
+
+.luxury-menu2-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: flex-start;
 }
 
-.menu-img {
-  width: 100% !important;
-  height: 180px !important;
-  object-fit: cover !important;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-}
-
-.menu-title {
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: #000000 !important;
-  margin-top: 0.5rem;
-  text-align: center;
-}
-
-.menu-price {
-  font-weight: bold;
-  color: #000000 !important;
-  margin: 0.5rem 0;
-}
-
-.menu-category {
-  font-style: italic;
-  color: #000000 !important;
-  margin-bottom: 0.5rem;
-}
-
-.btn-download {
-  margin: 0.5rem;
-  padding: 0.4rem 0.8rem;
-  background-color: #1e2a38 !important;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.share-container {
-  margin-top: 0.5rem;
-  text-align: center;
-}
-
-.share-buttons {
+.luxury-menu2-main {
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
 }
 
-.share-button,
-.btn-copy {
-  background-color: #28a745;
-  color: white;
-  padding: 0.4rem;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.luxury-menu2-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #FFD700;
+}
+
+.luxury-menu2-price {
+  font-family: 'Cormorant Garamond', serif;
+  color: #bab5a1;
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin-left: 30px;
+  min-width: 80px;
+  text-align: right;
+}
+
+.luxury-menu2-desc {
   font-size: 1rem;
-  cursor: pointer;
-  border: none;
+  color: #e5e5e5;
+  opacity: 0.83;
+  font-family: 'Inter', sans-serif;
+  margin-top: 3px;
+  display: block;
+  font-weight: 400;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
-}
+@media (max-width: 600px) {
+  .luxury-menu2-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px 0;
+  }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
+  .luxury-menu2-img {
+    width: 100%;
+    height: 160px;
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
 
-.modal-box {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
+  .luxury-menu2-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
 
-.btn-confirm,
-.btn-cancel {
-  padding: 0.4rem 1rem;
-  margin: 0.5rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-confirm {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-cancel {
-  background-color: #6c757d;
-  color: white;
+  .luxury-menu2-price {
+    margin-left: 0;
+    min-width: 0;
+    text-align: left;
+  }
 }
