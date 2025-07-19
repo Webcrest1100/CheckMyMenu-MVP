@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./Template3.css";
+import "./template3.css";
 import { fetchMenuData } from "../utils/fetchMenuItems";
 import { useParams } from "react-router-dom";
 
