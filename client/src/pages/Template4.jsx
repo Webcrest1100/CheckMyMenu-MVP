@@ -14,21 +14,25 @@ function groupByCategory(items) {
   return groups;
 }
 
-const Template4 = () => {
+const Template4 = ({ printData = [] }) => {
   const [data, setData] = useState([]);
   const { restaurantId } = useParams();
   const LSRestaurantId = localStorage.getItem("restaurantId");
 
   useEffect(() => {
-    fetchMenuData({
-      restaurantId: restaurantId ? restaurantId : LSRestaurantId,
-      onSuccess: setData,
-      onError: (err) => console.log(err),
-    });
+    if (LSRestaurantId || restaurantId) {
+      fetchMenuData({
+        restaurantId: restaurantId || LSRestaurantId,
+        onSuccess: setData,
+        onError: (err) => console.log(err),
+      });
+    }
   }, []);
 
+  const items = printData && printData.length ? printData : data;
+
   // Group by category
-  const grouped = groupByCategory(data);
+  const grouped = groupByCategory(items);
 
   return (
     <div className="midnight-menu4-container">

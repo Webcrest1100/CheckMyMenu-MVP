@@ -3,37 +3,35 @@ import { api } from "../api";
 import "./Template1.css";
 import { printMenu } from "../utils/printMenu";
 import { fetchMenuData } from "../utils/fetchMenuItems";
+import { useParams } from "react-router-dom";
 
-const Template1 = () => {
+const Template1 = ({ printData = [] }) => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const restaurantId = localStorage.getItem("restaurantId");
+  const { restaurantId } = useParams();
+  const LSRestaurantId = localStorage.getItem("restaurantId");
 
-  const grouped = data?.reduce((acc, item) => {
+  useEffect(() => {
+    if (LSRestaurantId || restaurantId) {
+      fetchMenuData({
+        restaurantId: restaurantId || LSRestaurantId,
+        onSuccess: setData,
+        onError: (err) => console.log(err),
+      });
+    }
+  }, []);
+
+  const items = printData && printData.length ? printData : data;
+
+  const grouped = items.reduce((acc, item) => {
     const category = item.category || "Uncategorized";
     acc[category] = [...(acc[category] || []), item];
     return acc;
   }, {});
 
-  useEffect(() => {
-    fetchMenuData({
-      restaurantId,
-      page: 1,
-      limit: 100,
-      onSuccess: setData,
-      onError: (err) => console.error("Error fetching menu:", err),
-    });
-  }, []);
-
   return (
     <>
       {!!data.length && (
         <>
-          <div style={{ textAlign: "right", paddingTop: 10, paddingRight: 10 }}>
-            <button onClick={() => printMenu(".menuWrapper")}>
-              Print Menu
-            </button>
-          </div>
           <div className="menuWrapper">
             <h1 className="menuTitle">MAIN’S</h1>
             <div className="menuColumns">

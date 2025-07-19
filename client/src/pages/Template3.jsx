@@ -3,24 +3,27 @@ import "./Template3.css";
 import { fetchMenuData } from "../utils/fetchMenuItems";
 import { useParams } from "react-router-dom";
 
-const Template3 = () => {
+const Template3 = ({ printData = [] }) => {
   const [data, setData] = useState([]);
   const { restaurantId } = useParams();
   const LSRestaurantId = localStorage.getItem("restaurantId");
 
   useEffect(() => {
-    fetchMenuData({
-      restaurantId: restaurantId ? restaurantId : LSRestaurantId,
-      onSuccess: setData,
-      onError: (err) => console.log(err),
-    });
+    if (LSRestaurantId || restaurantId) {
+      fetchMenuData({
+        restaurantId: restaurantId || LSRestaurantId,
+        onSuccess: setData,
+        onError: (err) => console.log(err),
+      });
+    }
   }, []);
 
+  const items = printData && printData.length ? printData : data;
   return (
     <div className="modern-menu3-container">
       <h1 className="modern-menu3-heading">Our Menu</h1>
       <div className="modern-menu3-list">
-        {data?.map((item) => (
+        {items?.map((item) => (
           <div className="modern-menu3-item" key={item._id}>
             <div className="modern-menu3-imgbox">
               {item.imageUrl && (

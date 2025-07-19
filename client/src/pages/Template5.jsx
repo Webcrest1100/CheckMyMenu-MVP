@@ -12,20 +12,24 @@ function groupByCategory(items) {
   return map;
 }
 
-const Template5 = () => {
+const Template5 = ({ printData = [] }) => {
   const [data, setData] = useState([]);
   const { restaurantId } = useParams();
   const LSRestaurantId = localStorage.getItem("restaurantId");
 
   useEffect(() => {
-    fetchMenuData({
-      restaurantId: restaurantId ? restaurantId : LSRestaurantId,
-      onSuccess: setData,
-      onError: (err) => console.log(err),
-    });
+    if (LSRestaurantId || restaurantId) {
+      fetchMenuData({
+        restaurantId: restaurantId || LSRestaurantId,
+        onSuccess: setData,
+        onError: (err) => console.log(err),
+      });
+    }
   }, []);
 
-  const grouped = groupByCategory(data);
+  const items = printData && printData.length ? printData : data;
+
+  const grouped = groupByCategory(items);
 
   return (
     <div className="modern-menu5-wrapper">

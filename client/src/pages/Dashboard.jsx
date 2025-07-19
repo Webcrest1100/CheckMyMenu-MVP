@@ -19,6 +19,17 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { printMenu } from "../utils/printMenu";
 import { fetchMenuData } from "../utils/fetchMenuItems";
+import { menuTemplates } from "../constants/menuTemplate";
+import Template1 from "./Template1";
+import Template2 from "./Template2";
+import Template3 from "./Template3";
+import Template4 from "./Template4";
+import Template5 from "./Template5";
+import Template6 from "./Template6";
+import Template7 from "./Template7";
+import Template8 from "./Template8";
+import Template9 from "./Template9";
+import Template10 from "./Template10";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -38,6 +49,7 @@ export default function Dashboard() {
     website: "",
   });
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showPrintTemplateModal, setShowPrintTemplateModal] = useState(false);
   const [selectedRestaurantForTemplate, setSelectedRestaurantForTemplate] =
     useState(null);
   const [chosenTemplate, setChosenTemplate] = useState(1);
@@ -209,6 +221,17 @@ export default function Dashboard() {
   };
 
   const [data, setData] = useState([]);
+  const template1Ref = useRef(null);
+  const template2Ref = useRef(null);
+  const template3Ref = useRef(null);
+  const template4Ref = useRef(null);
+  const template5Ref = useRef(null);
+  const template6Ref = useRef(null);
+  const template7Ref = useRef(null);
+  const template8Ref = useRef(null);
+  const template9Ref = useRef(null);
+  const template10Ref = useRef(null);
+
   useEffect(() => {
     if (selectedRestaurantForTemplate) {
       fetchMenuData({
@@ -290,6 +313,18 @@ export default function Dashboard() {
     setTimeout(() => {
       navigate(`/template${num}`);
     }, 500);
+  };
+  const templateRefs = {
+    template1: template1Ref,
+    template2: template2Ref,
+    template3: template3Ref,
+    template4: template4Ref,
+    template5: template5Ref,
+    template6: template6Ref,
+    template7: template7Ref,
+    template8: template8Ref,
+    template9: template9Ref,
+    template10: template10Ref,
   };
 
   const handleDeleteRestaurant = (id) => {
@@ -844,7 +879,8 @@ export default function Dashboard() {
                   <button
                     className="modal-button"
                     onClick={() => {
-                      printMenu(`.menu-wrapper`);
+                      setShowPrintTemplateModal(true);
+                      setShowManageOptions(false);
                     }}
                   >
                     Print Menu
@@ -877,186 +913,56 @@ export default function Dashboard() {
         <div className="modal-overlay-layout">
           <div className="modal-box-layout">
             <h3>Choose a Menu Layout</h3>
-
-            <div
-              className="template-grid"
-              // style={{
-              //   display: "grid",
-              //   gridTemplateColumns: "repeat(5, 1fr)",
-              //   gap: "20px",
-              //   padding: "20px",
-              //   justifyItems: "center",
-              // }}
-            >
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "1");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template1");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 1</p>
+            <div className="template-grid">
+              {menuTemplates.map((tpl) => (
+                <div
+                  key={tpl.key}
+                  style={{ cursor: "pointer", textAlign: "center" }}
+                  onClick={() => {
+                    localStorage.setItem("menuTemplate", tpl.templateNum);
+                    localStorage.setItem(
+                      "restaurantId",
+                      selectedRestaurantForTemplate
+                    );
+                    setShowTemplateModal(false);
+                    navigate(tpl.route);
+                  }}
+                >
+                  <div
+                    className="template-box"
+                    style={{
+                      backgroundImage: `url(${tpl.img})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      borderRadius: "12px",
+                      height: 120,
+                      width: 180,
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <p
+                      style={{
+                        background: "rgba(0,0,0,0.55)",
+                        color: "#fff",
+                        borderRadius: "0 0 12px 12px",
+                        margin: 0,
+                        width: "100%",
+                        padding: "10px 0",
+                        fontWeight: "bold",
+                        fontSize: 18,
+                        letterSpacing: 1,
+                      }}
+                    >
+                      {tpl.label}
+                    </p>
+                  </div>
                 </div>
-              </div>
-
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "2");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template2");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 2</p>
-                </div>
-              </div>
-
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "2");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template3");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 3</p>
-                </div>
-              </div>
-
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "2");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template4");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 4</p>
-                </div>
-              </div>
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "2");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template5");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 5</p>
-                </div>
-              </div>
-
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "1");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template6");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 6</p>
-                </div>
-              </div>
-
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "1");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template7");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 7</p>
-                </div>
-              </div>
-
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "1");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template8");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 8</p>
-                </div>
-              </div>
-
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "1");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template9");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 9</p>
-                </div>
-              </div>
-
-              <div
-                style={{ cursor: "pointer", textAlign: "center" }}
-                onClick={() => {
-                  localStorage.setItem("menuTemplate", "1");
-                  localStorage.setItem(
-                    "restaurantId",
-                    selectedRestaurantForTemplate
-                  );
-                  setShowTemplateModal(false);
-                  navigate("/template10");
-                }}
-              >
-                <div className="template-box">
-                  <p>Template 10</p>
-                </div>
-              </div>
+              ))}
             </div>
+
             <button
               style={{
                 backgroundColor: "#6c757d",
@@ -1067,6 +973,71 @@ export default function Dashboard() {
                 marginLeft: "45%",
               }}
               onClick={() => setShowTemplateModal(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {showPrintTemplateModal && (
+        <div className="modal-overlay-layout">
+          <div className="modal-box-layout">
+            <h3>Choose a Menu Template To Print</h3>
+            <div className="template-grid">
+              {menuTemplates.map((tpl) => (
+                <div
+                  key={tpl.key}
+                  style={{ cursor: "pointer", textAlign: "center" }}
+                  onClick={() => {
+                    setShowPrintTemplateModal(false);
+                    printMenu(templateRefs[tpl.key].current);
+                  }}
+                >
+                  <div
+                    className="template-box"
+                    style={{
+                      backgroundImage: `url(${tpl.img})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      borderRadius: "12px",
+                      height: 120,
+                      width: 180,
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <p
+                      style={{
+                        background: "rgba(0,0,0,0.55)",
+                        color: "#fff",
+                        borderRadius: "0 0 12px 12px",
+                        margin: 0,
+                        width: "100%",
+                        padding: "10px 0",
+                        fontWeight: "bold",
+                        fontSize: 18,
+                        letterSpacing: 1,
+                      }}
+                    >
+                      {tpl.label}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              style={{
+                backgroundColor: "#6c757d",
+                color: "#fff",
+                padding: "10px 20px",
+                borderRadius: "5px",
+                cursor: "pointer",
+                marginLeft: "45%",
+              }}
+              onClick={() => setShowPrintTemplateModal(false)}
             >
               Cancel
             </button>
@@ -1118,35 +1089,62 @@ export default function Dashboard() {
       </div>
       {/* Hidden Template 1 */}
       {!!data.length && (
-        <div className="menu-wrapper" style={{ display: "none" }}>
-          <h1 className="menu-title">MAIN’S</h1>
-          <div className="menu-columns">
-            {Object.keys(grouped).map((category) => (
-              <div className="menu-section" key={category}>
-                <h2 className="menu-category">{category.toUpperCase()}</h2>
-                <div className="menu-list">
-                  {grouped[category].map((item) => (
-                    <div className="menu-line-item" key={item._id}>
-                      <img
-                        src={`${import.meta.env.VITE_API_URL}${item.imageUrl}`}
-                        alt={item.name}
-                        className="menu-line-img"
-                      />
-                      <div className="menu-line-text">
-                        <div className="menu-line-header">
-                          <span className="item-name">{item.name}</span>
-                          <span className="item-price">Rs. {item.price}</span>
-                        </div>
-                        <div className="item-description">
-                          {item.description}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+        <div ref={template1Ref} style={{ display: "none" }}>
+          <Template1 printData={data} />
+        </div>
+      )}
+      {/* Hidden Template 2 */}
+      {!!data.length && (
+        <div ref={template2Ref} style={{ display: "none" }}>
+          <Template2 printData={data} />
+        </div>
+      )}
+      {/* Hidden Template 3 */}
+      {!!data.length && (
+        <div ref={template3Ref} style={{ display: "none" }}>
+          <Template3 printData={data} />
+        </div>
+      )}
+      {/* Hidden Template 4 */}
+      {!!data.length && (
+        <div ref={template4Ref} style={{ display: "none" }}>
+          <Template4 printData={data} />
+        </div>
+      )}
+      {/* Hidden Template 5 */}
+      {!!data.length && (
+        <div ref={template5Ref} style={{ display: "none" }}>
+          <Template5 printData={data} />
+        </div>
+      )}
+      {/* Hidden Template 6 */}
+      {!!data.length && (
+        <div ref={template6Ref} style={{ display: "none" }}>
+          <Template6 printData={data} />
+        </div>
+      )}
+      {/* Hidden Template 7 */}
+      {!!data.length && (
+        <div ref={template7Ref} style={{ display: "none" }}>
+          <Template7 printData={data} />
+        </div>
+      )}
+      {/* Hidden Template 8 */}
+      {!!data.length && (
+        <div ref={template8Ref} style={{ display: "none" }}>
+          <Template8 printData={data} />
+        </div>
+      )}
+      {/* Hidden Template 9 */}
+      {!!data.length && (
+        <div ref={template9Ref} style={{ display: "none" }}>
+          <Template9 printData={data} />
+        </div>
+      )}
+      {/* Hidden Template 10 */}
+      {!!data.length && (
+        <div ref={template10Ref} style={{ display: "none" }}>
+          <Template10 printData={data} />
         </div>
       )}
     </div>
