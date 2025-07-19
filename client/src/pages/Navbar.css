@@ -6,6 +6,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   position: relative;
+  user-select: none;
 }
 
 .logo-container {

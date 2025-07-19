@@ -1229,6 +1229,8 @@ export default function MenuPage() {
         fontFamily: "Montserrat",
         boxSizing: "border-box",
         overflowX: "hidden",
+        backgroundColor: "white",
+        userSelect:"none",
       },
       main: {
         margin: "40px auto 40px",
