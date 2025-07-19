@@ -69,6 +69,45 @@ export default function Dashboard() {
   const [igBusinessId, setIgBusinessId] = useState("");
   const [igAccessToken, setIgAccessToken] = useState("");
   const qrRef = useRef(null);
+  const templateGridRef = useRef(null);
+  const [isDraggingTemplate, setIsDraggingTemplate] = useState(false);
+  const [startXTemplate, setStartXTemplate] = useState(0);
+  const [scrollLeftTemplate, setScrollLeftTemplate] = useState(0);
+
+  const handleTemplateMouseDown = (e) => {
+    if (!templateGridRef.current) return;
+    setIsDraggingTemplate(true);
+    setStartXTemplate(e.pageX - templateGridRef.current.offsetLeft);
+    setScrollLeftTemplate(templateGridRef.current.scrollLeft);
+  };
+
+  const handleTemplateMouseLeave = () => setIsDraggingTemplate(false);
+  const handleTemplateMouseUp = () => setIsDraggingTemplate(false);
+
+  const handleTemplateMouseMove = (e) => {
+    if (!isDraggingTemplate || !templateGridRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - templateGridRef.current.offsetLeft;
+    const walk = (x - startXTemplate) * 1.5; // same multiplier as before
+    templateGridRef.current.scrollLeft = scrollLeftTemplate - walk;
+  };
+  const [touchStartXTemplate, setTouchStartXTemplate] = useState(0);
+  const [touchScrollLeftTemplate, setTouchScrollLeftTemplate] = useState(0);
+
+  const handleTemplateTouchStart = (e) => {
+    if (!templateGridRef.current) return;
+    setTouchStartXTemplate(
+      e.touches[0].pageX - templateGridRef.current.offsetLeft
+    );
+    setTouchScrollLeftTemplate(templateGridRef.current.scrollLeft);
+  };
+  const handleTemplateTouchMove = (e) => {
+    if (!templateGridRef.current) return;
+    const x = e.touches[0].pageX - templateGridRef.current.offsetLeft;
+    const walk = (x - touchStartXTemplate) * 1.5;
+    templateGridRef.current.scrollLeft = touchScrollLeftTemplate - walk;
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
@@ -912,8 +951,26 @@ export default function Dashboard() {
       {showTemplateModal && (
         <div className="modal-overlay-layout">
           <div className="modal-box-layout">
-            <h3>Choose a Menu Layout</h3>
-            <div className="template-grid">
+            <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
+              Choose a Menu Layout
+            </h3>
+            <div
+              className="template-grid"
+              ref={templateGridRef}
+              style={{
+                cursor: isDraggingTemplate ? "grabbing" : "grab",
+                overflowX: "auto",
+                display: "flex",
+                gap: "20px", // (optional, just for visual spacing)
+                padding: "8px 0",
+              }}
+              onMouseDown={handleTemplateMouseDown}
+              onMouseLeave={handleTemplateMouseLeave}
+              onMouseUp={handleTemplateMouseUp}
+              onMouseMove={handleTemplateMouseMove}
+              onTouchStart={handleTemplateTouchStart}
+              onTouchMove={handleTemplateTouchMove}
+            >
               {menuTemplates.map((tpl) => (
                 <div
                   key={tpl.key}
@@ -963,27 +1020,47 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <button
-              style={{
-                backgroundColor: "#6c757d",
-                color: "#fff",
-                padding: "10px 20px",
-                borderRadius: "5px",
-                cursor: "pointer",
-                marginLeft: "45%",
-              }}
-              onClick={() => setShowTemplateModal(false)}
-            >
-              Cancel
-            </button>
+            <div style={{ textAlign: "center" }}>
+              <button
+                style={{
+                  backgroundColor: "#6c757d",
+                  color: "#fff",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  marginTop: "20px",
+                }}
+                onClick={() => setShowTemplateModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
       {showPrintTemplateModal && (
         <div className="modal-overlay-layout">
           <div className="modal-box-layout">
-            <h3>Choose a Menu Template To Print</h3>
-            <div className="template-grid">
+            <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
+              Choose a Menu Template To Print
+            </h3>
+            <div
+              className="template-grid"
+              ref={templateGridRef}
+              style={{
+                cursor: isDraggingTemplate ? "grabbing" : "grab",
+                overflowX: "auto",
+                display: "flex",
+                gap: "20px", // (optional, just for visual spacing)
+                padding: "8px 0",
+              }}
+              onMouseDown={handleTemplateMouseDown}
+              onMouseLeave={handleTemplateMouseLeave}
+              onMouseUp={handleTemplateMouseUp}
+              onMouseMove={handleTemplateMouseMove}
+              onTouchStart={handleTemplateTouchStart}
+              onTouchMove={handleTemplateTouchMove}
+            >
               {menuTemplates.map((tpl) => (
                 <div
                   key={tpl.key}
@@ -1028,19 +1105,21 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <button
-              style={{
-                backgroundColor: "#6c757d",
-                color: "#fff",
-                padding: "10px 20px",
-                borderRadius: "5px",
-                cursor: "pointer",
-                marginLeft: "45%",
-              }}
-              onClick={() => setShowPrintTemplateModal(false)}
-            >
-              Cancel
-            </button>
+            <div style={{ textAlign: "center" }}>
+              <button
+                style={{
+                  backgroundColor: "#6c757d",
+                  color: "#fff",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  marginTop: "20px",
+                  cursor: "pointer",
+                }}
+                onClick={() => setShowPrintTemplateModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

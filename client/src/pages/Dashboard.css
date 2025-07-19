@@ -356,7 +356,7 @@
 .modal-box-layout {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 50px;
   max-width: 90%;
   max-height: 90vh;
   overflow-y: auto;
@@ -365,6 +365,9 @@
 
 .template-grid {
   display: grid;
+  user-select: none;
+  cursor: grab;
+  scrollbar-width: none;
   grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   padding: 20px;
