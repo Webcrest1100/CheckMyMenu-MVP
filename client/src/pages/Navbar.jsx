@@ -12,8 +12,8 @@ export default function Navbar() {
     navigate("/");
   };
 
+  const token = localStorage.getItem("token");
   const handleLogoClick = () => {
-    const token = localStorage.getItem("token");
     if (token) {
       navigate("/dashboard");
     } else {
@@ -27,11 +27,13 @@ export default function Navbar() {
         <img src={logo} alt="Logo" className="logo" />
       </div>
 
-      <div className={`nav-links ${menuOpen ? "show" : ""}`}>
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
-      </div>
+      {token && (
+        <div className={`nav-links ${menuOpen ? "show" : ""}`}>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      )}
     </nav>
   );
 }

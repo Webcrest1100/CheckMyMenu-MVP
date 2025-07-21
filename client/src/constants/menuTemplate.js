@@ -11,32 +11,32 @@ import template10Img from "./../assets/templates/template10.png";
 
 export const menuTemplates = [
   {
-    key: "template1",
-    label: "Template 1",
-    img: template1Img,
-    templateNum: "1",
-    route: "/template1",
-  },
-  {
     key: "template2",
-    label: "Template 2",
+    label: "Template 1",
     img: template2Img,
     templateNum: "2",
     route: "/template2",
   },
   {
     key: "template3",
-    label: "Template 3",
+    label: "Template 2",
     img: template3Img,
     templateNum: "2",
     route: "/template3",
   },
   {
     key: "template4",
-    label: "Template 4",
+    label: "Template 3",
     img: template4Img,
     templateNum: "2",
     route: "/template4",
+  },
+  {
+    key: "template1",
+    label: "Template 4",
+    img: template1Img,
+    templateNum: "1",
+    route: "/template1",
   },
   {
     key: "template5",

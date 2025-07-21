@@ -124,6 +124,14 @@ export default function App() {
             path="/view/:restaurantId/template10"
             element={<Template10 />}
           />
+          <Route
+            path="*"
+            element={
+              <h1 style={{ textAlign: "center", height: "100vh" }}>
+                Page Not Found
+              </h1>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>

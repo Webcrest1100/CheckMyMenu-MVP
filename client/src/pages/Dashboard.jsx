@@ -13,6 +13,7 @@ import {
   FaLink,
 } from "react-icons/fa";
 import logo from "../assets/cmmDark.png";
+import logoLight from "../assets/cmmLight.png";
 import "./Dashboard.css";
 import { useTheme } from "./ThemeContext";
 import { ToastContainer, toast } from "react-toastify";
@@ -50,8 +51,11 @@ export default function Dashboard() {
   });
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showPrintTemplateModal, setShowPrintTemplateModal] = useState(false);
+  const [showPrintQRTemplateModal, setShowPrintQRTemplateModal] =
+    useState(false);
   const [selectedRestaurantForTemplate, setSelectedRestaurantForTemplate] =
     useState(null);
+  const [qrValue, setQrValue] = useState("");
   const [chosenTemplate, setChosenTemplate] = useState(1);
   const [showManageOptions, setShowManageOptions] = useState(false);
   const { dark } = useTheme();
@@ -226,24 +230,24 @@ export default function Dashboard() {
 
     // 3) build payload
     const payload = {
-    name: newRestaurant,
-    socialLinks,
-    ...(GooglePlaceId && { googlePlaceId: GooglePlaceId }),
-  };
+      name: newRestaurant,
+      socialLinks,
+      ...(GooglePlaceId && { googlePlaceId: GooglePlaceId }),
+    };
 
     try {
       const res = await api.post("/restaurants", payload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setRestaurants(prev => [...prev, res.data]);
-    setNewRestaurant("");
-    setSocialLinks({ facebook: "", instagram: "", twitter: "", website: "" });
-    setGooglePlaceId("");     // reset your new field
-    toast.success("Restaurant added successfully!");
-    setShowAddModal(false);
-  } catch (err) {
-    console.error("Failed to add restaurant", err);
-    toast.error(err?.response?.data?.msg || "Add failed");
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRestaurants((prev) => [...prev, res.data]);
+      setNewRestaurant("");
+      setSocialLinks({ facebook: "", instagram: "", twitter: "", website: "" });
+      setGooglePlaceId(""); // reset your new field
+      toast.success("Restaurant added successfully!");
+      setShowAddModal(false);
+    } catch (err) {
+      console.error("Failed to add restaurant", err);
+      toast.error(err?.response?.data?.msg || "Add failed");
     }
   };
 
@@ -258,7 +262,7 @@ export default function Dashboard() {
   const template8Ref = useRef(null);
   const template9Ref = useRef(null);
   const template10Ref = useRef(null);
-
+  const [shouldDownloadQR, setShouldDownloadQR] = useState(false);
   useEffect(() => {
     if (selectedRestaurantForTemplate) {
       fetchMenuData({
@@ -437,38 +441,45 @@ export default function Dashboard() {
       toast.error("Payment failed. Try again.");
     }
   };
-
-  const handlePrintQR = () => {
-    const svg = qrRef.current;
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svg);
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-
-    const svgBlob = new Blob([svgString], {
-      type: "image/svg+xml;charset=utf-8",
-    });
-    const url = URL.createObjectURL(svgBlob);
-
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(url);
-
-      const pngUrl = canvas.toDataURL("image/png");
-      const downloadLink = document.createElement("a");
-      downloadLink.href = pngUrl;
-      downloadLink.download = "qr-code.png";
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-    };
-
-    img.src = url;
+  const handlePrintQR = (value) => {
+    const fullUrl = `${window.location.protocol}//${window.location.host}${value}`;
+    setQrValue(fullUrl);
+    setShouldDownloadQR(true);
   };
+  useEffect(() => {
+    if (shouldDownloadQR && qrValue && qrRef.current) {
+      const svg = qrRef.current;
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svg);
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+
+      const svgBlob = new Blob([svgString], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+
+        const pngUrl = canvas.toDataURL("image/png");
+        const downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        downloadLink.download = "qr-code.png";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        setShouldDownloadQR(false); // reset
+      };
+
+      img.src = url;
+    }
+  }, [shouldDownloadQR, qrValue]);
 
   const dynamicStyles = getStyles(dark);
 
@@ -538,11 +549,12 @@ export default function Dashboard() {
             justifyContent: "center",
             gap: "10px",
             marginTop: "20px",
+            position: "relative",
           }}
         >
           {restaurants.length >= 3 && (
             <button
-              className="btn2"
+              className="btn2left"
               onClick={() =>
                 scrollContainerRef.current.scrollBy({
                   left: -300,
@@ -551,7 +563,21 @@ export default function Dashboard() {
               }
               style={dynamicStyles.scrollButton}
             >
-              ←
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-arrow-left-icon lucide-arrow-left"
+              >
+                <path d="m12 19-7-7 7-7" />
+                <path d="M19 12H5" />
+              </svg>
             </button>
           )}
 
@@ -571,17 +597,92 @@ export default function Dashboard() {
           >
             {restaurants.length > 0 ? (
               restaurants.map((r) => (
-                <div key={r._id} className="bcd">
-                  <h4 style={{ color: "#000000" }}>{r.name}</h4>
-                  <p style={dynamicStyles.cardId}>ID: {r._id}</p>
+                <div
+                  key={r._id}
+                  className="bcd"
+                  style={{
+                    background: dark ? "#23272f" : "#fff",
+                    borderRadius: "18px",
+                    boxShadow: "0 4px 18px rgba(0,0,0,0.10)",
+                    padding: "28px 22px 18px 22px",
+                    margin: "0 12px",
+                    minWidth: "260px",
+                    maxWidth: "280px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    transition: "box-shadow 0.2s, transform 0.2s",
+                    position: "relative",
+                    border: dark ? "1px solid #333" : "1px solid #eee",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                      background: "#FFC10722",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <img
+                      src={logoLight}
+                      alt="logo"
+                      style={{
+                        width: "38px",
+                        height: "38px",
+                        objectFit: "contain",
+                      }}
+                    />
+                  </div>
+                  <h4
+                    style={{
+                      color: dark ? "#FFC107" : "#1E2A38",
+                      fontSize: "1.3rem",
+                      fontWeight: 700,
+                      marginBottom: "6px",
+                      textAlign: "center",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    {r.name}
+                  </h4>
+                  <p
+                    style={{
+                      ...dynamicStyles.cardId,
+                      background: dark ? "#1E2A38" : "#f6f6f6",
+                      borderRadius: "6px",
+                      padding: "2px 10px",
+                      fontSize: "0.95em",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    ID: {r._id}
+                  </p>
                   {r.socialLinks && (
-                    <div style={{ marginTop: "8px" }}>
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        display: "flex",
+                        gap: "8px",
+                        justifyContent: "center",
+                      }}
+                    >
                       {r.socialLinks.facebook && (
                         <a
                           href={r.socialLinks.facebook}
                           target="_blank"
                           rel="noreferrer"
-                          style={dynamicStyles.link}
+                          style={{
+                            ...dynamicStyles.link,
+                            background: "#1877F2",
+                            borderRadius: "50%",
+                            padding: "6px",
+                            color: "#fff",
+                          }}
                         >
                           <FaFacebookF />
                         </a>
@@ -591,7 +692,13 @@ export default function Dashboard() {
                           href={r.socialLinks.instagram}
                           target="_blank"
                           rel="noreferrer"
-                          style={dynamicStyles.link}
+                          style={{
+                            ...dynamicStyles.link,
+                            background: "#E1306C",
+                            borderRadius: "50%",
+                            padding: "6px",
+                            color: "#fff",
+                          }}
                         >
                           <FaInstagram />
                         </a>
@@ -601,7 +708,13 @@ export default function Dashboard() {
                           href={r.socialLinks.twitter}
                           target="_blank"
                           rel="noreferrer"
-                          style={dynamicStyles.link}
+                          style={{
+                            ...dynamicStyles.link,
+                            background: "#1DA1F2",
+                            borderRadius: "50%",
+                            padding: "6px",
+                            color: "#fff",
+                          }}
                         >
                           <FaTwitter />
                         </a>
@@ -611,7 +724,13 @@ export default function Dashboard() {
                           href={r.socialLinks.website}
                           target="_blank"
                           rel="noreferrer"
-                          style={dynamicStyles.link}
+                          style={{
+                            ...dynamicStyles.link,
+                            background: "#6c757d",
+                            borderRadius: "50%",
+                            padding: "6px",
+                            color: "#fff",
+                          }}
                         >
                           <FaLink />
                         </a>
@@ -621,13 +740,25 @@ export default function Dashboard() {
                   <div
                     style={{
                       display: "flex",
-                      gap: "10px",
+                      gap: "12px",
                       justifyContent: "center",
+                      marginTop: "18px",
                     }}
                   >
                     <button
                       className="but"
-                      style={dynamicStyles.boxbut}
+                      style={{
+                        ...dynamicStyles.boxbut,
+                        background: dark ? "#FFC107" : "#28A745",
+                        color: dark ? "#23272f" : "#fff",
+                        fontWeight: 600,
+                        borderRadius: "6px",
+                        padding: "7px 18px",
+                        fontSize: "1em",
+                        boxShadow: "0 2px 8px rgba(40,167,69,0.08)",
+                        border: "none",
+                        transition: "background 0.2s",
+                      }}
                       onClick={() => {
                         setSelectedRestaurantForTemplate(r._id);
                         setShowManageOptions(true);
@@ -641,11 +772,23 @@ export default function Dashboard() {
                         ...dynamicStyles.boxbut,
                         backgroundColor: "#dc3545",
                         color: "#fff",
+                        fontWeight: 600,
+                        borderRadius: "6px",
+                        padding: "7px 18px",
+                        fontSize: "1em",
+                        boxShadow: "0 2px 8px rgba(220,53,69,0.08)",
+                        border: "none",
+                        transition: "background 0.2s",
                       }}
                       onClick={() => handleDeleteRestaurant(r._id)}
                     >
                       Delete
                     </button>
+                  </div>
+                  <div
+                    style={{ position: "absolute", top: "18px", right: "18px" }}
+                  >
+                    {/* Optionally add a badge or icon here */}
                   </div>
                 </div>
               ))
@@ -663,7 +806,7 @@ export default function Dashboard() {
 
           {restaurants.length >= 3 && (
             <button
-              className="btn2"
+              className="btn2right"
               onClick={() =>
                 scrollContainerRef.current.scrollBy({
                   left: 300,
@@ -672,7 +815,21 @@ export default function Dashboard() {
               }
               style={dynamicStyles.scrollButton}
             >
-              →
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-arrow-right-icon lucide-arrow-right"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
             </button>
           )}
         </div>
@@ -807,7 +964,7 @@ export default function Dashboard() {
                   <input
                     type="text"
                     value={GooglePlaceId}
-                    onChange={e => setGooglePlaceId(e.target.value)}
+                    onChange={(e) => setGooglePlaceId(e.target.value)}
                     placeholder="e.g. ChIJN1t_tDeuEmsRUsoyG83frY4"
                     style={dynamicStyles.input}
                   />
@@ -888,10 +1045,11 @@ export default function Dashboard() {
                 <button
                   className="modal-button"
                   onClick={() => {
-                    handlePrintQR(`/view/${selectedId}/template1`);
+                    setShowPrintQRTemplateModal(!showPrintQRTemplateModal);
+                    setShowManageOptions(false);
                   }}
                 >
-                  Print QR
+                  Generate QR
                 </button>
               </div>
 
@@ -1083,6 +1241,93 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+      {showPrintQRTemplateModal && (
+        <div className="modal-overlay-layout">
+          <div className="modal-box-layout">
+            <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
+              Choose a Template To Create QR
+            </h3>
+            <div
+              className="template-grid"
+              ref={templateGridRef}
+              style={{
+                cursor: isDraggingTemplate ? "grabbing" : "grab",
+                overflowX: "auto",
+                display: "flex",
+                gap: "20px", // (optional, just for visual spacing)
+                padding: "8px 0",
+              }}
+              onMouseDown={handleTemplateMouseDown}
+              onMouseLeave={handleTemplateMouseLeave}
+              onMouseUp={handleTemplateMouseUp}
+              onMouseMove={handleTemplateMouseMove}
+              onTouchStart={handleTemplateTouchStart}
+              onTouchMove={handleTemplateTouchMove}
+            >
+              {menuTemplates.map((tpl) => (
+                <div
+                  key={tpl.key}
+                  style={{ cursor: "pointer", textAlign: "center" }}
+                  onClick={() => {
+                    setShowPrintQRTemplateModal(false);
+                    handlePrintQR(
+                      `/view/${selectedRestaurantForTemplate}/${tpl.key}`
+                    );
+                  }}
+                >
+                  <div
+                    className="template-box"
+                    style={{
+                      backgroundImage: `url(${tpl.img})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      borderRadius: "12px",
+                      height: 120,
+                      width: 180,
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <p
+                      style={{
+                        background: "rgba(0,0,0,0.55)",
+                        color: "#fff",
+                        borderRadius: "0 0 12px 12px",
+                        margin: 0,
+                        width: "100%",
+                        padding: "10px 0",
+                        fontWeight: "bold",
+                        fontSize: 18,
+                        letterSpacing: 1,
+                      }}
+                    >
+                      {tpl.label}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <button
+                style={{
+                  backgroundColor: "#6c757d",
+                  color: "#fff",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  marginTop: "20px",
+                  cursor: "pointer",
+                }}
+                onClick={() => setShowPrintQRTemplateModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ToastContainer
         position="top-right"
@@ -1120,11 +1365,7 @@ export default function Dashboard() {
           display: "none",
         }}
       >
-        <QRCode
-          size={200}
-          value={`${window.location.host}/view/${selectedRestaurantForTemplate}/template1`}
-          ref={qrRef}
-        />
+        <QRCode size={200} value={qrValue} ref={qrRef} />
       </div>
       {/* Hidden Template 1 */}
       {!!data.length && (
@@ -1277,7 +1518,6 @@ function getStyles(dark) {
 
     scrollButton: {
       fontSize: "16px",
-      padding: "8px 16px",
       cursor: "pointer",
       border: "8px",
       backgroundColor: "#FFC107",

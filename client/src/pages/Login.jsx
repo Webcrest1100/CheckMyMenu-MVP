@@ -24,7 +24,7 @@ export default function Login() {
       }, 50);
     } catch (err) {
       setLoading(false);
-      alert(err.response?.data?.msg || "Invalid credentials");
+      alert(JSON.stringify(err));
     }
   };
 

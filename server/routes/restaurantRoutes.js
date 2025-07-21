@@ -13,7 +13,7 @@ const { fetchGoogleReviews } = require("../utils/googleReviews");
 router.post("/", protect, async (req, res) => {
   try {
     // 1) load user & count existing
-    const user      = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id);
     const usedCount = await Restaurant.countDocuments({ owner: user._id });
 
     // 2) quota guard
@@ -27,7 +27,7 @@ router.post("/", protect, async (req, res) => {
     console.log("→ create-restaurant payload:", req.body);
 
     // 4) pull out all fields
-  
+
     const { name, socialLinks = {}, googlePlaceId } = req.body;
 
     // 5) create & return
@@ -44,7 +44,6 @@ router.post("/", protect, async (req, res) => {
     return res.status(500).json({ msg: "Failed to create restaurant" });
   }
 });
-
 
 // — FETCH SOCIAL REVIEWS FOR A RESTAURANT —
 router.get("/:id/reviews", protect, async (req, res) => {
@@ -64,7 +63,6 @@ router.get("/:id/reviews", protect, async (req, res) => {
     res.status(500).json({ msg: "Could not fetch reviews" });
   }
 });
-
 
 // — LIST all restaurants for this user —
 router.get("/", protect, async (req, res) => {
@@ -143,7 +141,7 @@ router.post(
 );
 
 // List menu items for a restaurant
-router.get("/:restaurantId/menu", protect, async (req, res) => {
+router.get("/:restaurantId/menu", async (req, res) => {
   try {
     const items = await MenuItem.find({ restaurant: req.params.restaurantId });
     return res.json(items);

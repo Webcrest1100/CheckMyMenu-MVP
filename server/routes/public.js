@@ -3,7 +3,7 @@ const router = express.Router();
 const MenuItem = require("../models/MenuItem");
 
 // GET /api/public/restaurants/:restaurantId/menu/:itemId
-router.get("/restaurants/:restaurantId/menu/:itemId", async (req, res) => {
+router.get("/restaurants/:restaurantId/menu/:itemI  d", async (req, res) => {
   try {
     const { restaurantId, itemId } = req.params;
 

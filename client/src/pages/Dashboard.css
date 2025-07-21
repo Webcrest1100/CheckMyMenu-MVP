@@ -57,6 +57,7 @@
   .restaurant-list {
     gap: 16px;
     padding: 16px 0;
+    margin-left: 14px;
   }
 
   .restaurant-list .bcd {
@@ -390,6 +391,28 @@
   .template-grid {
     grid-template-columns: repeat(1, 1fr);
   }
+}
+
+.btn2left {
+  position: absolute;
+  left: 0;
+  z-index: 20;
+  padding: 12px;
+}
+
+.btn2left:hover {
+  background-color: #ffc107 !important;
+}
+
+.btn2right:hover {
+  background-color: #ffc107 !important;
+}
+
+.btn2right {
+  position: absolute;
+  right: 0;
+  z-index: 20;
+  padding: 12px;
 }
 
 .modal-overlay-choose {

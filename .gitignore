@@ -1,3 +1,4 @@
 backend/.envserver/.env
 
 **/.env*
+**/node_modules*
