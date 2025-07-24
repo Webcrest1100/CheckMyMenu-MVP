@@ -1,14 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&family=Roboto:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&family=Roboto:wght@400;500&display=swap");
 
 .zigzag-menu-bg {
   background: #181818;
   min-height: 100vh;
   padding: 0;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 .zigzag-container {
-  max-width: 1050px;
+  max-width: 90%;
   margin: 0px auto;
   padding: 80px 24px;
   background: #222226;
@@ -16,7 +16,7 @@
 }
 
 .zigzag-header {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
   text-align: center;
@@ -77,7 +77,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, rgba(24, 24, 24, 0.6), rgba(0, 0, 0, 0.13));
+  background: linear-gradient(
+    90deg,
+    rgba(24, 24, 24, 0.6),
+    rgba(0, 0, 0, 0.13)
+  );
   pointer-events: none;
 }
 
@@ -96,7 +100,7 @@
 }
 
 .zigzag-category {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: #f9dfb1;
@@ -120,7 +124,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .zigzag-name {
@@ -142,7 +146,7 @@
   font-size: 0.97rem;
   font-weight: 400;
   letter-spacing: 0.1px;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 /* Responsive */

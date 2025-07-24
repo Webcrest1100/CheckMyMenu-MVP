@@ -1,23 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&family=Roboto:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&family=Roboto:wght@400;500&display=swap");
 
 .mt9-bg {
-  background: #273F4F;
+  background: #273f4f;
   min-height: 100vh;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   color: #fff;
 }
 
 .mt9-container {
-  max-width: 900px;
+  max-width: 90%;
   margin: 40px auto;
   padding: 30px 18px;
 }
 
 .mt9-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 2.4rem;
   font-weight: 700;
-  color: #FE7743;
+  color: #fe7743;
   letter-spacing: 1.5px;
   margin-bottom: 40px;
   text-align: left;
@@ -31,7 +31,7 @@
   display: flex;
   flex-direction: column;
   gap: 48px;
-  color: #273F4F;
+  color: #273f4f;
 }
 
 .mt9-category-section {
@@ -40,15 +40,15 @@
 
 .mt9-category-heading {
   font-size: 1.5rem;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 700;
-  color: #447D9B;
+  color: #447d9b;
   margin-bottom: 22px;
   margin-top: 0;
 }
 
 .mt9-menuitem {
-  border-bottom: 1px solid #D7D7D7;
+  border-bottom: 1px solid #d7d7d7;
   padding-bottom: 13px;
   margin-bottom: 15px;
 }
@@ -67,24 +67,24 @@
 
 .mt9-menuitem-name {
   font-size: 1.16rem;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 700;
-  color: #273F4F;
+  color: #273f4f;
   letter-spacing: 0.3px;
 }
 
 .mt9-menuitem-price {
   font-size: 1.12rem;
   font-weight: 600;
-  color: #FE7743;
+  color: #fe7743;
   margin-left: 10px;
 }
 
 .mt9-menuitem-desc {
   margin-top: 6px;
-  color: #447D9B;
+  color: #447d9b;
   font-size: 1rem;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-weight: 400;
   letter-spacing: 0.04px;
 }
@@ -108,7 +108,7 @@
 }
 
 .mt9-menuitem {
-  border-bottom: 1px solid #D7D7D7;
+  border-bottom: 1px solid #d7d7d7;
   padding-bottom: 13px;
   margin-bottom: 15px;
   display: flex;

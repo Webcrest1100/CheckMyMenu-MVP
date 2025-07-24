@@ -19,9 +19,17 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        height: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        margin: "0 10px",
+      }}
+    >
       <form onSubmit={handleSubmit}>
-        <h1>Forgot Password</h1>
+        <h1 style={{ fontSize: "2em" }}>Forgot Password</h1>
         <input
           type="email"
           placeholder="Enter your registered email"
@@ -29,12 +37,14 @@ export default function ForgotPassword() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <button style={{color:"white", backgroundColor:"#FFC107"}} type="submit">Send Reset Link</button>
+        <button
+          style={{ color: "white", backgroundColor: "#FFC107" }}
+          type="submit"
+        >
+          Send Reset Link
+        </button>
       </form>
       <ToastContainer position="top-center" autoClose={1500} />
     </div>
-
-    
   );
-  
 }

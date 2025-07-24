@@ -24,7 +24,7 @@ export default function Login() {
       }, 50);
     } catch (err) {
       setLoading(false);
-      alert(JSON.stringify(err));
+      alert(err?.response.data.message);
     }
   };
 

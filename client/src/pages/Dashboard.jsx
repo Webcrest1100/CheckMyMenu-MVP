@@ -11,6 +11,8 @@ import {
   FaInstagram,
   FaLinkedinIn,
   FaLink,
+  FaArrowLeft,
+  FaArrowRight,
 } from "react-icons/fa";
 import logo from "../assets/cmmDark.png";
 import logoLight from "../assets/cmmLight.png";
@@ -950,7 +952,7 @@ export default function Dashboard() {
                     If you want to add reviews on the Menu page, please add the
                     following information:
                   </h4>
-                  <h4 className="formfield-restuarant">Facebook Page ID</h4>
+                  <h4 className="formfield-restuarant">Google Place ID</h4>
                   <input
                     type="text"
                     value={GooglePlaceId}
@@ -1058,74 +1060,142 @@ export default function Dashboard() {
 
       {showTemplateModal && (
         <div className="modal-overlay-layout">
-          <div className="modal-box-layout">
+          <div className="modal-box-layout" style={{ position: "relative" }}>
             <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
               Choose a Menu Layout
             </h3>
-            <div
-              className="template-grid"
-              ref={templateGridRef}
-              style={{
-                cursor: isDraggingTemplate ? "grabbing" : "grab",
-                overflowX: "auto",
-                display: "flex",
-                gap: "20px", // (optional, just for visual spacing)
-                padding: "8px 0",
-              }}
-              onMouseDown={handleTemplateMouseDown}
-              onMouseLeave={handleTemplateMouseLeave}
-              onMouseUp={handleTemplateMouseUp}
-              onMouseMove={handleTemplateMouseMove}
-              onTouchStart={handleTemplateTouchStart}
-              onTouchMove={handleTemplateTouchMove}
-            >
-              {menuTemplates.map((tpl) => (
-                <div
-                  key={tpl.key}
-                  style={{ cursor: "pointer", textAlign: "center" }}
-                  onClick={() => {
-                    localStorage.setItem("menuTemplate", tpl.templateNum);
-                    localStorage.setItem(
-                      "restaurantId",
-                      selectedRestaurantForTemplate
-                    );
-                    setShowTemplateModal(false);
-                    navigate(tpl.route);
+            <div style={{ position: "relative" }}>
+              {menuTemplates.length > 3 && (
+                <button
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 2,
+                    backgroundColor: "#FFC107",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    cursor: "pointer",
                   }}
+                  onClick={() => {
+                    if (templateGridRef.current) {
+                      templateGridRef.current.scrollBy({
+                        left: -300,
+                        behavior: "smooth",
+                      });
+                    }
+                  }}
+                  aria-label="Scroll left"
                 >
+                  <FaArrowLeft style={{ width: 24, height: 24 }} />
+                </button>
+              )}
+              <div
+                className="template-grid"
+                ref={templateGridRef}
+                style={{
+                  cursor: isDraggingTemplate ? "grabbing" : "grab",
+                  overflowX: "auto",
+                  display: "flex",
+                  gap: "20px", // (optional, just for visual spacing)
+                  padding: "8px 0",
+                }}
+                onMouseDown={handleTemplateMouseDown}
+                onMouseLeave={handleTemplateMouseLeave}
+                onMouseUp={handleTemplateMouseUp}
+                onMouseMove={handleTemplateMouseMove}
+                onTouchStart={handleTemplateTouchStart}
+                onTouchMove={handleTemplateTouchMove}
+              >
+                {menuTemplates.map((tpl) => (
                   <div
-                    className="template-box"
-                    style={{
-                      backgroundImage: `url(${tpl.img})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      borderRadius: "12px",
-                      height: 120,
-                      width: 180,
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
+                    key={tpl.key}
+                    style={{ cursor: "pointer", textAlign: "center" }}
+                    onClick={() => {
+                      localStorage.setItem("menuTemplate", tpl.templateNum);
+                      localStorage.setItem(
+                        "restaurantId",
+                        selectedRestaurantForTemplate
+                      );
+                      setShowTemplateModal(false);
+                      navigate(tpl.route);
                     }}
                   >
-                    <p
+                    <div
+                      className="template-box"
                       style={{
-                        background: "rgba(0,0,0,0.55)",
-                        color: "#fff",
-                        borderRadius: "0 0 12px 12px",
-                        margin: 0,
-                        width: "100%",
-                        padding: "10px 0",
-                        fontWeight: "bold",
-                        fontSize: 18,
-                        letterSpacing: 1,
+                        backgroundImage: `url(${tpl.img})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        borderRadius: "12px",
+                        height: 120,
+                        width: 180,
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "center",
                       }}
                     >
-                      {tpl.label}
-                    </p>
+                      <p
+                        style={{
+                          background: "rgba(0,0,0,0.55)",
+                          color: "#fff",
+                          borderRadius: "0 0 12px 12px",
+                          margin: 0,
+                          width: "100%",
+                          padding: "10px 0",
+                          fontWeight: "bold",
+                          fontSize: 18,
+                          letterSpacing: 1,
+                        }}
+                      >
+                        {tpl.label}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              {menuTemplates.length > 3 && (
+                <button
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 2,
+                    backgroundColor: "#FFC107",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    if (templateGridRef.current) {
+                      templateGridRef.current.scrollBy({
+                        left: 300,
+                        behavior: "smooth",
+                      });
+                    }
+                  }}
+                  aria-label="Scroll right"
+                >
+                  <FaArrowRight style={{ width: 24, height: 24 }} />
+                </button>
+              )}
             </div>
 
             <div style={{ textAlign: "center" }}>
@@ -1148,69 +1218,137 @@ export default function Dashboard() {
       )}
       {showPrintTemplateModal && (
         <div className="modal-overlay-layout">
-          <div className="modal-box-layout">
+          <div className="modal-box-layout" style={{ position: "relative" }}>
             <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
               Choose a Menu Template To Print
             </h3>
-            <div
-              className="template-grid"
-              ref={templateGridRef}
-              style={{
-                cursor: isDraggingTemplate ? "grabbing" : "grab",
-                overflowX: "auto",
-                display: "flex",
-                gap: "20px", // (optional, just for visual spacing)
-                padding: "8px 0",
-              }}
-              onMouseDown={handleTemplateMouseDown}
-              onMouseLeave={handleTemplateMouseLeave}
-              onMouseUp={handleTemplateMouseUp}
-              onMouseMove={handleTemplateMouseMove}
-              onTouchStart={handleTemplateTouchStart}
-              onTouchMove={handleTemplateTouchMove}
-            >
-              {menuTemplates.map((tpl) => (
-                <div
-                  key={tpl.key}
-                  style={{ cursor: "pointer", textAlign: "center" }}
-                  onClick={() => {
-                    setShowPrintTemplateModal(false);
-                    printMenu(templateRefs[tpl.key].current);
+            <div style={{ position: "relative" }}>
+              {menuTemplates.length > 3 && (
+                <button
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 2,
+                    backgroundColor: "#FFC107",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    cursor: "pointer",
                   }}
+                  onClick={() => {
+                    if (templateGridRef.current) {
+                      templateGridRef.current.scrollBy({
+                        left: -300,
+                        behavior: "smooth",
+                      });
+                    }
+                  }}
+                  aria-label="Scroll left"
                 >
+                  <FaArrowLeft style={{ width: 24, height: 24 }} />
+                </button>
+              )}
+              <div
+                className="template-grid"
+                ref={templateGridRef}
+                style={{
+                  cursor: isDraggingTemplate ? "grabbing" : "grab",
+                  overflowX: "auto",
+                  display: "flex",
+                  gap: "20px", // (optional, just for visual spacing)
+                  padding: "8px 0",
+                }}
+                onMouseDown={handleTemplateMouseDown}
+                onMouseLeave={handleTemplateMouseLeave}
+                onMouseUp={handleTemplateMouseUp}
+                onMouseMove={handleTemplateMouseMove}
+                onTouchStart={handleTemplateTouchStart}
+                onTouchMove={handleTemplateTouchMove}
+              >
+                {menuTemplates.map((tpl) => (
                   <div
-                    className="template-box"
-                    style={{
-                      backgroundImage: `url(${tpl.img})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      borderRadius: "12px",
-                      height: 120,
-                      width: 180,
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
+                    key={tpl.key}
+                    style={{ cursor: "pointer", textAlign: "center" }}
+                    onClick={() => {
+                      setShowPrintTemplateModal(false);
+                      printMenu(templateRefs[tpl.key].current);
                     }}
                   >
-                    <p
+                    <div
+                      className="template-box"
                       style={{
-                        background: "rgba(0,0,0,0.55)",
-                        color: "#fff",
-                        borderRadius: "0 0 12px 12px",
-                        margin: 0,
-                        width: "100%",
-                        padding: "10px 0",
-                        fontWeight: "bold",
-                        fontSize: 18,
-                        letterSpacing: 1,
+                        backgroundImage: `url(${tpl.img})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        borderRadius: "12px",
+                        height: 120,
+                        width: 180,
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "center",
                       }}
                     >
-                      {tpl.label}
-                    </p>
+                      <p
+                        style={{
+                          background: "rgba(0,0,0,0.55)",
+                          color: "#fff",
+                          borderRadius: "0 0 12px 12px",
+                          margin: 0,
+                          width: "100%",
+                          padding: "10px 0",
+                          fontWeight: "bold",
+                          fontSize: 18,
+                          letterSpacing: 1,
+                        }}
+                      >
+                        {tpl.label}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              {menuTemplates.length > 3 && (
+                <button
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 2,
+                    backgroundColor: "#FFC107",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    if (templateGridRef.current) {
+                      templateGridRef.current.scrollBy({
+                        left: 300,
+                        behavior: "smooth",
+                      });
+                    }
+                  }}
+                  aria-label="Scroll right"
+                >
+                  <FaArrowRight style={{ width: 24, height: 24 }} />
+                </button>
+              )}
             </div>
 
             <div style={{ textAlign: "center" }}>
@@ -1233,71 +1371,139 @@ export default function Dashboard() {
       )}
       {showPrintQRTemplateModal && (
         <div className="modal-overlay-layout">
-          <div className="modal-box-layout">
+          <div className="modal-box-layout" style={{ position: "relative" }}>
             <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
               Choose a Template To Create QR
             </h3>
-            <div
-              className="template-grid"
-              ref={templateGridRef}
-              style={{
-                cursor: isDraggingTemplate ? "grabbing" : "grab",
-                overflowX: "auto",
-                display: "flex",
-                gap: "20px", // (optional, just for visual spacing)
-                padding: "8px 0",
-              }}
-              onMouseDown={handleTemplateMouseDown}
-              onMouseLeave={handleTemplateMouseLeave}
-              onMouseUp={handleTemplateMouseUp}
-              onMouseMove={handleTemplateMouseMove}
-              onTouchStart={handleTemplateTouchStart}
-              onTouchMove={handleTemplateTouchMove}
-            >
-              {menuTemplates.map((tpl) => (
-                <div
-                  key={tpl.key}
-                  style={{ cursor: "pointer", textAlign: "center" }}
-                  onClick={() => {
-                    setShowPrintQRTemplateModal(false);
-                    handlePrintQR(
-                      `/view/${selectedRestaurantForTemplate}/${tpl.key}`
-                    );
+            <div style={{ position: "relative" }}>
+              {menuTemplates.length > 3 && (
+                <button
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 2,
+                    backgroundColor: "#FFC107",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    cursor: "pointer",
                   }}
+                  onClick={() => {
+                    if (templateGridRef.current) {
+                      templateGridRef.current.scrollBy({
+                        left: -300,
+                        behavior: "smooth",
+                      });
+                    }
+                  }}
+                  aria-label="Scroll left"
                 >
+                  <FaArrowLeft style={{ width: 24, height: 24 }} />
+                </button>
+              )}
+              <div
+                className="template-grid"
+                ref={templateGridRef}
+                style={{
+                  cursor: isDraggingTemplate ? "grabbing" : "grab",
+                  overflowX: "auto",
+                  display: "flex",
+                  gap: "20px", // (optional, just for visual spacing)
+                  padding: "8px 0",
+                }}
+                onMouseDown={handleTemplateMouseDown}
+                onMouseLeave={handleTemplateMouseLeave}
+                onMouseUp={handleTemplateMouseUp}
+                onMouseMove={handleTemplateMouseMove}
+                onTouchStart={handleTemplateTouchStart}
+                onTouchMove={handleTemplateTouchMove}
+              >
+                {menuTemplates.map((tpl) => (
                   <div
-                    className="template-box"
-                    style={{
-                      backgroundImage: `url(${tpl.img})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      borderRadius: "12px",
-                      height: 120,
-                      width: 180,
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
+                    key={tpl.key}
+                    style={{ cursor: "pointer", textAlign: "center" }}
+                    onClick={() => {
+                      setShowPrintQRTemplateModal(false);
+                      handlePrintQR(
+                        `/view/${selectedRestaurantForTemplate}/${tpl.key}`
+                      );
                     }}
                   >
-                    <p
+                    <div
+                      className="template-box"
                       style={{
-                        background: "rgba(0,0,0,0.55)",
-                        color: "#fff",
-                        borderRadius: "0 0 12px 12px",
-                        margin: 0,
-                        width: "100%",
-                        padding: "10px 0",
-                        fontWeight: "bold",
-                        fontSize: 18,
-                        letterSpacing: 1,
+                        backgroundImage: `url(${tpl.img})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        borderRadius: "12px",
+                        height: 120,
+                        width: 180,
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "center",
                       }}
                     >
-                      {tpl.label}
-                    </p>
+                      <p
+                        style={{
+                          background: "rgba(0,0,0,0.55)",
+                          color: "#fff",
+                          borderRadius: "0 0 12px 12px",
+                          margin: 0,
+                          width: "100%",
+                          padding: "10px 0",
+                          fontWeight: "bold",
+                          fontSize: 18,
+                          letterSpacing: 1,
+                        }}
+                      >
+                        {tpl.label}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              {menuTemplates.length > 3 && (
+                <button
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 2,
+                    backgroundColor: "#FFC107",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    if (templateGridRef.current) {
+                      templateGridRef.current.scrollBy({
+                        left: 300,
+                        behavior: "smooth",
+                      });
+                    }
+                  }}
+                  aria-label="Scroll right"
+                >
+                  <FaArrowRight style={{ width: 24, height: 24 }} />
+                </button>
+              )}
             </div>
 
             <div style={{ textAlign: "center" }}>
