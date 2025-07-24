@@ -1,11 +1,12 @@
-import axios from 'axios';
-
+import axios from "axios";
 
 const handleSaveTemplate = async () => {
   try {
     const token = localStorage.getItem("token");
     const response = await axios.put(
-      `${import.meta.env.VITE_API_URL}/api/restaurants/${restaurant._id}/template`,
+      `${import.meta.env.VITE_API_URL}/api/restaurants/${
+        restaurant._id
+      }/template`,
       { selectedTemplate },
       {
         headers: {
@@ -14,7 +15,6 @@ const handleSaveTemplate = async () => {
       }
     );
 
-
     alert("Template saved successfully!");
   } catch (error) {
     console.error(error);
@@ -22,19 +22,15 @@ const handleSaveTemplate = async () => {
   }
 };
 
-
 const API_ROOT = import.meta.env.VITE_API_URL || window.location.origin;
 
 export const api = axios.create({
-  baseURL: `${API_ROOT}/api`,   // will be https://www.checkmymenu.com/api
-  timeout: 10000,
+  baseURL: `${API_ROOT}/api`, // will be https://www.checkmymenu.com/api
 });
 
 // automatically attach token if present
-api.interceptors.request.use(config => {
+api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
-
-

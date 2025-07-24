@@ -1636,6 +1636,11 @@ function getStyles(dark) {
     // charcoal: "#343A40",
   };
 
+  // You can't use CSS media queries directly in JS objects,
+  // but you can detect screen size and adjust styles accordingly.
+  // Example: add a breakpoint for mobile screens.
+  const isMobile = window.innerWidth <= 600;
+
   return {
     container: {
       fontFamily: "Montserrat",
@@ -1645,15 +1650,15 @@ function getStyles(dark) {
       overflowX: "hidden",
     },
     main: {
-      margin: "245px auto",
-      padding: "43px 20px 70px",
+      margin: isMobile ? "80px auto" : "245px auto",
+      padding: isMobile ? "10px 10px" : "20px 5px",
       background: dark ? "#263544" : "#ffff",
       borderRadius: "16px",
       boxShadow: "0 8px 30px rgba(0, 0, 0, 0.1)",
       maxWidth: "90%",
     },
     welcome: {
-      fontSize: "28px",
+      fontSize: isMobile ? "20px" : "28px",
       textAlign: "center",
       marginBottom: "20px",
     },
@@ -1661,23 +1666,24 @@ function getStyles(dark) {
       fontWeight: "normal",
       color: dark ? "#C0C0C0" : "#666",
       fontStyle: "italic",
+      fontSize: isMobile ? "1.1rem" : "1.5rem",
     },
     heading: {
-      fontSize: "22px",
-      margin: "30px 0 15px",
+      fontSize: isMobile ? "16px" : "22px",
+      margin: isMobile ? "15px 0 10px" : "30px 0 15px",
       borderBottom: `2px solid ${colors.navy}`,
-      paddingBottom: "20px",
+      paddingBottom: isMobile ? "10px" : "20px",
       textAlign: "center",
     },
     cardId: {
-      fontSize: "12px",
+      fontSize: isMobile ? "10px" : "12px",
       color: dark ? "#bbb" : "#777",
       marginTop: "6px",
     },
     link: {
       color: dark ? "#FFC107" : "#007BFF",
       textDecoration: "none",
-      fontSize: "14px",
+      fontSize: isMobile ? "12px" : "14px",
       fontWeight: "bold",
       marginRight: "5px",
     },
@@ -1686,21 +1692,21 @@ function getStyles(dark) {
       flexDirection: "column",
       alignItems: "center",
       gap: "0px",
-      marginTop: "40px",
+      marginTop: isMobile ? "20px" : "40px",
     },
     input: {
-      padding: "10px",
+      padding: isMobile ? "7px" : "10px",
       borderRadius: "8px",
       border: `1px solid ${dark ? "#3a3a3a" : "#ccc"}`,
-      width: "80%",
+      width: isMobile ? "95%" : "80%",
       maxWidth: "400px",
       outline: "none",
-      fontSize: "16px",
+      fontSize: isMobile ? "14px" : "16px",
       backgroundColor: dark ? "#1E2A38" : colors.white,
       color: dark ? "#fff" : "#000",
     },
     button: {
-      padding: "10px 20px",
+      padding: isMobile ? "8px 12px" : "10px 20px",
       borderRadius: "8px",
       fontWeight: "bold",
       cursor: "pointer",
@@ -1708,12 +1714,11 @@ function getStyles(dark) {
       color: "#ffff",
     },
     boxbut: {
-      padding: "1px 10px",
+      padding: isMobile ? "1px 6px" : "1px 10px",
       color: "white",
     },
-
     scrollButton: {
-      fontSize: "16px",
+      fontSize: isMobile ? "12px" : "16px",
       cursor: "pointer",
       border: "8px",
       backgroundColor: "#FFC107",

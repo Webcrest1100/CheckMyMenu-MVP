@@ -23,8 +23,9 @@ export default function Login() {
         navigate("/dashboard");
       }, 50);
     } catch (err) {
+      console.log(err);
       setLoading(false);
-      alert(err?.response.data.message);
+      alert(err?.response?.data?.message);
     }
   };
 

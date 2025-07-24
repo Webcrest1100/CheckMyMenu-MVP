@@ -24,13 +24,13 @@
   padding: 30px 20px;
   background-color: #000;
   border: 5px double gold !important;
-  max-width: 90%;
+  width: 90%;
   margin: 14px auto;
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
 }
 
 .pdfMenuWrapper {
-  width: 1000px;
+  width: 90%;
   padding: 20px;
   background-color: #000;
   color: #fff;
