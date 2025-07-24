@@ -3,29 +3,28 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-const authRoutes         = require("./routes/authRoutes");
-const restaurantRoutes   = require("./routes/restaurantRoutes");
-const menuRoutes         = require("./routes/menuRoutes");
-const publicRoutes       = require("./routes/public");
-const subscriptionRoutes = require("./routes/subscriptionRoutes");
-const webhookRoutes      = require("./routes/webhookRoutes");
-const adminRoutes        = require("./routes/adminRoutes");
-
 const app = express();
 
-app.use("/api/webhook", webhookRoutes);
-
-// 2) now parse JSON everywhere else
 app.use(cors());
 app.use(express.json());
+
+const authRoutes = require("./routes/authRoutes");
+const restaurantRoutes = require("./routes/restaurantRoutes");
+const menuRoutes = require("./routes/menuRoutes");
+const publicRoutes = require("./routes/public");
+const subscriptionRoutes = require("./routes/subscriptionRoutes");
+const webhookRoutes = require("./routes/webhookRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+
+app.use("/api/webhook", webhookRoutes);
 app.use("/uploads", express.static("uploads"));
 
-app.use("/api/auth",         authRoutes);
-app.use("/api/restaurants",  restaurantRoutes);
-app.use("/api/restaurants",  menuRoutes);
-app.use("/api/public",       publicRoutes);
-app.use("/api/subscribe",    subscriptionRoutes);
-app.use("/api/admin",        adminRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/restaurants", restaurantRoutes);
+app.use("/api/restaurants", menuRoutes);
+app.use("/api/public", publicRoutes);
+app.use("/api/subscribe", subscriptionRoutes);
+app.use("/api/admin", adminRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
