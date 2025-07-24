@@ -218,16 +218,6 @@ export default function Dashboard() {
       return;
     }
 
-    // 2) debug log
-    console.log({
-      fbPageId,
-      fbPageToken,
-      igBusinessId,
-      igAccessToken,
-      socialLinks,
-      newRestaurant,
-    });
-
     // 3) build payload
     const payload = {
       name: newRestaurant,
