@@ -19,7 +19,7 @@ const adminRoutes = require("./routes/adminRoutes");
 app.use("/api/webhook", webhookRoutes);
 // Add CORS headers for image requests
 app.use("/uploads", (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://checkmymenu.com");
+  res.header("Access-Control-Allow-Origin", "https://www.checkmymenu.com");
   res.header("Access-Control-Allow-Methods", "GET");
   res.header(
     "Access-Control-Allow-Headers",
